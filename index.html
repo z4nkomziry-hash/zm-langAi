@@ -3,80 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#4F46E5">
+    <meta name="theme-color" content="#4F46E5" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#1E293B" media="(prefers-color-scheme: dark)">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="description" content="Ziman - فێربوونی ١٥ زمانی جیهانی بە شێوازی کارلێککەر">
+    <meta name="description" content="Ziman - فێربوونی ١٥ زمانی جیهانی بە شێوازی کارلێككەر">
     <link rel="manifest" href="manifest.json">
+    <!-- Inline SVG favicon — no separate file needed, eliminates 404 -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%234F46E5'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='white'>🌍</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%234F46E5'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='white'>🌍</text></svg>">
     <title>Ziman - فێربوونی زمان</title>
+
+    <!-- Kurdish-compatible font with Arabic script support -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="light-mode">
 
     <div class="app-container">
-        
-        <header class="app-header glass">
-            <button class="menu-btn" id="menuBtn" aria-label="مینیو">
-                <span></span><span></span><span></span>
+
+        <!-- ===== HEADER ===== -->
+        <header class="app-header glass" role="banner">
+            <button class="menu-btn" id="menuBtn" aria-label="مینیو بکەرەوە" aria-expanded="false" aria-controls="sideMenu">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
             </button>
-            <h1 class="header-logo" onclick="navigateTo('home')">🌍 Ziman</h1>
-            <div class="header-stats">
-                <span class="stat-item">🔥 <span id="hStreak">0</span></span>
-                <span class="stat-item">⭐ <span id="hXP">0</span></span>
-                <span class="stat-item">💎 <span id="hGems">0</span></span>
-                <span class="stat-item">🪙 <span id="hCoins">0</span></span>
+            <h1 class="header-logo" role="link" tabindex="0" onclick="navigateTo('home')" onkeydown="if(event.key==='Enter'||event.key===' ')navigateTo('home')">🌍 Ziman</h1>
+            <div class="header-stats" aria-label="ئامارەکان">
+                <span class="stat-item" aria-label="ستریک" title="ستریک">🔥 <span id="hStreak" aria-live="polite">0</span></span>
+                <span class="stat-item" aria-label="XP" title="XP">⭐ <span id="hXP" aria-live="polite">0</span></span>
+                <span class="stat-item" aria-label="گەوهەر" title="گەوهەر">💎 <span id="hGems" aria-live="polite">0</span></span>
+                <span class="stat-item" aria-label="سکۆ" title="سکۆ">🪙 <span id="hCoins" aria-live="polite">0</span></span>
             </div>
         </header>
 
-        <div class="menu-overlay" id="menuOverlay"></div>
-        <nav class="side-menu glass" id="sideMenu">
+        <!-- ===== SIDEBAR OVERLAY (mobile) ===== -->
+        <div class="menu-overlay" id="menuOverlay" role="presentation" aria-hidden="true"></div>
+
+        <!-- ===== SIDE NAVIGATION ===== -->
+        <nav class="side-menu glass" id="sideMenu" aria-label="مینیوی سەرەکی">
             <div class="menu-profile gradient-primary">
-                <div class="menu-avatar" id="menuAvatar">👤</div>
+                <div class="menu-avatar" aria-hidden="true" id="menuAvatar">👤</div>
                 <div>
                     <div class="menu-name" id="menuName">فێرخواز</div>
                     <div class="menu-level" id="menuLevel">ئاست ١</div>
                 </div>
             </div>
-            <ul class="menu-list">
-                <li onclick="navigateTo('home')" class="active"><span>🏠</span> سەرەکی</li>
-                <li onclick="navigateTo('lessons')"><span>📚</span> وانەکان</li>
-                <li onclick="navigateTo('flashcards')"><span>🃏</span> فلاشکارت</li>
-                <li onclick="navigateTo('quiz')"><span>📝</span> کویز</li>
-                <li onclick="navigateTo('speed-quiz')"><span>⚡</span> کویزی خێرا</li>
-                <li onclick="navigateTo('listening')"><span>🎧</span> بیستن</li>
-                <li onclick="navigateTo('speaking')"><span>🎤</span> قسەکردن</li>
-                <li onclick="navigateTo('reading')"><span>📖</span> خوێندنەوە</li>
-                <li onclick="navigateTo('writing')"><span>✍️</span> نووسین</li>
-                <li onclick="navigateTo('ai-teacher')"><span>🤖</span> مامۆستای AI</li>
+
+            <ul class="menu-list" role="list">
+                <li role="listitem"><button onclick="navigateTo('home')" class="active" data-nav="home"><span aria-hidden="true">🏠</span> سەرەکی</button></li>
+                <li role="listitem"><button onclick="navigateTo('lessons')" data-nav="lessons"><span aria-hidden="true">📚</span> وانەکان</button></li>
+                <li role="listitem"><button onclick="navigateTo('flashcards')" data-nav="flashcards"><span aria-hidden="true">🃏</span> فلاشکارت</button></li>
+                <li role="listitem"><button onclick="navigateTo('quiz')" data-nav="quiz"><span aria-hidden="true">📝</span> کویز</button></li>
+                <li role="listitem"><button onclick="navigateTo('speed-quiz')" data-nav="speed-quiz"><span aria-hidden="true">⚡</span> کویزی خێرا</button></li>
+                <li role="listitem"><button onclick="navigateTo('listening')" data-nav="listening"><span aria-hidden="true">🎧</span> بیستن</button></li>
+                <li role="listitem"><button onclick="navigateTo('speaking')" data-nav="speaking"><span aria-hidden="true">🎤</span> قسەکردن</button></li>
+                <li role="listitem"><button onclick="navigateTo('reading')" data-nav="reading"><span aria-hidden="true">📖</span> خوێندنەوە</button></li>
+                <li role="listitem"><button onclick="navigateTo('writing')" data-nav="writing"><span aria-hidden="true">✍️</span> نووسین</button></li>
+                <li role="listitem"><button onclick="navigateTo('ai-teacher')" data-nav="ai-teacher"><span aria-hidden="true">🤖</span> مامۆستای AI</button></li>
             </ul>
-            <div class="menu-divider"></div>
-            <ul class="menu-list">
-                <li onclick="navigateTo('progress')"><span>📊</span> پێشکەوتن</li>
-                <li onclick="navigateTo('achievements')"><span>🏆</span> دەستکەوتەکان</li>
-                <li onclick="navigateTo('community')"><span>👥</span> کۆمەڵگا</li>
-                <li onclick="navigateTo('packages')"><span>💳</span> پاکێجەکان</li>
-                <li onclick="navigateTo('sponsor')"><span>📢</span> سپۆنسەر</li>
-                <li onclick="navigateTo('contact')"><span>📞</span> پەیوەندی</li>
-                <li onclick="navigateTo('settings')"><span>⚙️</span> ڕێکخستن</li>
+
+            <div class="menu-divider" role="separator"></div>
+
+            <ul class="menu-list" role="list">
+                <li role="listitem"><button onclick="navigateTo('progress')" data-nav="progress"><span aria-hidden="true">📊</span> پێشکەوتن</button></li>
+                <li role="listitem"><button onclick="navigateTo('achievements')" data-nav="achievements"><span aria-hidden="true">🏆</span> دەستکەوتەکان</button></li>
+                <li role="listitem"><button onclick="navigateTo('community')" data-nav="community"><span aria-hidden="true">👥</span> کۆمەڵگا</button></li>
+                <li role="listitem"><button onclick="navigateTo('packages')" data-nav="packages"><span aria-hidden="true">💳</span> پاکێجەکان</button></li>
+                <li role="listitem"><button onclick="navigateTo('sponsor')" data-nav="sponsor"><span aria-hidden="true">📢</span> سپۆنسەر</button></li>
+                <li role="listitem"><button onclick="navigateTo('contact')" data-nav="contact"><span aria-hidden="true">📞</span> پەیوەندی</button></li>
+                <li role="listitem"><button onclick="navigateTo('settings')" data-nav="settings"><span aria-hidden="true">⚙️</span> ڕێکخستن</button></li>
             </ul>
         </nav>
 
-        <main class="main-content" id="mainContent"></main>
+        <!-- ===== MAIN CONTENT ===== -->
+        <main class="main-content" id="mainContent" role="main" aria-label="ناوەڕۆکی سەرەکی" tabindex="-1"></main>
 
-        <nav class="bottom-nav glass">
-            <button onclick="navigateTo('home')" class="active" data-nav="home"><span>🏠</span><small>سەرەکی</small></button>
-            <button onclick="navigateTo('lessons')" data-nav="lessons"><span>📚</span><small>وانە</small></button>
-            <button onclick="navigateTo('quiz')" data-nav="quiz"><span>📝</span><small>کویز</small></button>
-            <button onclick="navigateTo('ai-teacher')" data-nav="ai"><span>🤖</span><small>AI</small></button>
-            <button onclick="navigateTo('packages')" data-nav="packages"><span>💳</span><small>پاکێج</small></button>
+        <!-- ===== BOTTOM NAVIGATION (mobile) ===== -->
+        <nav class="bottom-nav glass" aria-label="ناویگەیشن">
+            <button onclick="navigateTo('home')" class="active" data-nav="home" aria-label="سەرەکی" aria-current="page">
+                <span aria-hidden="true">🏠</span>
+                <small>سەرەکی</small>
+            </button>
+            <button onclick="navigateTo('lessons')" data-nav="lessons" aria-label="وانەکان">
+                <span aria-hidden="true">📚</span>
+                <small>وانە</small>
+            </button>
+            <button onclick="navigateTo('quiz')" data-nav="quiz" aria-label="کویز">
+                <span aria-hidden="true">📝</span>
+                <small>کویز</small>
+            </button>
+            <button onclick="navigateTo('ai-teacher')" data-nav="ai-teacher" aria-label="مامۆستای AI">
+                <span aria-hidden="true">🤖</span>
+                <small>AI</small>
+            </button>
+            <button onclick="navigateTo('packages')" data-nav="packages" aria-label="پاکێجەکان">
+                <span aria-hidden="true">💳</span>
+                <small>پاکێج</small>
+            </button>
         </nav>
 
-        <div class="ai-bubble" id="aiBubble" onclick="navigateTo('ai-teacher')">🤖</div>
-    </div>
+        <!-- AI floating button — hidden on desktop (sidebar already has it) -->
+        <button class="ai-bubble" id="aiBubble" onclick="navigateTo('ai-teacher')" aria-label="مامۆستای AI بکەرەوە" title="مامۆستای AI">
+            🤖
+        </button>
 
-    <canvas id="confettiCanvas"></canvas>
-    <div class="toast-container" id="toastContainer"></div>
+    </div><!-- /.app-container -->
 
+    <!-- Canvas for confetti (outside app-container so it covers everything) -->
+    <canvas id="confettiCanvas" aria-hidden="true"></canvas>
+
+    <!-- Toast notification region — announced to screen readers -->
+    <div class="toast-container" id="toastContainer" role="status" aria-live="polite" aria-atomic="false"></div>
+
+    <!-- Scripts -->
     <script src="config.js"></script>
     <script src="app.js"></script>
 </body>

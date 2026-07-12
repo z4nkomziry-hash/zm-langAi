@@ -1,1 +1,143 @@
-<!DOCTYPE html><html lang="ckb" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Admin - Ziman</title><style>body{font-family:sans-serif;background:#f8fafc;padding:20px}.card{background:#fff;border-radius:12px;padding:16px;margin:8px 0;box-shadow:0 2px 8px rgba(0,0,0,.08)}.btn{padding:8px 16px;border:none;border-radius:8px;cursor:pointer;font-weight:600;margin:4px}.btn-approve{background:#10B981;color:#fff}.btn-reject{background:#EF4444;color:#fff}</style></head><body><h2>🔐 Admin - Ziman</h2><input type="password" id="pass" placeholder="پاسۆرد"><button onclick="login()">چوونەژوورەوە</button><div id="panel" style="display:none"><h3>پارەدانە چاوەڕوانەکان</h3><div id="list"></div></div><script>const P='ziman2024';function login(){if(document.getElementById('pass').value===P){document.getElementById('panel').style.display='block';load()}else alert('❌ هەڵە')}function load(){let p=JSON.parse(localStorage.getItem('zm_payments')||'[]'),h='';p.forEach((x,i)=>{h+=`<div class="card"><p>${x.name} | ${x.package} | ${x.method}</p><p>ڕەوش: ${x.status}</p>${x.status==='pending'?`<button class="btn btn-approve" onclick="update(${i},'approved')">✅ چالاک</button><button class="btn btn-reject" onclick="update(${i},'rejected')">❌ ڕەت</button>`:''}</div>`});document.getElementById('list').innerHTML=h||'<p>هیچ نییە</p>'}function update(i,s){let p=JSON.parse(localStorage.getItem('zm_payments')||'[]');p[i].status=s;localStorage.setItem('zm_payments',JSON.stringify(p));load();alert('✅ ئەنجامدرا')}</script></body></html>
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Admin — Ziman</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5; --primary-dark: #3730A3;
+            --success: #10B981; --danger: #EF4444;
+            --bg: #F8FAFC; --surface: #FFFFFF;
+            --text: #1E293B; --text-secondary: #475569;
+            --border: #E2E8F0; --radius: 14px; --radius-sm: 8px;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,.07);
+            --font: 'Noto Kufi Arabic', system-ui, sans-serif;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:var(--font); background:var(--bg); color:var(--text); padding:24px 16px; min-height:100vh; }
+        h1 { font-size:22px; font-weight:800; margin-bottom:24px; }
+        .card { background:var(--surface); border-radius:var(--radius); padding:20px; border:1px solid var(--border); box-shadow:var(--shadow-sm); margin-bottom:12px; }
+        .input { width:100%; padding:10px 14px; border:2px solid var(--border); border-radius:var(--radius-sm); font-family:var(--font); font-size:14px; background:var(--bg); color:var(--text); margin-bottom:12px; }
+        .input:focus { outline:none; border-color:var(--primary); }
+        .btn { display:inline-flex; align-items:center; gap:6px; padding:9px 18px; border:none; border-radius:var(--radius-sm); font-weight:600; font-size:13px; font-family:var(--font); cursor:pointer; min-height:40px; }
+        .btn-primary { background:var(--primary); color:#fff; }
+        .btn-approve { background:var(--success); color:#fff; }
+        .btn-reject  { background:var(--danger);  color:#fff; }
+        .btn + .btn  { margin-right:6px; }
+        #loginBox { max-width:400px; margin:80px auto 0; }
+        #panel     { max-width:700px; margin:0 auto; }
+        .badge-pending  { background:#FEF3C7; color:#92400E; padding:3px 10px; border-radius:99px; font-size:12px; font-weight:700; }
+        .badge-approved { background:#D1FAE5; color:#065F46; padding:3px 10px; border-radius:99px; font-size:12px; font-weight:700; }
+        .badge-rejected { background:#FEE2E2; color:#991B1B; padding:3px 10px; border-radius:99px; font-size:12px; font-weight:700; }
+        .payment-row { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+        .payment-meta { font-size:13px; color:var(--text-secondary); }
+        .empty { text-align:center; padding:40px 0; color:var(--text-secondary); }
+    </style>
+</head>
+<body>
+
+    <!-- Login -->
+    <div id="loginBox">
+        <h1>🔐 پانێلی بەڕێوەبردن</h1>
+        <div class="card">
+            <label for="passInput" style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:6px">پاسوردی بەڕێوەبردن</label>
+            <input type="password" id="passInput" class="input" placeholder="پاسورد بنووسە"
+                   onkeydown="if(event.key==='Enter')login()">
+            <button class="btn btn-primary" onclick="login()">🔓 چوونەژوورەوە</button>
+            <p id="loginErr" style="color:#EF4444;font-size:13px;margin-top:8px;min-height:18px"></p>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="panel" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <h1>📋 پارەدانەکان</h1>
+            <button class="btn" onclick="logout()" style="background:var(--border)">🔒 دەرچوون</button>
+        </div>
+        <div id="list"></div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        function login() {
+            const pass = document.getElementById('passInput').value;
+            const err  = document.getElementById('loginErr');
+            if (pass === AppConfig.adminPassword) {
+                document.getElementById('loginBox').style.display = 'none';
+                document.getElementById('panel').style.display    = 'block';
+                loadPayments();
+            } else {
+                err.textContent = '❌ پاسوردەکە هەڵەیە';
+                document.getElementById('passInput').value = '';
+                document.getElementById('passInput').focus();
+            }
+        }
+
+        function logout() {
+            document.getElementById('loginBox').style.display = 'block';
+            document.getElementById('panel').style.display    = 'none';
+            document.getElementById('passInput').value = '';
+        }
+
+        function loadPayments() {
+            let payments;
+            try { payments = JSON.parse(localStorage.getItem('zm_payments') || '[]'); }
+            catch(e) { payments = []; }
+
+            const list = document.getElementById('list');
+            if (payments.length === 0) {
+                list.innerHTML = '<div class="empty"><p style="font-size:48px">📭</p><p>هیچ داواکاریەک نییە</p></div>';
+                return;
+            }
+
+            list.innerHTML = [...payments].reverse().map((x, ri) => {
+                const i = payments.length - 1 - ri; // original index
+                const badge = x.status === 'approved'
+                    ? '<span class="badge-approved">✅ چالاک</span>'
+                    : x.status === 'rejected'
+                    ? '<span class="badge-rejected">❌ ڕەتکرایەوە</span>'
+                    : '<span class="badge-pending">⏳ چاوەڕوان</span>';
+                return `
+                    <div class="card">
+                        <div class="payment-row" style="margin-bottom:8px">
+                            <strong>${escH(x.name)}</strong>
+                            ${badge}
+                        </div>
+                        <p class="payment-meta">📦 ${escH(x.package)} &nbsp;|&nbsp; 💳 ${escH(x.method)}</p>
+                        <p class="payment-meta">📧 ${escH(x.email)}</p>
+                        <p class="payment-meta" style="margin-bottom:${x.status==='pending'?'12':'0'}px">
+                            📅 ${new Date(x.date).toLocaleDateString('en-GB')}
+                        </p>
+                        ${x.status === 'pending' ? `
+                            <button class="btn btn-approve" onclick="updateStatus(${i},'approved')">✅ چالاک کردن</button>
+                            <button class="btn btn-reject"  onclick="updateStatus(${i},'rejected')">❌ ڕەتکردنەوە</button>
+                        ` : ''}
+                    </div>`;
+            }).join('');
+        }
+
+        function updateStatus(i, status) {
+            let payments;
+            try { payments = JSON.parse(localStorage.getItem('zm_payments') || '[]'); }
+            catch(e) { return; }
+            payments[i].status = status;
+            localStorage.setItem('zm_payments', JSON.stringify(payments));
+            loadPayments();
+        }
+
+        function escH(s) {
+            if (s == null) return '';
+            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        // Allow Enter key on password field
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('passInput').focus();
+        });
+    </script>
+</body>
+</html>

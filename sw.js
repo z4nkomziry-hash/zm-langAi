@@ -1,4 +1,59 @@
-const C='ziman-v3',A=['/','/index.html','/style.css','/app.js','/config.js','/manifest.json'];
-self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(A)));self.skipWaiting()});
-self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim()});
-self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request).then(r=>{const cl=r.clone();caches.open(C).then(c=>c.put(e.request,cl));return r})).catch(()=>caches.match('/index.html')))});
+// ============================================
+// ZIMAN - Service Worker (Phase 1)
+// Cache version is DATE-STAMPED so updates
+// bust stale caches automatically.
+// ============================================
+
+const CACHE_NAME  = 'ziman-v4-20260712';
+const CACHE_FIRST = [
+    '/',
+    '/index.html',
+    '/style.css',
+    '/app.js',
+    '/config.js',
+    '/manifest.json',
+];
+
+// Install: cache all core assets
+self.addEventListener('install', event => {
+    event.waitUntil(
+        caches.open(CACHE_NAME).then(cache => cache.addAll(CACHE_FIRST))
+    );
+    // Activate immediately — don't wait for old SW to idle
+    self.skipWaiting();
+});
+
+// Activate: delete old caches
+self.addEventListener('activate', event => {
+    event.waitUntil(
+        caches.keys().then(keys =>
+            Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+        )
+    );
+    self.clients.claim();
+});
+
+// Fetch: cache-first for our own assets, network-first for everything else
+self.addEventListener('fetch', event => {
+    const url = new URL(event.request.url);
+
+    // Only handle same-origin GET requests
+    if (event.request.method !== 'GET' || url.origin !== self.location.origin) return;
+
+    event.respondWith(
+        caches.match(event.request).then(cached => {
+            if (cached) return cached;
+            return fetch(event.request).then(response => {
+                // Cache valid same-origin responses
+                if (response.ok && response.type === 'basic') {
+                    const clone = response.clone();
+                    caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+                }
+                return response;
+            });
+        }).catch(() => {
+            // Offline fallback: return the shell
+            return caches.match('/index.html');
+        })
+    );
+});
