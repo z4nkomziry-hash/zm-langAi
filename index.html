@@ -4,196 +4,406 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#4F46E5">
-    <meta name="description" content="Ziman - فێربوونی زمان بە شێوازی زیرەک">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
-    <title>Ziman - فێربوونی زمان</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body class="light-mode">
-
-    <!-- Splash Screen -->
-    <div class="splash-screen" id="splashScreen">
-        <div class="splash-content">
-            <div class="splash-logo">🧠</div>
-            <div class="splash-title">Ziman</div>
-            <div class="splash-subtitle">زمانێکی نوێ فێربە</div>
-        </div>
-    </div>
-
-    <!-- App Container -->
-    <div class="app-container" id="appContainer">
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlppbWFuIiwKICAic2hvcnRfbmFtZSI6ICJaaW1hbiIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjNEY0NkU1IiwKICAidGhlbWVfY29sb3IiOiAiIzRGNDZFNSIsCiAgImxhbmciOiAiY2tiIiwKICAiZGlyIjogInJ0bCIKfQ==">
+    <title>Ziman - فێربوونی ١٥ زمان</title>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-dark: #3730A3;
+            --primary-light: #6366F1;
+            --secondary: #0EA5E9;
+            --accent: #F59E0B;
+            --success: #10B981;
+            --danger: #EF4444;
+            --bg: #F8FAFC;
+            --surface: #FFFFFF;
+            --text: #1E293B;
+            --text-secondary: #64748B;
+            --border: #E2E8F0;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
+            --shadow-lg: 0 12px 32px rgba(0,0,0,0.12);
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .dark-mode { --bg: #0F172A; --surface: #1E293B; --text: #F8FAFC; --text-secondary: #94A3B8; --border: #334155; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+        .app { max-width: 500px; margin: 0 auto; min-height: 100vh; position: relative; }
         
-        <!-- Header -->
-        <header class="app-header glass" id="appHeader">
-            <button class="menu-btn" id="menuBtn" aria-label="مینیو">
-                <span></span><span></span><span></span>
-            </button>
-            <div class="header-title" id="headerTitle">🧠 Ziman</div>
-            <div class="header-stats">
-                <span class="stat-badge">🔥 <span id="headerStreak">0</span></span>
-                <span class="stat-badge">⭐ <span id="headerXP">0</span></span>
-                <span class="stat-badge">💎 <span id="headerGems">0</span></span>
-                <button class="btn btn-icon btn-sm" onclick="toggleFocusMode()" title="Focus Mode (Ctrl+F)">🧘</button>
-            </div>
-        </header>
+        /* Header */
+        .header { position: sticky; top: 0; z-index: 10; background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
+        .header-stats { display: flex; gap: 12px; font-size: 13px; font-weight: 600; }
+        
+        /* Navigation */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 6px; padding-bottom: max(6px, env(safe-area-inset-bottom)); z-index: 10; }
+        .bottom-nav button { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; color: var(--text-secondary); padding: 4px 8px; border-radius: 8px; transition: all var(--transition); }
+        .bottom-nav button.active { color: var(--primary); font-weight: 700; }
+        .bottom-nav button .nav-icon { font-size: 20px; }
+        
+        /* Main Content */
+        .main { padding: 16px; padding-bottom: 80px; }
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Cards */
+        .card { background: var(--surface); border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); margin-bottom: 12px; transition: all var(--transition); }
+        .card:hover { box-shadow: var(--shadow); }
+        .card.featured { border: 2px solid var(--primary); box-shadow: var(--shadow-lg); transform: scale(1.02); }
+        
+        /* Buttons */
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 12px 24px; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; transition: all var(--transition); border: none; font-size: 14px; font-family: inherit; }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); box-shadow: 0 4px 16px rgba(79, 70, 229, 0.3); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-block { width: 100%; }
+        .btn-sm { padding: 8px 16px; font-size: 12px; }
+        .btn-lg { padding: 16px 32px; font-size: 16px; border-radius: var(--radius); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        
+        /* Grid */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        
+        /* Forms */
+        .input { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); font-size: 14px; font-family: inherit; transition: border var(--transition); }
+        .input:focus { outline: none; border-color: var(--primary); }
+        
+        /* Modal */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal.show { opacity: 1; pointer-events: auto; }
+        .modal-content { background: var(--surface); border-radius: var(--radius); padding: 24px; max-width: 420px; width: 92%; max-height: 85vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
+        
+        /* Badges */
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .badge-free { background: #E5E7EB; color: #6B7280; }
+        .badge-plus { background: #DBEAFE; color: #1D4ED8; }
+        .badge-premium { background: #EDE9FE; color: #6D28D9; }
+        .badge-family { background: #D1FAE5; color: #065F46; }
+        .badge-student { background: #FEF3C7; color: #92400E; }
+        .badge-business { background: #FCE7F3; color: #9D174D; }
+        
+        /* Toast */
+        .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: var(--surface); padding: 10px 20px; border-radius: 30px; box-shadow: var(--shadow); border: 1px solid var(--border); font-weight: 600; font-size: 13px; z-index: 200; opacity: 0; transition: all 0.3s ease; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(-8px); }
+        
+        /* Payment Method Cards */
+        .payment-method { padding: 12px; border: 2px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; text-align: center; transition: all var(--transition); font-size: 13px; font-weight: 600; }
+        .payment-method:hover { border-color: var(--primary); }
+        .payment-method.selected { border-color: var(--primary); background: rgba(79, 70, 229, 0.05); }
+        
+        /* Copy Box */
+        .copy-box { background: var(--bg); padding: 12px; border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 8px 0; font-family: monospace; font-size: 13px; word-break: break-all; }
+    </style>
+</head>
+<body>
 
-        <!-- Side Menu -->
-        <div class="menu-overlay" id="menuOverlay"></div>
-        <nav class="side-menu glass" id="sideMenu">
-            <div class="menu-header gradient-primary">
-                <div class="menu-profile">
-                    <div class="profile-avatar" id="menuAvatar">👤</div>
-                    <div class="profile-info">
-                        <div class="profile-name" id="menuName">فێرخواز</div>
-                        <div class="profile-level" id="menuLevel">ئاست ١</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="menu-search">
-                <input type="text" placeholder="🔍 گەڕان... (Ctrl+K)" class="search-input" id="menuSearch">
-            </div>
-            
-            <ul class="menu-list">
-                <li data-page="home" class="active"><span>🏠</span> سەرەکی</li>
-                <li data-page="lessons"><span>📚</span> وانەکان</li>
-                <li data-page="flashcards"><span>🃏</span> فلاشکارت</li>
-                <li data-page="quiz"><span>📝</span> کویز</li>
-                <li data-page="speed-quiz"><span>⚡</span> کویزی خێرا</li>
-                <li data-page="listening"><span>🎧</span> بیستن</li>
-                <li data-page="speaking"><span>🎤</span> قسەکردن</li>
-                <li data-page="reading"><span>📖</span> خوێندنەوە</li>
-                <li data-page="writing"><span>✍️</span> نووسین</li>
-                <li data-page="ai-teacher"><span>🤖</span> مامۆستای AI</li>
-            </ul>
-            
-            <div class="menu-divider"></div>
-            
-            <ul class="menu-list">
-                <li data-page="progress"><span>📊</span> پێشکەوتن</li>
-                <li data-page="achievements"><span>🏆</span> دەستکەوتەکان</li>
-                <li data-page="community"><span>👥</span> کۆمەڵگا</li>
-                <li data-page="profile"><span>👤</span> پڕۆفایل</li>
-                <li data-page="settings"><span>⚙️</span> ڕێکخستن</li>
-                <li data-page="premium"><span>💎</span> پڕیمیوم</li>
-            </ul>
-            
-            <div class="menu-footer">
-                <select id="languageSelect" class="language-select">
-                    <option value="en-ku">🇬🇧 ئینگلیزی → کوردی</option>
-                    <option value="ku-en">☀️ کوردی → ئینگلیزی</option>
-                    <option value="ar-ku">🇸🇦 عەرەبی → کوردی</option>
-                    <option value="tr-ku">🇹🇷 تورکی → کوردی</option>
-                    <option value="fa-ku">🇮🇷 فارسی → کوردی</option>
-                    <option value="de-ku">🇩🇪 ئەڵمانی → کوردی</option>
-                    <option value="fr-ku">🇫🇷 فەرەنسی → کوردی</option>
-                    <option value="es-ku">🇪🇸 ئیسپانی → کوردی</option>
-                    <option value="ru-ku">🇷🇺 ڕووسی → کوردی</option>
-                    <option value="zh-ku">🇨🇳 چینی → کوردی</option>
-                    <option value="ja-ku">🇯🇵 ژاپۆنی → کوردی</option>
-                    <option value="ko-ku">🇰🇷 کۆری → کوردی</option>
-                </select>
-            </div>
-        </nav>
-
-        <!-- Main Content -->
-        <main class="main-content" id="mainContent"></main>
-
-        <!-- Bottom Navigation -->
-        <nav class="bottom-nav glass" id="bottomNav">
-            <button data-page="home" class="active"><span>🏠</span><span class="nav-label">سەرەکی</span></button>
-            <button data-page="lessons"><span>📚</span><span class="nav-label">وانە</span></button>
-            <button data-page="quiz"><span>📝</span><span class="nav-label">کویز</span></button>
-            <button data-page="ai-teacher"><span>🤖</span><span class="nav-label">AI</span></button>
-            <button data-page="profile"><span>👤</span><span class="nav-label">پڕۆفایل</span></button>
-        </nav>
-
-        <!-- AI Assistant Bubble -->
-        <div class="ai-bubble" id="aiBubble">🤖</div>
-
-        <!-- Command Palette -->
-        <div class="command-palette-overlay" id="commandPalette">
-            <div class="command-palette glass">
-                <div class="command-search">
-                    <span>🔍</span>
-                    <input type="text" id="commandInput" placeholder="گەڕان بکە... (وانە، وشە، ڕێکخستن)">
-                    <kbd>ESC</kbd>
-                </div>
-                <div class="command-results" id="commandResults">
-                    <div class="command-group">
-                        <span class="command-label">ڕاهێنان</span>
-                        <div class="command-item" data-action="quiz"><span>📝</span> دەستپێکردنی کویز<kbd>Ctrl+Q</kbd></div>
-                        <div class="command-item" data-action="speed-quiz"><span>⚡</span> کویزی خێرا<kbd>Ctrl+Shift+Q</kbd></div>
-                        <div class="command-item" data-action="flashcards"><span>🃏</span> فلاشکارت</div>
-                    </div>
-                    <div class="command-group">
-                        <span class="command-label">گەشت</span>
-                        <div class="command-item" data-page="lessons"><span>📚</span> وانەکان</div>
-                        <div class="command-item" data-page="progress"><span>📊</span> پێشکەوتن</div>
-                        <div class="command-item" data-page="settings"><span>⚙️</span> ڕێکخستن</div>
-                    </div>
-                    <div class="command-group">
-                        <span class="command-label">کردار</span>
-                        <div class="command-item" data-action="focus"><span>🧘</span> Focus Mode<kbd>Ctrl+F</kbd></div>
-                        <div class="command-item" data-action="dark"><span>🌙</span> گۆڕینی ڕووکار</div>
-                        <div class="command-item" data-action="spin"><span>🎡</span> چەرخی بەخت</div>
-                    </div>
-                </div>
-            </div>
+<div class="app">
+    <!-- Header -->
+    <header class="header">
+        <h3>🌍 Ziman</h3>
+        <div class="header-stats">
+            <span>⭐ <span id="xpDisplay">0</span></span>
+            <span>💎 <span id="gemsDisplay">0</span></span>
+            <button class="btn btn-sm" onclick="toggleTheme()" style="padding:4px 8px;">🌓</button>
         </div>
+    </header>
 
-        <!-- Popups -->
-        <div class="popup-overlay" id="dailyRewardPopup">
-            <div class="popup-card">
-                <div class="popup-icon">🎁</div>
-                <h2>خەڵاتی ڕۆژانە!</h2>
-                <p>بەردەوام بە لە فێربوون</p>
-                <div class="reward-amount">+50 💎</div>
-                <div class="streak-info">🔥 ستریک: <span id="popupStreak">0</span> ڕۆژ</div>
-                <button class="btn btn-primary btn-lg" id="claimReward">وەرگرتن 🎉</button>
+    <!-- Main Content -->
+    <main class="main">
+        <div id="page-home" class="page active"></div>
+        <div id="page-lessons" class="page"></div>
+        <div id="page-quiz" class="page"></div>
+        <div id="page-packages" class="page"></div>
+        <div id="page-contact" class="page"></div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button onclick="navigate('home')" class="active" data-nav="home"><span class="nav-icon">🏠</span>سەرەکی</button>
+        <button onclick="navigate('lessons')" data-nav="lessons"><span class="nav-icon">📚</span>وانەکان</button>
+        <button onclick="navigate('quiz')" data-nav="quiz"><span class="nav-icon">📝</span>کویز</button>
+        <button onclick="navigate('packages')" data-nav="packages"><span class="nav-icon">💳</span>پاکێج</button>
+        <button onclick="navigate('contact')" data-nav="contact"><span class="nav-icon">📞</span>پەیوەندی</button>
+    </nav>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal" id="paymentModal" onclick="if(event.target===this)closeModal('paymentModal')">
+    <div class="modal-content" id="paymentModalContent"></div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast"></div>
+
+<script src="config.js"></script>
+<script>
+    // ============================================
+    // ZIMAN APP - COMPLETE
+    // ============================================
+    
+    // ========== STATE ==========
+    let state = {
+        currentPage: 'home',
+        xp: parseInt(localStorage.getItem('zm_xp')) || 0,
+        gems: parseInt(localStorage.getItem('zm_gems')) || 0,
+        activePackage: localStorage.getItem('zm_package') || 'free',
+        theme: localStorage.getItem('zm_theme') || 'light',
+        selectedPackage: null,
+        selectedPayment: null,
+    };
+    
+    // ========== DATA ==========
+    const lessons = {
+        'en-ku': { name: 'ئینگلیزی → کوردی', icon: '🇬🇧', topics: [
+            { title: 'سڵاوکردن', words: ['Hello=سڵاو','Good morning=بەیانیت باش','Thank you=سوپاس','Goodbye=خواحافیزی','Please=تکایە'] },
+            { title: 'ژمارەکان', words: ['One=یەک','Two=دوو','Three=سێ','Four=چوار','Five=پێنج','Six=شەش','Seven=حەوت','Eight=هەشت','Nine=نۆ','Ten=دە'] },
+        ]},
+        'ar-ku': { name: 'عەرەبی → کوردی', icon: '🇸🇦', topics: [{ title: 'تحيات', words: ['السلام عليكم=سڵاو','صباح الخير=بەیانیت باش','شكراً=سوپاس'] }] },
+        'tr-ku': { name: 'تورکی → کوردی', icon: '🇹🇷', topics: [{ title: 'Selamlaşma', words: ['Merhaba=سڵاو','Günaydın=بەیانیت باش','Teşekkürler=سوپاس'] }] },
+        'fa-ku': { name: 'فارسی → کوردی', icon: '🇮🇷', topics: [{ title: 'احوالپرسی', words: ['سلام=سڵاو','خوبی؟=چۆنی؟','متشکرم=سوپاس'] }] },
+        'de-ku': { name: 'ئەڵمانی → کوردی', icon: '🇩🇪', topics: [{ title: 'Begrüßung', words: ['Hallo=سڵاو','Guten Morgen=بەیانیت باش','Danke=سوپاس'] }] },
+        'fr-ku': { name: 'فەرەنسی → کوردی', icon: '🇫🇷', topics: [{ title: 'Salutations', words: ['Bonjour=سڵاو','Merci=سوپاس','Au revoir=خواحافیزی'] }] },
+        'es-ku': { name: 'ئیسپانی → کوردی', icon: '🇪🇸', topics: [{ title: 'Saludos', words: ['Hola=سڵاو','Gracias=سوپاس','Adiós=خواحافیزی'] }] },
+        'ru-ku': { name: 'ڕووسی → کوردی', icon: '🇷🇺', topics: [{ title: 'Приветствия', words: ['Привет=سڵاو','Спасибо=سوپاس'] }] },
+        'zh-ku': { name: 'چینی → کوردی', icon: '🇨🇳', topics: [{ title: '问候', words: ['你好=سڵاو','谢谢=سوپاس'] }] },
+        'ja-ku': { name: 'ژاپۆنی → کوردی', icon: '🇯🇵', topics: [{ title: '挨拶', words: ['こんにちは=سڵاو','ありがとう=سوپاس'] }] },
+        'ko-ku': { name: 'کۆری → کوردی', icon: '🇰🇷', topics: [{ title: '인사', words: ['안녕하세요=سڵاو','감사합니다=سوپاس'] }] },
+    };
+    
+    const packages = {
+        free: { name: 'Free', price: '$0', period: 'هەمیشە', color: '#9CA3AF', features: ['بەشێک لە وانەکان', 'AI بە سنوور', 'ڕیکلام هەیە'], btnText: 'بەردەستە' },
+        plus: { name: 'Plus', price: '$5.99', period: 'مانگ', color: '#3B82F6', features: ['١٠ زمان', 'AI زیاتر', 'بێ ڕیکلام', 'Progress Reports'], btnText: 'Buy Now', hasPayment: true },
+        premium: { name: 'Premium', price: '$9.99', period: 'مانگ', color: '#8B5CF6', features: ['هەموو ١٥ زمان', 'هەموو AI', 'Offline', 'Certificates'], btnText: 'Buy Now', featured: true, hasPayment: true },
+        family: { name: 'Family', price: '$14.99', period: 'مانگ', color: '#10B981', features: ['تا ٦ ئەندام', 'Dashboard خێزان', 'Leaderboard'], btnText: 'Buy Now', hasPayment: true },
+        student: { name: 'Student', price: '$4.99', period: 'مانگ', color: '#F59E0B', features: ['نرخی کەمتر', 'هەموو Premium'], btnText: 'Buy Now', hasPayment: true },
+        business: { name: 'Business', price: '$29.99', period: 'مانگ', color: '#EC4899', features: ['بۆ کۆمپانیاکان', 'Dashboard تایبەت', 'بەڕێوەبردنی تیم'], btnText: 'Contact Us', hasPayment: true },
+    };
+    
+    const paymentMethods = ['FIB', 'FastPay', 'USDT (TRC20)', 'Korek Card', 'Zain Card', 'Asia Card', 'Qi Card', 'Apple Gift Card', 'iTunes Gift Card'];
+    
+    // ========== NAVIGATION ==========
+    function navigate(page) {
+        state.currentPage = page;
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(`page-${page}`)?.classList.add('active');
+        document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
+        document.querySelector(`[data-nav="${page}"]`)?.classList.add('active');
+        
+        if (page === 'home') renderHome();
+        if (page === 'lessons') renderLessons();
+        if (page === 'quiz') renderQuiz();
+        if (page === 'packages') renderPackages();
+        if (page === 'contact') renderContact();
+    }
+    
+    // ========== TOAST ==========
+    function toast(msg, duration = 2500) {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.classList.add('show');
+        setTimeout(() => el.classList.remove('show'), duration);
+    }
+    
+    // ========== THEME ==========
+    function toggleTheme() {
+        state.theme = state.theme === 'light' ? 'dark' : 'light';
+        document.body.classList.toggle('dark-mode', state.theme === 'dark');
+        localStorage.setItem('zm_theme', state.theme);
+    }
+    
+    function updateUI() {
+        document.getElementById('xpDisplay').textContent = state.xp;
+        document.getElementById('gemsDisplay').textContent = state.gems;
+    }
+    
+    function save() {
+        localStorage.setItem('zm_xp', state.xp);
+        localStorage.setItem('zm_gems', state.gems);
+        localStorage.setItem('zm_package', state.activePackage);
+        updateUI();
+    }
+    
+    // ========== MODAL ==========
+    function openModal(id) { document.getElementById(id).classList.add('show'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+    
+    // ========== PAGES ==========
+    
+    // HOME
+    function renderHome() {
+        const c = document.getElementById('page-home');
+        c.innerHTML = `
+            <div class="card" style="text-align:center; background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:white;">
+                <h2>👋 بەخێربێیت!</h2>
+                <p>ئاست: ${Math.floor(state.xp/1000)+1} | ⭐ ${state.xp} XP</p>
+                <button class="btn" style="background:rgba(255,255,255,0.2); color:white; margin-top:8px;" onclick="navigate('lessons')">دەستپێبکە 📚</button>
             </div>
-        </div>
-
-        <div class="popup-overlay" id="achievementPopup">
-            <div class="popup-card">
-                <div class="popup-icon" id="achievementIcon">🏆</div>
-                <h2 id="achievementTitle">دەستکەوت!</h2>
-                <p id="achievementDesc"></p>
-                <div id="achievementXP" class="achievement-xp"></div>
-                <button class="btn btn-primary" id="closeAchievement">زۆر باشە! 👏</button>
+            <div class="grid-2">
+                <div class="card" onclick="navigate('lessons')" style="cursor:pointer; text-align:center;"><h2>📚</h2><p>وانەکان</p></div>
+                <div class="card" onclick="navigate('quiz')" style="cursor:pointer; text-align:center;"><h2>📝</h2><p>کویز</p></div>
+                <div class="card" onclick="navigate('packages')" style="cursor:pointer; text-align:center;"><h2>💳</h2><p>پاکێجەکان</p></div>
+                <div class="card" onclick="navigate('contact')" style="cursor:pointer; text-align:center;"><h2>📞</h2><p>پەیوەندی</p></div>
+            </div>`;
+    }
+    
+    // LESSONS
+    function renderLessons() {
+        const c = document.getElementById('page-lessons');
+        let html = '<h2>📚 وانەکان</h2><select class="input" id="langSelect" onchange="renderLessons()" style="margin:12px 0;">';
+        for (let key in lessons) html += `<option value="${key}">${lessons[key].icon} ${lessons[key].name}</option>`;
+        html += '</select><div id="lessonsList"></div>';
+        c.innerHTML = html;
+        
+        const lang = document.getElementById('langSelect').value;
+        const data = lessons[lang];
+        const list = document.getElementById('lessonsList');
+        let listHtml = '';
+        data.topics.forEach((t, i) => {
+            listHtml += `<div class="card"><h4>وانەی ${i+1}: ${t.title}</h4><p style="color:var(--text-secondary)">${t.words.length} وشە</p><div style="display:flex;flex-wrap:wrap;gap:4px;margin:8px 0;">${t.words.slice(0,5).map(w=>`<span style="background:var(--bg);padding:4px 8px;border-radius:6px;font-size:12px">${w.split('=')[0]}</span>`).join('')}</div><button class="btn btn-primary btn-sm" onclick="startLesson('${lang}',${i})">دەستپێبکە ▶️</button></div>`;
+        });
+        list.innerHTML = listHtml;
+    }
+    
+    function startLesson(lang, idx) {
+        const data = lessons[lang].topics[idx];
+        state.xp += 15;
+        state.gems += 5;
+        save();
+        toast(`🎉 وانەی "${data.title}" تەواو بوو! +15 XP | +5 💎`);
+    }
+    
+    // QUIZ
+    function renderQuiz() {
+        const c = document.getElementById('page-quiz');
+        const lang = 'en-ku';
+        const allWords = [];
+        lessons[lang].topics.forEach(t => t.words.forEach(w => allWords.push(w)));
+        const q = allWords[Math.floor(Math.random()*allWords.length)].split('=');
+        const wrong = allWords.filter(w => w.split('=')[1] !== q[1]).sort(()=>Math.random()-0.5).slice(0,3);
+        const opts = [...wrong.map(w=>w.split('=')[1]), q[1]].sort(()=>Math.random()-0.5);
+        
+        c.innerHTML = `
+            <h2>📝 کویز</h2>
+            <div class="card" style="text-align:center; padding:30px; margin:16px 0;">
+                <h1 style="font-size:40px;">${q[0]}</h1>
+                <p style="color:var(--text-secondary)">واتای چییە؟</p>
             </div>
-        </div>
-
-        <div class="popup-overlay" id="luckyWheelPopup">
-            <div class="popup-card">
-                <button class="popup-close" id="closeWheel">✕</button>
-                <h2>🎡 چەرخی بەختی</h2>
-                <div class="lucky-wheel-container">
-                    <div class="lucky-wheel" id="luckyWheel"></div>
-                    <div class="wheel-pointer">▼</div>
-                </div>
-                <button class="btn btn-primary btn-lg" id="spinWheel">بخولێنە! 🎰</button>
-            </div>
-        </div>
-
-        <!-- Confetti Canvas -->
-        <canvas id="confettiCanvas"></canvas>
-
-        <!-- Notifications Container -->
-        <div class="notifications-container" id="notificationsContainer"></div>
-
-        <!-- Resume Notification -->
-        <div class="resume-notification" id="resumeNotification">
-            <span>👋 بەخێربێیتەوە!</span>
-            <p id="resumeText">لە وانەکان بەردەوام بە</p>
-            <button class="btn btn-sm btn-primary" id="resumeBtn">بەردەوام بە →</button>
-        </div>
-
-    </div>
-
-    <script src="app.js"></script>
+            <div class="grid-2" id="quizOpts">${opts.map(o=>`<button class="btn" style="border:2px solid var(--border); padding:16px; font-size:16px;" onclick="checkQuiz('${o}','${q[1]}',this)">${o}</button>`).join('')}</div>`;
+    }
+    
+    function checkQuiz(selected, correct, btn) {
+        if (selected === correct) {
+            btn.style.background = 'var(--success)';
+            btn.style.color = 'white';
+            state.xp += 10;
+            save();
+            toast('✅ ڕاستە! +10 XP');
+        } else {
+            btn.style.background = 'var(--danger)';
+            btn.style.color = 'white';
+            document.querySelectorAll('#quizOpts .btn').forEach(b => { if(b.textContent === correct) { b.style.background = 'var(--success)'; b.style.color = 'white'; } });
+        }
+        document.querySelectorAll('#quizOpts .btn').forEach(b => b.style.pointerEvents = 'none');
+        setTimeout(renderQuiz, 1500);
+    }
+    
+    // PACKAGES
+    function renderPackages() {
+        const c = document.getElementById('page-packages');
+        let html = '<h2>💳 پاکێجەکان</h2>';
+        for (let key in packages) {
+            const p = packages[key];
+            html += `
+                <div class="card ${p.featured?'featured':''}" style="border-left:4px solid ${p.color};">
+                    ${p.featured?'<span class="badge badge-premium">پێشنیارکراو</span>':''}
+                    <h3 style="color:${p.color}">${p.name}</h3>
+                    <p style="font-size:28px;font-weight:800;">${p.price}<small style="font-size:14px;color:var(--text-secondary)">/${p.period}</small></p>
+                    <ul style="list-style:none;padding:0;margin:8px 0;">${p.features.map(f=>`<li>✅ ${f}</li>`).join('')}</ul>
+                    <button class="btn btn-primary btn-block" onclick="buyPackage('${key}')">${p.btnText}</button>
+                </div>`;
+        }
+        c.innerHTML = html;
+    }
+    
+    function buyPackage(key) {
+        state.selectedPackage = key;
+        const pkg = packages[key];
+        if (key === 'free') { state.activePackage = 'free'; save(); toast('✅ پاکێجی بێبەرامبەر چالاک کرا!'); return; }
+        if (!pkg.hasPayment) { window.open(`https://wa.me/${AppConfig.contact.whatsapp}`, '_blank'); return; }
+        
+        let html = `<h3>کڕینی ${pkg.name}</h3><p>بڕ: <strong>${pkg.price}</strong></p><p style="margin:12px 0">شێوازی پارەدان:</p><div class="grid-3">`;
+        paymentMethods.forEach(m => {
+            html += `<div class="payment-method ${state.selectedPayment===m?'selected':''}" onclick="selectPayment('${m}')">${m}</div>`;
+        });
+        html += '</div>';
+        
+        if (state.selectedPayment) {
+            const info = getPaymentInfo(state.selectedPayment);
+            html += `
+                <div style="margin-top:16px; padding:16px; background:var(--bg); border-radius:12px;">
+                    <p><strong>زانیاری پارەدان:</strong></p>
+                    <div class="copy-box"><span id="paymentInfo">${info}</span><button class="btn btn-sm btn-primary" onclick="copyInfo()">📋 کۆپی</button></div>
+                    <p style="margin-top:12px">📸 سکرینشات باربکە:</p>
+                    <input type="file" class="input" accept="image/*">
+                    <input type="text" class="input" id="userName" placeholder="ناوی تەواو">
+                    <input type="email" class="input" id="userEmail" placeholder="ئیمەیڵ">
+                    <button class="btn btn-success btn-block" style="margin-top:12px" onclick="submitPayment()">ناردن ✅</button>
+                </div>`;
+        }
+        document.getElementById('paymentModalContent').innerHTML = html;
+        openModal('paymentModal');
+    }
+    
+    function selectPayment(m) { state.selectedPayment = m; buyPackage(state.selectedPackage); }
+    
+    function getPaymentInfo(method) {
+        const map = {
+            'FIB': AppConfig.payment.fib, 'FastPay': AppConfig.payment.fastpay,
+            'USDT (TRC20)': AppConfig.payment.usdt, 'Korek Card': AppConfig.payment.korek || 'بەردەست نییە',
+            'Zain Card': AppConfig.payment.zain || 'بەردەست نییە', 'Asia Card': AppConfig.payment.asia || 'بەردەست نییە',
+            'Qi Card': AppConfig.payment.qi || 'بەردەست نییە', 'Apple Gift Card': AppConfig.payment.apple || 'بەردەست نییە',
+            'iTunes Gift Card': AppConfig.payment.itunes || 'بەردەست نییە'
+        };
+        return map[method] || 'بەردەست نییە';
+    }
+    
+    function copyInfo() {
+        navigator.clipboard.writeText(document.getElementById('paymentInfo').textContent).then(() => toast('✅ کۆپی کرا!'));
+    }
+    
+    function submitPayment() {
+        const name = document.getElementById('userName')?.value;
+        const email = document.getElementById('userEmail')?.value;
+        if (!name || !email) { toast('❌ تکایە ناو و ئیمەیڵ بنووسە'); return; }
+        const payments = JSON.parse(localStorage.getItem('zm_payments')||'[]');
+        payments.push({ id: Date.now(), package: state.selectedPackage, method: state.selectedPayment, name, email, status: 'pending', date: new Date().toISOString() });
+        localStorage.setItem('zm_payments', JSON.stringify(payments));
+        closeModal('paymentModal');
+        toast('✅ پارەدان تۆمار کرا!');
+    }
+    
+    // CONTACT
+    function renderContact() {
+        const c = document.getElementById('page-contact');
+        c.innerHTML = `
+            <h2>📞 پەیوەندی</h2>
+            <a href="https://wa.me/${AppConfig.contact.whatsapp}" target="_blank" class="card" style="text-decoration:none; background:#25D366; color:white;"><h3>💬 WhatsApp</h3><p>ڕاستەوخۆ چات</p></a>
+            <a href="https://t.me/${AppConfig.contact.telegram}" target="_blank" class="card" style="text-decoration:none; background:#0088cc; color:white;"><h3>✈️ Telegram</h3><p>ڕاستەوخۆ چات</p></a>
+            <div class="card"><h3>📧 Email</h3><p>${AppConfig.contact.email || 'support@ziman.app'}</p></div>`;
+    }
+    
+    // ========== INIT ==========
+    if (state.theme === 'dark') document.body.classList.add('dark-mode');
+    updateUI();
+    navigate('home');
+    console.log('🚀 Ziman Ready');
+</script>
 </body>
 </html>
