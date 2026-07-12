@@ -67,34 +67,94 @@ const lessons = {
         { id:7, title:'گەشت',       words:['Airport=فڕۆکەخانە','Hotel=هوتێل','Taxi=تاکسی','Ticket=بلیت','Map=نەخشە','Passport=پاسپۆرت','Bag=جانتا','Train=شەمەندەفەر'] },
     ]},
     'ar-ku': { name:'عەرەبی → کوردی', icon:'🇸🇦', topics:[
-        { id:1, title:'تحيات', words:['السلام عليكم=سڵاو','صباح الخير=بەیانیت باش','شكراً=سوپاس','كيف حالك=چۆنی','مع السلامة=خواحافیزی'] },
+        { id:1, title:'تحيات — سڵاوکردن', words:['السلام عليكم=سڵاو','صباح الخير=بەیانیت باش','مساء الخير=ئێوارت باش','شكراً=سوپاس','عفواً=تکایە','كيف حالك=چۆنی','أنا بخير=باشم','مع السلامة=خواحافیزی','إلى اللقاء=تا دیکەوە','يشرفنا=خوشحاڵبووین'] },
+        { id:2, title:'الأرقام — ژمارەکان', words:['واحد=یەک','اثنان=دوو','ثلاثة=سێ','أربعة=چوار','خمسة=پێنج','ستة=شەش','سبعة=حەوت','ثمانية=هەشت','تسعة=نۆ','عشرة=دە'] },
+        { id:3, title:'الألوان — ڕەنگەکان', words:['أحمر=سوور','أزرق=شین','أخضر=سەوز','أصفر=زەرد','أسود=ڕەش','أبيض=سپی','برتقالي=نارەنجی','بنفسجي=مۆر','وردي=پەمبە','بني=قاوەیی'] },
+        { id:4, title:'العائلة — خێزان', words:['أم=دایک','أب=باوک','أخت=خوشک','أخ=برا','جد=باپیر','جدة=دایبابا','ابن=کوڕ','ابنة=کچ','زوج=مێرد','زوجة=ژن'] },
+        { id:5, title:'الطعام — خواردن', words:['ماء=ئاو','خبز=نان','أرز=برنج','لحم=گۆشت','شاي=چا','حليب=شیر','بيض=هێلکە','فاكهة=مێوە','خضار=سەوزە','سكر=شەکر'] },
+        { id:6, title:'السفر — گەشت', words:['مطار=فڕۆکەخانە','فندق=هوتێل','جواز سفر=پاسپۆرت','تذكرة=بلیت','حقيبة=جانتا','خريطة=نەخشە','سيارة أجرة=تاکسی','قطار=شەمەندەفەر'] },
+        { id:7, title:'يوميات — ڕۆژانە', words:['صباح=بەیانی','ليل=شەو','يوم=ڕۆژ','أسبوع=هەفتە','شهر=مانگ','سنة=ساڵ','الآن=ئێستا','غداً=سبەینێ'] },
     ]},
     'tr-ku': { name:'تورکی → کوردی', icon:'🇹🇷', topics:[
-        { id:1, title:'Selamlaşma', words:['Merhaba=سڵاو','Günaydın=بەیانیت باش','Teşekkürler=سوپاس','Nasılsın=چۆنی','Hoşça kal=خواحافیزی'] },
+        { id:1, title:'Selamlaşma — سڵاوکردن', words:['Merhaba=سڵاو','Günaydın=بەیانیت باش','İyi akşamlar=ئێوارت باش','Teşekkürler=سوپاس','Lütfen=تکایە','Nasılsın=چۆنی','İyiyim=باشم','Görüşürüz=تا دیکەوە','Hoşça kal=خواحافیزی','Rica ederim=خۆش بێی'] },
+        { id:2, title:'Sayılar — ژمارەکان', words:['Bir=یەک','İki=دوو','Üç=سێ','Dört=چوار','Beş=پێنج','Altı=شەش','Yedi=حەوت','Sekiz=هەشت','Dokuz=نۆ','On=دە'] },
+        { id:3, title:'Renkler — ڕەنگەکان', words:['Kırmızı=سوور','Mavi=شین','Yeşil=سەوز','Sarı=زەرد','Siyah=ڕەش','Beyaz=سپی','Turuncu=نارەنجی','Mor=مۆر','Pembe=پەمبە','Kahverengi=قاوەیی'] },
+        { id:4, title:'Aile — خێزان', words:['Anne=دایک','Baba=باوک','Kız kardeş=خوشک','Erkek kardeş=برا','Büyükbaba=باپیر','Büyükanne=دایبابا','Oğul=کوڕ','Kız=کچ','Eş=هاوسەر','Aile=خێزان'] },
+        { id:5, title:'Yiyecek — خواردن', words:['Su=ئاو','Ekmek=نان','Pirinç=برنج','Et=گۆشت','Çay=چا','Süt=شیر','Yumurta=هێلکە','Meyve=مێوە','Sebze=سەوزە','Şeker=شەکر'] },
+        { id:6, title:'Seyahat — گەشت', words:['Havalimanı=فڕۆکەخانە','Otel=هوتێل','Pasaport=پاسپۆرت','Bilet=بلیت','Çanta=جانتا','Harita=نەخشە','Taksi=تاکسی','Tren=شەمەندەفەر'] },
+        { id:7, title:'Günlük — ڕۆژانە', words:['Sabah=بەیانی','Gece=شەو','Gün=ڕۆژ','Hafta=هەفتە','Ay=مانگ','Yıl=ساڵ','Şimdi=ئێستا','Yarın=سبەینێ'] },
     ]},
     'fa-ku': { name:'فارسی → کوردی', icon:'🇮🇷', topics:[
-        { id:1, title:'احوالپرسی', words:['سلام=سڵاو','خوبی=چۆنی','متشکرم=سوپاس','خداحافظ=خواحافیزی','لطفاً=تکایە'] },
+        { id:1, title:'احوالپرسی — سڵاوکردن', words:['سلام=سڵاو','صبح بخیر=بەیانیت باش','عصر بخیر=ئێوارت باش','ممنون=سوپاس','لطفاً=تکایە','حالت چطوره=چۆنی','خوبم=باشم','خداحافظ=خواحافیزی','تا دیدار=تا دیکەوە','خوش آمدید=بەخێربێی'] },
+        { id:2, title:'اعداد — ژمارەکان', words:['یک=یەک','دو=دوو','سه=سێ','چهار=چوار','پنج=پێنج','شش=شەش','هفت=حەوت','هشت=هەشت','نه=نۆ','ده=دە'] },
+        { id:3, title:'رنگ‌ها — ڕەنگەکان', words:['قرمز=سوور','آبی=شین','سبز=سەوز','زرد=زەرد','سیاه=ڕەش','سفید=سپی','نارنجی=نارەنجی','بنفش=مۆر','صورتی=پەمبە','قهوه‌ای=قاوەیی'] },
+        { id:4, title:'خانواده — خێزان', words:['مادر=دایک','پدر=باوک','خواهر=خوشک','برادر=برا','پدربزرگ=باپیر','مادربزرگ=دایبابا','پسر=کوڕ','دختر=کچ','همسر=هاوسەر','خانواده=خێزان'] },
+        { id:5, title:'غذا — خواردن', words:['آب=ئاو','نان=نان','برنج=برنج','گوشت=گۆشت','چای=چا','شیر=شیر','تخم‌مرغ=هێلکە','میوه=مێوە','سبزی=سەوزە','شکر=شەکر'] },
+        { id:6, title:'سفر — گەشت', words:['فرودگاه=فڕۆکەخانە','هتل=هوتێل','گذرنامه=پاسپۆرت','بلیت=بلیت','کیف=جانتا','نقشه=نەخشە','تاکسی=تاکسی','قطار=شەمەندەفەر'] },
+        { id:7, title:'روزانه — ڕۆژانە', words:['صبح=بەیانی','شب=شەو','روز=ڕۆژ','هفته=هەفتە','ماه=مانگ','سال=ساڵ','الان=ئێستا','فردا=سبەینێ'] },
     ]},
     'de-ku': { name:'ئەڵمانی → کوردی', icon:'🇩🇪', topics:[
-        { id:1, title:'Begrüßung', words:['Hallo=سڵاو','Guten Morgen=بەیانیت باش','Danke=سوپاس','Auf Wiedersehen=خواحافیزی','Bitte=تکایە'] },
+        { id:1, title:'Begrüßung — سڵاوکردن', words:['Hallo=سڵاو','Guten Morgen=بەیانیت باش','Guten Abend=ئێوارت باش','Danke=سوپاس','Bitte=تکایە','Wie geht es dir=چۆنی','Mir geht es gut=باشم','Auf Wiedersehen=خواحافیزی','Tschüss=سبوختانێ','Willkommen=بەخێربێی'] },
+        { id:2, title:'Zahlen — ژمارەکان', words:['Eins=یەک','Zwei=دوو','Drei=سێ','Vier=چوار','Fünf=پێنج','Sechs=شەش','Sieben=حەوت','Acht=هەشت','Neun=نۆ','Zehn=دە'] },
+        { id:3, title:'Farben — ڕەنگەکان', words:['Rot=سوور','Blau=شین','Grün=سەوز','Gelb=زەرد','Schwarz=ڕەش','Weiß=سپی','Orange=نارەنجی','Lila=مۆر','Rosa=پەمبە','Braun=قاوەیی'] },
+        { id:4, title:'Familie — خێزان', words:['Mutter=دایک','Vater=باوک','Schwester=خوشک','Bruder=برا','Großvater=باپیر','Großmutter=دایبابا','Sohn=کوڕ','Tochter=کچ','Ehepartner=هاوسەر','Familie=خێزان'] },
+        { id:5, title:'Essen — خواردن', words:['Wasser=ئاو','Brot=نان','Reis=برنج','Fleisch=گۆشت','Tee=چا','Milch=شیر','Ei=هێلکە','Obst=مێوە','Gemüse=سەوزە','Zucker=شەکر'] },
+        { id:6, title:'Reise — گەشت', words:['Flughafen=فڕۆکەخانە','Hotel=هوتێل','Reisepass=پاسپۆرت','Ticket=بلیت','Tasche=جانتا','Karte=نەخشە','Taxi=تاکسی','Zug=شەمەندەفەر'] },
+        { id:7, title:'Alltag — ڕۆژانە', words:['Morgen=بەیانی','Nacht=شەو','Tag=ڕۆژ','Woche=هەفتە','Monat=مانگ','Jahr=ساڵ','Jetzt=ئێستا','Morgen=سبەینێ'] },
     ]},
     'fr-ku': { name:'فەرەنسی → کوردی', icon:'🇫🇷', topics:[
-        { id:1, title:'Salutations', words:['Bonjour=سڵاو','Merci=سوپاس','Au revoir=خواحافیزی','S\'il vous plaît=تکایە','Comment allez-vous=چۆنی'] },
+        { id:1, title:'Salutations — سڵاوکردن', words:['Bonjour=سڵاو','Bonsoir=ئێوارت باش','Merci=سوپاس','S\'il vous plaît=تکایە','Comment allez-vous=چۆنی','Je vais bien=باشم','Au revoir=خواحافیزی','À bientôt=تا دیکەوە','Bienvenue=بەخێربێی','De rien=خۆش بێی'] },
+        { id:2, title:'Chiffres — ژمارەکان', words:['Un=یەک','Deux=دوو','Trois=سێ','Quatre=چوار','Cinq=پێنج','Six=شەش','Sept=حەوت','Huit=هەشت','Neuf=نۆ','Dix=دە'] },
+        { id:3, title:'Couleurs — ڕەنگەکان', words:['Rouge=سوور','Bleu=شین','Vert=سەوز','Jaune=زەرد','Noir=ڕەش','Blanc=سپی','Orange=نارەنجی','Violet=مۆر','Rose=پەمبە','Marron=قاوەیی'] },
+        { id:4, title:'Famille — خێزان', words:['Mère=دایک','Père=باوک','Sœur=خوشک','Frère=برا','Grand-père=باپیر','Grand-mère=دایبابا','Fils=کوڕ','Fille=کچ','Époux=هاوسەر','Famille=خێزان'] },
+        { id:5, title:'Nourriture — خواردن', words:['Eau=ئاو','Pain=نان','Riz=برنج','Viande=گۆشت','Thé=چا','Lait=شیر','Œuf=هێلکە','Fruit=مێوە','Légume=سەوزە','Sucre=شەکر'] },
+        { id:6, title:'Voyage — گەشت', words:['Aéroport=فڕۆکەخانە','Hôtel=هوتێل','Passeport=پاسپۆرت','Billet=بلیت','Sac=جانتا','Carte=نەخشە','Taxi=تاکسی','Train=شەمەندەفەر'] },
+        { id:7, title:'Quotidien — ڕۆژانە', words:['Matin=بەیانی','Nuit=شەو','Jour=ڕۆژ','Semaine=هەفتە','Mois=مانگ','An=ساڵ','Maintenant=ئێستا','Demain=سبەینێ'] },
     ]},
     'es-ku': { name:'ئیسپانی → کوردی', icon:'🇪🇸', topics:[
-        { id:1, title:'Saludos', words:['Hola=سڵاو','Gracias=سوپاس','Adiós=خواحافیزی','Por favor=تکایە','Buenos días=بەیانیت باش'] },
+        { id:1, title:'Saludos — سڵاوکردن', words:['Hola=سڵاو','Buenos días=بەیانیت باش','Buenas noches=شەوت باش','Gracias=سوپاس','Por favor=تکایە','¿Cómo estás=چۆنی','Estoy bien=باشم','Adiós=خواحافیزی','Hasta luego=تا دیکەوە','Bienvenido=بەخێربێی'] },
+        { id:2, title:'Números — ژمارەکان', words:['Uno=یەک','Dos=دوو','Tres=سێ','Cuatro=چوار','Cinco=پێنج','Seis=شەش','Siete=حەوت','Ocho=هەشت','Nueve=نۆ','Diez=دە'] },
+        { id:3, title:'Colores — ڕەنگەکان', words:['Rojo=سوور','Azul=شین','Verde=سەوز','Amarillo=زەرد','Negro=ڕەش','Blanco=سپی','Naranja=نارەنجی','Morado=مۆر','Rosa=پەمبە','Marrón=قاوەیی'] },
+        { id:4, title:'Familia — خێزان', words:['Madre=دایک','Padre=باوک','Hermana=خوشک','Hermano=برا','Abuelo=باپیر','Abuela=دایبابا','Hijo=کوڕ','Hija=کچ','Cónyuge=هاوسەر','Familia=خێزان'] },
+        { id:5, title:'Comida — خواردن', words:['Agua=ئاو','Pan=نان','Arroz=برنج','Carne=گۆشت','Té=چا','Leche=شیر','Huevo=هێلکە','Fruta=مێوە','Verdura=سەوزە','Azúcar=شەکر'] },
+        { id:6, title:'Viaje — گەشت', words:['Aeropuerto=فڕۆکەخانە','Hotel=هوتێل','Pasaporte=پاسپۆرت','Billete=بلیت','Maleta=جانتا','Mapa=نەخشە','Taxi=تاکسی','Tren=شەمەندەفەر'] },
+        { id:7, title:'Cotidiano — ڕۆژانە', words:['Mañana=بەیانی','Noche=شەو','Día=ڕۆژ','Semana=هەفتە','Mes=مانگ','Año=ساڵ','Ahora=ئێستا','Mañana=سبەینێ'] },
     ]},
     'ru-ku': { name:'ڕووسی → کوردی', icon:'🇷🇺', topics:[
-        { id:1, title:'Приветствия', words:['Привет=سڵاو','Спасибо=سوپاس','До свидания=خواحافیزی','Пожалуйста=تکایە','Как дела=چۆنی'] },
+        { id:1, title:'Приветствия — سڵاوکردن', words:['Привет=سڵاو','Доброе утро=بەیانیت باش','Добрый вечер=ئێوارت باش','Спасибо=سوپاس','Пожалуйста=تکایە','Как дела=چۆنی','Хорошо=باشم','До свидания=خواحافیزی','Увидимся=تا دیکەوە','Добро пожаловать=بەخێربێی'] },
+        { id:2, title:'Числа — ژمارەکان', words:['Один=یەک','Два=دوو','Три=سێ','Четыре=چوار','Пять=پێنج','Шесть=شەش','Семь=حەوت','Восемь=هەشت','Девять=نۆ','Десять=دە'] },
+        { id:3, title:'Цвета — ڕەنگەکان', words:['Красный=سوور','Синий=شین','Зелёный=سەوز','Жёлтый=زەرد','Чёрный=ڕەش','Белый=سپی','Оранжевый=نارەنجی','Фиолетовый=مۆر','Розовый=پەمبە','Коричневый=قاوەیی'] },
+        { id:4, title:'Семья — خێزان', words:['Мать=دایک','Отец=باوک','Сестра=خوشک','Брат=برا','Дедушка=باپیر','Бабушка=دایبابا','Сын=کوڕ','Дочь=کچ','Супруг=هاوسەر','Семья=خێزان'] },
+        { id:5, title:'Еда — خواردن', words:['Вода=ئاو','Хлеب=نان','Рис=برنج','Мясо=گۆشت','Чай=چا','Молоко=شیر','Яйцо=هێلکە','Фрукт=مێوە','Овощ=سەوزە','Сахар=شەکر'] },
+        { id:6, title:'Путешествие — گەشت', words:['Аэропорт=فڕۆکەخانە','Отель=هوتێل','Паспорт=پاسپۆرت','Билет=بلیت','Сумка=جانتا','Карта=نەخشە','Такси=تاکسی','Поезд=شەمەندەفەر'] },
+        { id:7, title:'Ежедневно — ڕۆژانە', words:['Утро=بەیانی','Ночь=شەو','День=ڕۆژ','Неделя=هەفتە','Месяц=مانگ','Год=ساڵ','Сейчас=ئێستا','Завтра=سبەینێ'] },
     ]},
     'zh-ku': { name:'چینی → کوردی', icon:'🇨🇳', topics:[
-        { id:1, title:'问候', words:['你好=سڵاو','谢谢=سوپاس','再见=خواحافیزی','请=تکایە','你好吗=چۆنی'] },
+        { id:1, title:'问候 — سڵاوکردن', words:['你好=سڵاو','早上好=بەیانیت باش','晚上好=ئێوارت باش','谢谢=سوپاس','请=تکایە','你好吗=چۆنی','我很好=باشم','再见=خواحافیزی','回头见=تا دیکەوە','欢迎=بەخێربێی'] },
+        { id:2, title:'数字 — ژمارەکان', words:['一=یەک','二=دوو','三=سێ','四=چوار','五=پێنج','六=شەش','七=حەوت','八=هەشت','九=نۆ','十=دە'] },
+        { id:3, title:'颜色 — ڕەنگەکان', words:['红色=سوور','蓝色=شین','绿色=سەوز','黄色=زەرد','黑色=ڕەش','白色=سپی','橙色=نارەنجی','紫色=مۆر','粉色=پەمبە','棕色=قاوەیی'] },
+        { id:4, title:'家庭 — خێزان', words:['母亲=دایک','父亲=باوک','姐妹=خوشک','兄弟=برا','祖父=باپیر','祖母=دایبابا','儿子=کوڕ','女儿=کچ','配偶=هاوسەر','家庭=خێزان'] },
+        { id:5, title:'食物 — خواردن', words:['水=ئاو','面包=نان','米饭=برنج','肉=گۆشت','茶=چا','牛奶=شیر','鸡蛋=هێلکە','水果=مێوە','蔬菜=سەوزە','糖=شەکر'] },
+        { id:6, title:'旅行 — گەشت', words:['机场=فڕۆکەخانە','酒店=هوتێل','护照=پاسپۆرت','机票=بلیت','包=جانتا','地图=نەخشە','出租车=تاکسی','火车=شەمەندەفەر'] },
+        { id:7, title:'日常 — ڕۆژانە', words:['早晨=بەیانی','夜晚=شەو','天=ڕۆژ','周=هەفتە','月=مانگ','年=ساڵ','现在=ئێستا','明天=سبەینێ'] },
     ]},
     'ja-ku': { name:'ژاپۆنی → کوردی', icon:'🇯🇵', topics:[
-        { id:1, title:'挨拶', words:['こんにちは=سڵاو','ありがとう=سوپاس','さようなら=خواحافیزی','お願いします=تکایە','お元気ですか=چۆنی'] },
+        { id:1, title:'挨拶 — سڵاوکردن', words:['こんにちは=سڵاو','おはようございます=بەیانیت باش','こんばんは=ئێوارت باش','ありがとう=سوپاس','お願いします=تکایە','お元気ですか=چۆنی','元気です=باشم','さようなら=خواحافیزی','またね=تا دیکەوە','ようこそ=بەخێربێی'] },
+        { id:2, title:'数字 — ژمارەکان', words:['一=یەک','二=دوو','三=سێ','四=چوار','五=پێنج','六=شەش','七=حەوت','八=هەشت','九=نۆ','十=دە'] },
+        { id:3, title:'色 — ڕەنگەکان', words:['赤=سوور','青=شین','緑=سەوز','黄色=زەرد','黒=ڕەش','白=سپی','オレンジ=نارەنجی','紫=مۆر','ピンク=پەمبە','茶色=قاوەیی'] },
+        { id:4, title:'家族 — خێزان', words:['母=دایک','父=باوک','姉妹=خوشک','兄弟=برا','祖父=باپیر','祖母=دایبابا','息子=کوڕ','娘=کچ','配偶者=هاوسەر','家族=خێزان'] },
+        { id:5, title:'食べ物 — خواردن', words:['水=ئاو','パン=نان','ご飯=برنج','肉=گۆشت','お茶=چا','牛乳=شیر','卵=هێلکە','果物=مێوە','野菜=سەوزە','砂糖=شەکر'] },
+        { id:6, title:'旅行 — گەشت', words:['空港=فڕۆکەخانە','ホテル=هوتێل','パスポート=پاسپۆرت','チケット=بلیت','バッグ=جانتا','地図=نەخشە','タクシー=تاکسی','電車=شەمەندەفەر'] },
+        { id:7, title:'日常 — ڕۆژانە', words:['朝=بەیانی','夜=شەو','日=ڕۆژ','週=هەفتە','月=مانگ','年=ساڵ','今=ئێستا','明日=سبەینێ'] },
     ]},
     'ko-ku': { name:'کۆری → کوردی', icon:'🇰🇷', topics:[
-        { id:1, title:'인사', words:['안녕하세요=سڵاو','감사합니다=سوپاس','안녕히 계세요=خواحافیزی','부탁합니다=تکایە','잘 지내세요=چۆنی'] },
+        { id:1, title:'인사 — سڵاوکردن', words:['안녕하세요=سڵاو','좋은 아침=بەیانیت باش','안녕하세요 (저녁)=ئێوارت باش','감사합니다=سوپاس','부탁합니다=تکایە','잘 지내세요=چۆنی','잘 지냅니다=باشم','안녕히 계세요=خواحافیزی','또 봐요=تا دیکەوە','환영합니다=بەخێربێی'] },
+        { id:2, title:'숫자 — ژمارەکان', words:['일=یەک','이=دوو','삼=سێ','사=چوار','오=پێنج','육=شەش','칠=حەوت','팔=هەشت','구=نۆ','십=دە'] },
+        { id:3, title:'색깔 — ڕەنگەکان', words:['빨간색=سوور','파란색=شین','초록색=سەوز','노란색=زەرد','검은색=ڕەش','흰색=سپی','주황색=نارەنجی','보라색=مۆر','분홍색=پەمبە','갈색=قاوەیی'] },
+        { id:4, title:'가족 — خێزان', words:['어머니=دایک','아버지=باوک','자매=خوشک','형제=برا','할아버지=باپیر','할머니=دایبابا','아들=کوڕ','딸=کچ','배우자=هاوسەر','가족=خێزان'] },
+        { id:5, title:'음식 — خواردن', words:['물=ئاو','빵=نان','밥=برنج','고기=گۆشت','차=چا','우유=شیر','달걀=هێلکە','과일=مێوە','야채=سەوزە','설탕=شەکر'] },
+        { id:6, title:'여행 — گەشت', words:['공항=فڕۆکەخانە','호텔=هوتێل','여권=پاسپۆرت','티켓=بلیت','가방=جانتا','지도=نەخشە','택시=تاکسی','기차=شەمەندەفەر'] },
+        { id:7, title:'일상 — ڕۆژانە', words:['아침=بەیانی','밤=شەو','날=ڕۆژ','주=هەفتە','달=مانگ','년=ساڵ','지금=ئێستا','내일=سبەینێ'] },
     ]},
 };
 
@@ -306,9 +366,13 @@ function navigateTo(page) {
     const main = document.getElementById('mainContent');
     if (!main) return;
 
-    // 3. Render the requested page
+    // 3. Render the requested page with entrance animation
     if (pageRenderers[page]) {
         main.innerHTML = '';
+        main.classList.remove('page-enter');
+        // Force reflow so the animation retriggers on every navigation
+        void main.offsetWidth;
+        main.classList.add('page-enter');
         pageRenderers[page](main);
     }
 
@@ -335,70 +399,103 @@ function navigateTo(page) {
 // ===== PAGE: HOME =====
 function renderHome(c) {
     const u = state.user;
-    const xpToNext = 1000;
-    const xpProgress = ((u.xp % xpToNext) / xpToNext * 100).toFixed(1);
+    const xpToNext   = 1000;
+    const xpInLevel  = u.xp % xpToNext;
+    const xpPct      = (xpInLevel / xpToNext * 100).toFixed(1);
+    const xpLeft     = xpToNext - xpInLevel;
+
+    // SVG circular XP ring
+    const R   = 42;
+    const circ = 2 * Math.PI * R;
+    const dash = (xpPct / 100 * circ).toFixed(1);
+
+    const quickActions = [
+        { page:'lessons',   icon:'📚', label:'وانەکان',   color:'#4F46E5' },
+        { page:'quiz',      icon:'📝', label:'کویز',      color:'#0EA5E9' },
+        { page:'flashcards',icon:'🃏', label:'فلاشکارت', color:'#10B981' },
+        { page:'speed-quiz',icon:'⚡', label:'کویزی خێرا',color:'#F59E0B' },
+        { page:'listening', icon:'🎧', label:'بیستن',     color:'#8B5CF6' },
+        { page:'speaking',  icon:'🎤', label:'قسەکردن',   color:'#EF4444' },
+    ];
 
     c.innerHTML = `
-        <div class="card gradient-primary" style="color:#fff;margin-bottom:12px">
-            <h2 style="font-size:18px;margin-bottom:4px">👋 سڵاو، ${escHtml(u.name)}!</h2>
-            <p style="opacity:.88;font-size:14px">ئاست ${u.level} • ⭐ ${u.xp} XP</p>
-            <div class="progress-bar" style="margin:10px 0;background:rgba(255,255,255,.3)">
-                <div class="progress-fill" style="width:${xpProgress}%;background:#fff"></div>
-            </div>
-            <p style="font-size:11px;opacity:.75">${Math.round((1 - xpProgress / 100) * xpToNext)} XP بۆ ئاستی داهاتوو</p>
-        </div>
-
-        <div class="grid-4" style="margin-bottom:12px">
-            <div class="card" style="text-align:center;padding:14px 8px;cursor:default">
-                <div style="font-size:24px">🔥</div>
-                <strong style="font-size:16px">${u.streak}</strong>
-                <p style="font-size:10px;color:var(--text-secondary);margin-top:2px">ستریک</p>
-            </div>
-            <div class="card" style="text-align:center;padding:14px 8px;cursor:default">
-                <div style="font-size:24px">💎</div>
-                <strong style="font-size:16px">${u.gems}</strong>
-                <p style="font-size:10px;color:var(--text-secondary);margin-top:2px">گەوهەر</p>
-            </div>
-            <div class="card" style="text-align:center;padding:14px 8px;cursor:default">
-                <div style="font-size:24px">🪙</div>
-                <strong style="font-size:16px">${u.coins}</strong>
-                <p style="font-size:10px;color:var(--text-secondary);margin-top:2px">سکۆ</p>
-            </div>
-            <div class="card" style="text-align:center;padding:14px 8px;cursor:default">
-                <div style="font-size:24px">📚</div>
-                <strong style="font-size:16px">${u.totalWords}</strong>
-                <p style="font-size:10px;color:var(--text-secondary);margin-top:2px">وشە</p>
-            </div>
-        </div>
-
-        <button class="card" onclick="navigateTo('lessons')" style="width:100%;text-align:inherit;cursor:pointer;border:none;font-family:var(--font)">
-            <div style="display:flex;align-items:center;gap:12px">
-                <span style="font-size:28px">📚</span>
-                <div style="flex:1">
-                    <strong style="display:block">بەردەوام بە</strong>
-                    <p style="font-size:12px;color:var(--text-secondary)">وانەی داهاتوو چاوەڕوانتە</p>
+        <!-- HERO CARD -->
+        <div class="hero-card gradient-primary" style="color:#fff;margin-bottom:14px">
+            <div class="hero-left">
+                <p class="hero-greeting">👋 سڵاو!</p>
+                <h2 class="hero-name">${escHtml(u.name)}</h2>
+                <div class="hero-level-badge">ئاست ${u.level}</div>
+                <div class="hero-xp-bar">
+                    <div class="hero-xp-fill" style="width:${xpPct}%"></div>
                 </div>
-                <span class="btn btn-primary btn-sm">▶️ دەست بکە</span>
+                <p class="hero-xp-label">${xpLeft.toLocaleString()} XP بۆ ئاستی داهاتوو</p>
             </div>
+            <div class="hero-right">
+                <svg viewBox="0 0 100 100" class="xp-ring" aria-hidden="true">
+                    <circle cx="50" cy="50" r="${R}" fill="none"
+                            stroke="rgba(255,255,255,0.2)" stroke-width="8"/>
+                    <circle cx="50" cy="50" r="${R}" fill="none"
+                            stroke="#fff" stroke-width="8"
+                            stroke-linecap="round"
+                            stroke-dasharray="${dash} ${(circ - parseFloat(dash)).toFixed(1)}"
+                            stroke-dashoffset="${(circ / 4).toFixed(1)}"
+                            class="xp-ring-fill"/>
+                    <text x="50" y="45" text-anchor="middle" fill="#fff" font-size="14" font-weight="800" font-family="var(--font)">${xpInLevel}</text>
+                    <text x="50" y="60" text-anchor="middle" fill="rgba(255,255,255,.75)" font-size="9" font-family="var(--font)">XP</text>
+                </svg>
+            </div>
+        </div>
+
+        <!-- STAT STRIP -->
+        <div class="stat-strip">
+            <div class="stat-chip">
+                <span class="stat-chip-icon">🔥</span>
+                <div>
+                    <strong class="stat-chip-val">${u.streak}</strong>
+                    <p class="stat-chip-lbl">ستریک</p>
+                </div>
+            </div>
+            <div class="stat-chip">
+                <span class="stat-chip-icon">💎</span>
+                <div>
+                    <strong class="stat-chip-val">${u.gems}</strong>
+                    <p class="stat-chip-lbl">گەوهەر</p>
+                </div>
+            </div>
+            <div class="stat-chip">
+                <span class="stat-chip-icon">🪙</span>
+                <div>
+                    <strong class="stat-chip-val">${u.coins}</strong>
+                    <p class="stat-chip-lbl">سکۆ</p>
+                </div>
+            </div>
+            <div class="stat-chip">
+                <span class="stat-chip-icon">📖</span>
+                <div>
+                    <strong class="stat-chip-val">${u.totalWords}</strong>
+                    <p class="stat-chip-lbl">وشە</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTINUE LEARNING CTA -->
+        <button class="continue-card" onclick="navigateTo('lessons')">
+            <div class="continue-icon">📚</div>
+            <div class="continue-body">
+                <strong>بەردەوام بە</strong>
+                <p>وانەی داهاتوو چاوەڕوانتە</p>
+            </div>
+            <div class="continue-arrow">▶</div>
         </button>
 
-        <div class="grid-2" style="margin-top:4px">
-            <button class="card" onclick="navigateTo('quiz')" style="text-align:center;border:none;cursor:pointer;font-family:var(--font)">
-                <div style="font-size:32px">📝</div>
-                <strong>کویز</strong>
-            </button>
-            <button class="card" onclick="navigateTo('flashcards')" style="text-align:center;border:none;cursor:pointer;font-family:var(--font)">
-                <div style="font-size:32px">🃏</div>
-                <strong>فلاشکارت</strong>
-            </button>
-            <button class="card" onclick="navigateTo('speed-quiz')" style="text-align:center;border:none;cursor:pointer;font-family:var(--font)">
-                <div style="font-size:32px">⚡</div>
-                <strong>کویزی خێرا</strong>
-            </button>
-            <button class="card" onclick="navigateTo('packages')" style="text-align:center;border:none;cursor:pointer;font-family:var(--font)">
-                <div style="font-size:32px">💳</div>
-                <strong>پاکێج</strong>
-            </button>
+        <!-- QUICK ACTIONS GRID -->
+        <p class="section-label">چالاکییەکان</p>
+        <div class="quick-grid">
+            ${quickActions.map(a => `
+            <button class="quick-card" onclick="navigateTo('${escAttr(a.page)}')">
+                <div class="quick-icon" style="background:${a.color}22;color:${a.color}">${a.icon}</div>
+                <span class="quick-label">${escHtml(a.label)}</span>
+            </button>`).join('')}
         </div>`;
 }
 
@@ -918,66 +1015,182 @@ function checkWr() {
 }
 
 // ===== PAGE: AI TEACHER =====
+const AI_SYSTEM_PROMPT = `You are Ziman AI, a friendly and expert Kurdish language teacher. You specialize in Sorani Kurdish (Central Kurdish) and Badini Kurdish (Northern Kurdish). Your role is to help learners understand Kurdish vocabulary, grammar, pronunciation, idioms, proverbs, and culture.
+
+Guidelines:
+- Default to Sorani Kurdish (written in Arabic script) unless the user asks for Badini
+- Keep responses concise and clear — 2-4 sentences max unless the user asks for more detail
+- Always explain grammar points with examples
+- When teaching vocabulary, show: Kurdish word + transliteration + meaning
+- Be encouraging and warm — language learning is hard!
+- If the user writes in Kurdish, respond in Kurdish first, then English
+- You can also help with Arabic and other languages Ziman teaches
+- Never mix Sorani and Badini in the same sentence without labeling which is which`;
+
 function renderAITeacher(c) {
+    const hasKey = !!lsGet('zm_ai_key');
     c.innerHTML = `
         <h2 style="margin-bottom:12px">🤖 مامۆستای AI</h2>
+        ${!hasKey ? `
+        <div class="card" style="background:linear-gradient(135deg,var(--primary-light,#EEF2FF),var(--surface));border:1.5px solid var(--primary);margin-bottom:12px">
+            <p style="font-weight:600;margin-bottom:6px">🔑 OpenAI API کی پێویستە</p>
+            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:10px">بۆ بەکارهێنانی مامۆستای AI ی ڕاستەقینە، کلیلی API ی OpenAI دابنێ. ئەمە بە پاشگوازییەوە لە <strong>localStorage</strong> خەزن دەکرێت — هیچکەس جگەت ناتوانێت بیبینێت.</p>
+            <div style="display:flex;gap:8px">
+                <input id="aiKeyInput" class="input" type="password" placeholder="sk-..." style="flex:1;font-family:monospace;font-size:13px" aria-label="OpenAI API Key">
+                <button class="btn btn-primary" onclick="saveAIKey()">✅ خەزن</button>
+            </div>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:8px">
+                کلیلت نییە؟ <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" style="color:var(--primary)">openai.com/api-keys</a> سەردان بکە
+            </p>
+        </div>` : `
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px;color:var(--success)">
+            ✅ <span>کلیلی API دامەزراوە</span>
+            <button class="btn btn-sm" onclick="removeAIKey()" style="margin-right:auto;font-size:11px;padding:2px 8px">لابردن</button>
+        </div>`}
         <div id="aiChat" class="card"
-             style="min-height:300px;max-height:420px;overflow-y:auto;padding:16px;margin-bottom:12px"
+             style="min-height:280px;max-height:400px;overflow-y:auto;padding:16px;margin-bottom:12px"
              aria-live="polite" aria-label="چاتی AI">
             <div style="text-align:center;color:var(--text-secondary);padding:40px 0">
                 <p style="font-size:48px;margin-bottom:8px">🤖</p>
-                <p>سڵاو! چۆن دەتوانم یارمەتیت بدەم؟</p>
+                <p style="font-weight:600;margin-bottom:4px">سڵاو! من مامۆستای AI ی زمانم.</p>
+                <p style="font-size:13px">${hasKey ? 'پرسیارێک بکە — ڕاستەقینە وەڵامت دەدەمەوە!' : 'کلیلی API دابنێ بۆ وەڵامی ڕاستەقینە، یان بەبێ کلیل پرسیار بکە.'}</p>
             </div>
         </div>
         <div style="display:flex;gap:8px">
-            <input id="aiInput" class="input" placeholder="پرسیارت بکە..."
-                   onkeydown="if(event.key==='Enter')askAI()" aria-label="پیامت بنووسە">
-            <button class="btn btn-primary" onclick="askAI()" aria-label="بنێرە">📤</button>
-        </div>`;
+            <input id="aiInput" class="input" placeholder="پرسیارت بکە... (کوردی یان ئینگلیزی)"
+                   onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();askAI();}" aria-label="پیامت بنووسە">
+            <button class="btn btn-primary" onclick="askAI()" aria-label="بنێرە" style="min-width:44px">📤</button>
+        </div>
+        <p style="font-size:11px;color:var(--text-muted);margin-top:8px;text-align:center">
+            نموونە: "سڵاو چۆن دەگووترێت؟" · "explain Kurdish verb tenses" · "what does گوڵ mean?"
+        </p>`;
 
     _trackTimeout(setTimeout(() => document.getElementById('aiInput')?.focus(), 100));
 }
 
-function askAI() {
+function saveAIKey() {
+    const inp = document.getElementById('aiKeyInput');
+    const key = inp?.value.trim();
+    if (!key || !key.startsWith('sk-')) {
+        toast('❌ کلیلی دروست نییە. دەبێت بە sk- دەست پێبکات');
+        return;
+    }
+    lsSet('zm_ai_key', key);
+    toast('✅ کلیلی API خەزن کرا!');
+    navigateTo('ai-teacher');
+}
+
+function removeAIKey() {
+    try { localStorage.removeItem('zm_ai_key'); } catch(e) {}
+    toast('✅ کلیل لابرا');
+    navigateTo('ai-teacher');
+}
+
+function _appendBubble(chat, html, isUser) {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = `text-align:${isUser ? 'right' : 'left'};margin:8px 0`;
+    const bubble = document.createElement('span');
+    bubble.style.cssText = `background:${isUser ? 'var(--primary)' : 'var(--surface-hover)'};${isUser ? 'color:#fff;' : ''}padding:10px 14px;border-radius:${isUser ? '18px 4px 18px 18px' : '4px 18px 18px 18px'};display:inline-block;max-width:82%;word-break:break-word;white-space:pre-wrap;text-align:right;direction:auto;line-height:1.55`;
+    bubble.innerHTML = html;
+    wrap.appendChild(bubble);
+    chat.appendChild(wrap);
+    chat.scrollTop = chat.scrollHeight;
+    return bubble;
+}
+
+async function askAI() {
     const inp  = document.getElementById('aiInput');
     const chat = document.getElementById('aiChat');
     if (!inp || !chat || !inp.value.trim()) return;
 
     const q = inp.value.trim();
     inp.value = '';
+    inp.disabled = true;
+
+    // Remove placeholder if first message
+    const placeholder = chat.querySelector('div[style*="text-align:center"]');
+    if (placeholder) placeholder.remove();
 
     // User bubble
-    chat.innerHTML += `
-        <div style="text-align:right;margin:8px 0">
-            <span style="background:var(--primary);color:#fff;padding:8px 14px;border-radius:18px 4px 18px 18px;display:inline-block;max-width:80%;word-break:break-word">
-                ${escHtml(q)}
-            </span>
-        </div>`;
+    _appendBubble(chat, escHtml(q), true);
+
+    const apiKey = lsGet('zm_ai_key');
+
+    if (!apiKey) {
+        // Simulated responses (fallback — no key)
+        const responses = [
+            'بەڵێ، دەتوانم یارمەتیت بدەم! بۆ وەڵامی ڕاستەقینە کلیلی OpenAI API دابنێ لە سەرەوە.',
+            'زمانی کوردی زۆر جوانە! بۆ فێربوونی باشتر، کلیلی API دابنێ تا وەڵامی تەواوتر بدەمەوە.',
+            'ئەمە نموونەیە. مامۆستای ڕاستەقینە کلیلی API پێویستە. لە ڕێکخستن دابنێ.',
+        ];
+        const reply = responses[Math.floor(Math.random() * responses.length)];
+        _trackTimeout(setTimeout(() => {
+            inp.disabled = false;
+            const chatNow = document.getElementById('aiChat');
+            if (!chatNow) return;
+            _appendBubble(chatNow, '🤖 ' + escHtml(reply), false);
+            state.user.xp += 2;
+            save();
+        }, 600));
+        return;
+    }
+
+    // Real AI — show typing indicator
+    const typingWrap = document.createElement('div');
+    typingWrap.style.cssText = 'text-align:left;margin:8px 0';
+    typingWrap.innerHTML = `<span style="background:var(--surface-hover);padding:10px 14px;border-radius:4px 18px 18px 18px;display:inline-block;color:var(--text-muted);font-size:13px">🤖 &#8230;</span>`;
+    chat.appendChild(typingWrap);
     chat.scrollTop = chat.scrollHeight;
 
-    // Simulated AI response
-    const responses = [
-        'بەڵێ، دەتوانم یارمەتیت بدەم! زمانی کوردی زۆر جوانە.',
-        'زۆر باشە! پرسیارەکەت دروستە. وانەی داهاتوو دەتوانیت بیخوێنیتەوە.',
-        'باشترین ڕێگا بۆ فێربوون، ئەمەیە: ڕۆژانە تەمرین بکە!',
-        'ئەمە پرسیارێکی باشە. بەردەوام بە، دەبیتە زۆر باش!',
-        'زمانی کوردی ١٢ ملیۆن قسەکەر هەیە. شانازیت بە فێربوونیەوە!',
-    ];
-    const reply = responses[Math.floor(Math.random() * responses.length)];
+    // Build conversation history from existing bubbles for context
+    const lang = state.settings.currentLanguage || 'en-ku';
+    const langLabel = lang.split('-').map(l => l.toUpperCase()).join(' → ');
 
-    _trackTimeout(setTimeout(() => {
-        const chatNow = document.getElementById('aiChat');
-        if (!chatNow) return;
-        chatNow.innerHTML += `
-            <div style="text-align:left;margin:8px 0">
-                <span style="background:var(--surface-hover);padding:8px 14px;border-radius:4px 18px 18px 18px;display:inline-block;max-width:80%;word-break:break-word">
-                    🤖 ${escHtml(reply)}
-                </span>
-            </div>`;
-        chatNow.scrollTop = chatNow.scrollHeight;
-        state.user.xp += 5;
+    try {
+        const res = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+                model: 'gpt-4o-mini',
+                max_tokens: 400,
+                temperature: 0.7,
+                messages: [
+                    {
+                        role: 'system',
+                        content: AI_SYSTEM_PROMPT + `\n\nThe user is currently studying: ${langLabel}. Tailor examples to this language pair when relevant.`,
+                    },
+                    { role: 'user', content: q },
+                ],
+            }),
+        });
+
+        typingWrap.remove();
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            const msg = err?.error?.message || `کێشەیەک هەبوو (${res.status})`;
+            _appendBubble(chat, `❌ ${escHtml(msg)}`, false);
+            inp.disabled = false;
+            return;
+        }
+
+        const data = await res.json();
+        const reply = data.choices?.[0]?.message?.content?.trim() || '…';
+        _appendBubble(chat, escHtml(reply), false);
+        state.user.xp += 10;
         save();
-    }, 800));
+        updateUI();
+
+    } catch (err) {
+        typingWrap.remove();
+        _appendBubble(chat, `❌ ${escHtml(err.message || 'کێشەیەک هەبوو. دووبارە هەوڵ بدەرەوە.')}`, false);
+    }
+
+    inp.disabled = false;
+    inp.focus();
 }
 
 // ===== PAGE: PROGRESS =====
@@ -1026,54 +1239,94 @@ function renderProgress(c) {
 
 // ===== PAGE: ACHIEVEMENTS =====
 function renderAchievements(c) {
+    const xp     = state.user.xp;
+    const streak = state.user.streak;
     const badges = [
-        { n:'برۆنزی',  i:'🥉', req:100,   e: state.user.xp >= 100   },
-        { n:'زیوی',    i:'🥈', req:1000,  e: state.user.xp >= 1000  },
-        { n:'زێڕین',  i:'🥇', req:5000,  e: state.user.xp >= 5000  },
-        { n:'ئەڵماسی',i:'💎', req:10000, e: state.user.xp >= 10000 },
-        { n:'شاهانە', i:'👑', req:50000, e: state.user.xp >= 50000 },
-        { n:'سووتاو',  i:'🔥', req:7,    e: state.user.streak >= 7  },
+        { n:'برۆنزی',  i:'🥉', req:100,   val:xp,     unit:'XP',    color:'#CD7F32' },
+        { n:'زیوی',    i:'🥈', req:1000,  val:xp,     unit:'XP',    color:'#94A3B8' },
+        { n:'زێڕین',  i:'🥇', req:5000,  val:xp,     unit:'XP',    color:'#F59E0B' },
+        { n:'ئەڵماسی',i:'💎', req:10000, val:xp,     unit:'XP',    color:'#0EA5E9' },
+        { n:'شاهانە', i:'👑', req:50000, val:xp,     unit:'XP',    color:'#8B5CF6' },
+        { n:'سووتاو', i:'🔥', req:7,     val:streak, unit:'ستریک', color:'#EF4444' },
+        { n:'زمانزان',i:'🌍', req:100,   val:state.user.totalWords, unit:'وشە', color:'#10B981' },
+        { n:'پیادەڕۆ',i:'🎯', req:10,   val:state.learning.history.length, unit:'وانە', color:'#4F46E5' },
     ];
 
     c.innerHTML = `
-        <h2 style="margin-bottom:12px">🏆 دەستکەوتەکان</h2>
+        <h2 style="margin-bottom:4px">🏆 دەستکەوتەکان</h2>
+        <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px">${badges.filter(b => b.val >= b.req).length} / ${badges.length} کردەوەی</p>
         <div class="grid-2">
-            ${badges.map(b => `
-                <div class="card" style="text-align:center;opacity:${b.e ? '1' : '0.45'};transition:opacity var(--transition)">
-                    <div style="font-size:40px;margin-bottom:8px">${b.e ? b.i : '🔒'}</div>
-                    <strong>${escHtml(b.n)}</strong>
-                    ${b.e
-                        ? '<p style="color:var(--success);font-size:12px;margin-top:4px">✅ کردەوەی</p>'
-                        : `<p style="font-size:11px;color:var(--text-muted);margin-top:4px">${b.req} ${b.req === 7 ? 'ستریک' : 'XP'} پێویستە</p>`}
-                </div>`).join('')}
+            ${badges.map(b => {
+                const earned  = b.val >= b.req;
+                const pct     = Math.min(100, Math.round(b.val / b.req * 100));
+                return `
+                <div class="card achievement-card ${earned ? 'earned' : ''}" style="${earned ? `border-color:${b.color}40;` : ''}">
+                    <div class="achievement-icon" style="background:${earned ? b.color + '22' : 'var(--surface-hover)'}">
+                        <span style="font-size:28px;${earned ? '' : 'filter:grayscale(1);opacity:.4'}">${earned ? b.i : '🔒'}</span>
+                    </div>
+                    <strong style="display:block;margin:8px 0 2px;font-size:13px${earned ? `;color:${b.color}` : ''}">${escHtml(b.n)}</strong>
+                    ${earned
+                        ? `<p style="color:var(--success);font-size:11px;font-weight:600">✅ کردەوەی</p>`
+                        : `<div style="margin-top:6px">
+                               <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-bottom:3px">
+                                   <span>${b.val.toLocaleString()} / ${b.req.toLocaleString()} ${b.unit}</span>
+                                   <span>${pct}%</span>
+                               </div>
+                               <div class="progress-bar" style="height:5px">
+                                   <div class="progress-fill" style="width:${pct}%;background:${b.color}"></div>
+                               </div>
+                           </div>`}
+                </div>`;
+            }).join('')}
         </div>`;
 }
 
 // ===== PAGE: COMMUNITY =====
 function renderCommunity(c) {
     const users = [
-        { n:'سارا',   l:12, xp:4500, a:'👩' },
-        { n:'ئارام',  l:8,  xp:2800, a:'👨' },
-        { n:'دلشاد', l:15, xp:6200, a:'🧔' },
-        { n:'تۆ',    l:state.user.level, xp:state.user.xp, a:'👤' },
+        { n:'دلشاد', l:15, xp:6200, streak:14, a:'🧔', isMe:false },
+        { n:'سارا',   l:12, xp:4500, streak:9,  a:'👩', isMe:false },
+        { n:'ئارام',  l:8,  xp:2800, streak:5,  a:'👨', isMe:false },
+        { n:'تۆ',    l:state.user.level, xp:state.user.xp, streak:state.user.streak, a:'👤', isMe:true },
     ].sort((a, b) => b.xp - a.xp);
 
-    const medals = ['🥇','🥈','🥉'];
+    const medals    = ['🥇','🥈','🥉'];
+    const podiumBg  = ['rgba(245,158,11,.12)','rgba(148,163,184,.12)','rgba(205,127,50,.12)'];
+    const podiumBdr = ['#F59E0B','#94A3B8','#CD7F32'];
+
+    const myRank = users.findIndex(u => u.isMe) + 1;
 
     c.innerHTML = `
-        <h2 style="margin-bottom:12px">👥 کۆمەڵگا</h2>
-        <div class="card">
-            <h3 style="margin-bottom:12px">🏆 ڕیزبەندی هەفتانە</h3>
+        <h2 style="margin-bottom:4px">👥 کۆمەڵگا</h2>
+        <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px">جێگەی تۆ: #${myRank} لە هەفتەی ئەمەدا</p>
+
+        <div class="card" style="padding:0;overflow:hidden">
+            <div style="padding:16px 20px 12px;border-bottom:1px solid var(--border-light)">
+                <h3 style="font-size:15px">🏆 ڕیزبەندی هەفتانە</h3>
+            </div>
             ${users.map((u, i) => `
-                <div style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border-light)">
-                    <span style="font-size:20px;width:28px;text-align:center">${medals[i] || `#${i + 1}`}</span>
-                    <span style="font-size:22px">${u.a}</span>
-                    <div style="flex:1">
-                        <strong style="${u.n === 'تۆ' ? 'color:var(--primary)' : ''}">${escHtml(u.n)}</strong>
-                        <p style="font-size:12px;color:var(--text-secondary)">ئاست ${u.l}</p>
+                <div class="leaderboard-row ${u.isMe ? 'leaderboard-me' : ''}"
+                     style="${i < 3 ? `background:${podiumBg[i]};` : ''}${u.isMe ? 'background:var(--primary-alpha);' : ''}">
+                    <div class="lb-rank" style="${i < 3 ? `color:${podiumBdr[i]};font-size:22px` : 'color:var(--text-muted);font-size:14px;font-weight:700'}">
+                        ${medals[i] || `#${i + 1}`}
                     </div>
-                    <span style="font-weight:700;color:var(--primary)">${u.xp.toLocaleString()} XP</span>
+                    <div class="lb-avatar">${u.a}</div>
+                    <div class="lb-info">
+                        <strong style="${u.isMe ? 'color:var(--primary)' : ''}">${escHtml(u.n)}</strong>
+                        <p>ئاست ${u.l} · 🔥 ${u.streak} ڕۆژ</p>
+                    </div>
+                    <div class="lb-xp">
+                        <strong>${u.xp.toLocaleString()}</strong>
+                        <p>XP</p>
+                    </div>
                 </div>`).join('')}
+        </div>
+
+        <div class="card" style="margin-top:12px;text-align:center;padding:20px">
+            <p style="font-size:32px;margin-bottom:6px">🌍</p>
+            <p style="font-weight:600;margin-bottom:4px">دەستەی زمانی تۆ</p>
+            <p style="font-size:13px;color:var(--text-secondary)">بانگهێشتی هاوڕێکانت بکە و پێکەوە فێربن</p>
+            <button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="toast('بەزووی دێت! 🚀')">بانگهێشت بکە</button>
         </div>`;
 }
 

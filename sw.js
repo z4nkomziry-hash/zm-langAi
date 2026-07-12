@@ -4,7 +4,7 @@
 // bust stale caches automatically.
 // ============================================
 
-const CACHE_NAME  = 'ziman-v4-20260712';
+const CACHE_NAME  = 'ziman-v6-20260712';
 const CACHE_FIRST = [
     '/',
     '/index.html',

@@ -1,0 +1,3 @@
+- [AI Teacher architecture](ai-teacher.md) — static site AI Teacher pattern; OpenAI key stored in localStorage, called via fetch() from browser; no backend needed.
+- [Lesson data format](lesson-data.md) — all 11 language pairs now have 7 topics each; word format is "source=کوردی" strings; always escape with escHtml() when rendering.
+- [Visual design system](visual-design.md) — Phase 2 polish: hero-card + xp-ring SVG, stat-strip, quick-grid, achievement-card, leaderboard-row all defined in style.css; page transitions via .page-enter class on main.
