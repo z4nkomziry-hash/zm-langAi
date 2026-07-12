@@ -2,72 +2,139 @@
 <html lang="ckb" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#58cc02">
-    <meta name="description" content="فێربوونی 15 زمان بە شێوازی Duolingo">
+    <meta name="description" content="Ziman - فێربوونی 15 زمان بە شێوازی Duolingo + Memrise + Busuu + Babbel + LingQ">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
     <title>Ziman - فێربوونی زمان</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="light-mode">
 
-    <!-- Splash Screen -->
+    <!-- ========== SPLASH SCREEN ========== -->
     <div class="splash-screen" id="splashScreen">
-        <div class="splash-logo">🌍</div>
-        <div class="splash-title">Ziman</div>
-        <div class="splash-subtitle">زمانێکی نوێ فێربە</div>
+        <div class="splash-content">
+            <div class="splash-logo">🌍</div>
+            <div class="splash-title">Ziman</div>
+            <div class="splash-subtitle">زمانێکی نوێ فێربە</div>
+            <div class="splash-loader">
+                <div class="splash-dot"></div>
+                <div class="splash-dot"></div>
+                <div class="splash-dot"></div>
+            </div>
+        </div>
     </div>
 
-    <!-- App Container -->
+    <!-- ========== APP CONTAINER ========== -->
     <div class="app-container" id="appContainer">
         
         <!-- Header -->
         <header class="app-header" id="appHeader">
-            <button class="menu-btn" id="menuBtn">☰</button>
-            <div class="header-title" id="headerTitle">Ziman</div>
+            <button class="menu-btn ripple-btn" id="menuBtn" aria-label="مینیو">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="header-title" id="headerTitle">🏠 Ziman</div>
             <div class="header-stats">
-                <span class="streak-badge">🔥 <span id="headerStreak">0</span></span>
-                <span class="xp-badge">⭐ <span id="headerXP">0</span></span>
-                <span class="gems-badge">💎 <span id="headerGems">0</span></span>
+                <span class="stat-badge streak-badge" title="ستریک">🔥 <span id="headerStreak">0</span></span>
+                <span class="stat-badge xp-badge" title="ئێکس پی">⭐ <span id="headerXP">0</span></span>
+                <span class="stat-badge gems-badge" title="گوەهر">💎 <span id="headerGems">0</span></span>
+                <span class="stat-badge coins-badge" title="دراو">🪙 <span id="headerCoins">0</span></span>
             </div>
         </header>
 
+        <!-- Side Menu Overlay -->
+        <div class="menu-overlay" id="menuOverlay"></div>
+
         <!-- Side Menu -->
         <nav class="side-menu" id="sideMenu">
-            <div class="menu-profile">
-                <div class="profile-avatar">👤</div>
-                <div class="profile-name">فێرخواز</div>
-                <div class="profile-level">ئاست ١</div>
+            <div class="menu-header">
+                <div class="menu-profile">
+                    <div class="profile-avatar" id="menuAvatar">👤</div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="menuName">فێرخواز</div>
+                        <div class="profile-level" id="menuLevel">ئاست ١</div>
+                        <div class="profile-xp" id="menuXP">0 XP</div>
+                    </div>
+                </div>
             </div>
+            
+            <div class="menu-search">
+                <input type="text" placeholder="🔍 گەڕان..." class="search-input" id="menuSearch">
+            </div>
+            
             <ul class="menu-list">
-                <li data-page="home">🏠 سەرەکی</li>
-                <li data-page="lessons">📚 وانەکان</li>
-                <li data-page="ai-teacher">🤖 مامۆستای AI</li>
-                <li data-page="quiz">📝 کویز</li>
-                <li data-page="listening">🎧 بیستن</li>
-                <li data-page="speaking">🎤 قسەکردن</li>
-                <li data-page="reading">📖 خوێندنەوە</li>
-                <li data-page="writing">✍️ نووسین</li>
-                <li data-page="progress">📊 پێشکەوتن</li>
-                <li data-page="achievements">🏆 دەستکەوتەکان</li>
-                <li data-page="community">👥 کۆمەڵگا</li>
-                <li data-page="settings">⚙️ ڕێکخستن</li>
-                <li data-page="premium">💎 پلانی پڕیمیوم</li>
+                <li data-page="home" class="active">
+                    <span class="menu-icon">🏠</span> سەرەکی
+                </li>
+                <li data-page="lessons">
+                    <span class="menu-icon">📚</span> وانەکان
+                </li>
+                <li data-page="flashcards">
+                    <span class="menu-icon">🃏</span> فلاشکارت
+                </li>
+                <li data-page="quiz">
+                    <span class="menu-icon">📝</span> کویز
+                </li>
+                <li data-page="speed-quiz">
+                    <span class="menu-icon">⚡</span> کویزی خێرا
+                </li>
+                <li data-page="listening">
+                    <span class="menu-icon">🎧</span> بیستن
+                </li>
+                <li data-page="speaking">
+                    <span class="menu-icon">🎤</span> قسەکردن
+                </li>
+                <li data-page="reading">
+                    <span class="menu-icon">📖</span> خوێندنەوە
+                </li>
+                <li data-page="writing">
+                    <span class="menu-icon">✍️</span> نووسین
+                </li>
+                <li data-page="ai-teacher">
+                    <span class="menu-icon">🤖</span> مامۆستای AI
+                </li>
             </ul>
+            
+            <div class="menu-divider"></div>
+            
+            <ul class="menu-list">
+                <li data-page="progress">
+                    <span class="menu-icon">📊</span> پێشکەوتن
+                </li>
+                <li data-page="achievements">
+                    <span class="menu-icon">🏆</span> دەستکەوتەکان
+                </li>
+                <li data-page="community">
+                    <span class="menu-icon">👥</span> کۆمەڵگا
+                </li>
+                <li data-page="profile">
+                    <span class="menu-icon">👤</span> پڕۆفایل
+                </li>
+                <li data-page="settings">
+                    <span class="menu-icon">⚙️</span> ڕێکخستن
+                </li>
+                <li data-page="premium">
+                    <span class="menu-icon">💎</span> پڕیمیوم
+                </li>
+            </ul>
+            
             <div class="menu-footer">
                 <select id="languageSelect" class="language-select">
-                    <option value="en-ku">ئینگلیزی → کوردی</option>
-                    <option value="ku-en">کوردی → ئینگلیزی</option>
-                    <option value="ar-ku">عەرەبی → کوردی</option>
-                    <option value="tr-ku">تورکی → کوردی</option>
-                    <option value="fa-ku">فارسی → کوردی</option>
-                    <option value="de-ku">ئەڵمانی → کوردی</option>
-                    <option value="fr-ku">فەرەنسی → کوردی</option>
-                    <option value="es-ku">ئیسپانی → کوردی</option>
-                    <option value="ru-ku">ڕووسی → کوردی</option>
-                    <option value="zh-ku">چینی → کوردی</option>
-                    <option value="ja-ku">ژاپۆنی → کوردی</option>
-                    <option value="ko-ku">کۆری → کوردی</option>
+                    <option value="en-ku">🇬🇧 ئینگلیزی → کوردی</option>
+                    <option value="ku-en">☀️ کوردی → ئینگلیزی</option>
+                    <option value="ar-ku">🇸🇦 عەرەبی → کوردی</option>
+                    <option value="tr-ku">🇹🇷 تورکی → کوردی</option>
+                    <option value="fa-ku">🇮🇷 فارسی → کوردی</option>
+                    <option value="de-ku">🇩🇪 ئەڵمانی → کوردی</option>
+                    <option value="fr-ku">🇫🇷 فەرەنسی → کوردی</option>
+                    <option value="es-ku">🇪🇸 ئیسپانی → کوردی</option>
+                    <option value="ru-ku">🇷🇺 ڕووسی → کوردی</option>
+                    <option value="zh-ku">🇨🇳 چینی → کوردی</option>
+                    <option value="ja-ku">🇯🇵 ژاپۆنی → کوردی</option>
+                    <option value="ko-ku">🇰🇷 کۆری → کوردی</option>
                 </select>
             </div>
         </nav>
@@ -78,73 +145,95 @@
         </main>
 
         <!-- Bottom Navigation (Mobile) -->
-        <nav class="bottom-nav">
-            <button data-page="home">🏠</button>
-            <button data-page="lessons">📚</button>
-            <button data-page="quiz">📝</button>
-            <button data-page="ai-teacher">🤖</button>
-            <button data-page="profile">👤</button>
+        <nav class="bottom-nav" id="bottomNav">
+            <button data-page="home" class="active" aria-label="سەرەکی">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">سەرەکی</span>
+            </button>
+            <button data-page="lessons" aria-label="وانەکان">
+                <span class="nav-icon">📚</span>
+                <span class="nav-label">وانە</span>
+            </button>
+            <button data-page="quiz" aria-label="کویز">
+                <span class="nav-icon">📝</span>
+                <span class="nav-label">کویز</span>
+            </button>
+            <button data-page="ai-teacher" aria-label="AI">
+                <span class="nav-icon">🤖</span>
+                <span class="nav-label">AI</span>
+            </button>
+            <button data-page="profile" aria-label="پڕۆفایل">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">پڕۆفایل</span>
+            </button>
         </nav>
 
         <!-- AI Assistant Bubble -->
-        <div class="ai-bubble" id="aiBubble">🤖</div>
+        <div class="ai-bubble" id="aiBubble" title="پرسیار لە AI بکە">🤖</div>
 
+        <!-- ========== POPUPS ========== -->
+        
         <!-- Daily Reward Popup -->
         <div class="popup-overlay" id="dailyRewardPopup">
-            <div class="popup-card">
+            <div class="popup-card popup-reward">
                 <div class="popup-icon">🎁</div>
                 <h2>خەڵاتی ڕۆژانە!</h2>
                 <p>بەردەوام بە لە فێربوون</p>
-                <div class="reward-amount">+50 💎</div>
-                <button class="btn btn-primary" id="claimReward">وەرگرتن</button>
+                <div class="reward-amount" id="dailyRewardAmount">+50 💎</div>
+                <div class="streak-info">🔥 ستریک: <span id="popupStreak">0</span> ڕۆژ</div>
+                <button class="btn btn-primary btn-glow btn-lg" id="claimReward">وەرگرتن 🎉</button>
             </div>
         </div>
 
         <!-- Achievement Popup -->
         <div class="popup-overlay" id="achievementPopup">
-            <div class="popup-card">
+            <div class="popup-card popup-achievement">
                 <div class="popup-icon" id="achievementIcon">🏆</div>
                 <h2 id="achievementTitle">دەستکەوت!</h2>
                 <p id="achievementDesc">تۆ گەیشتیتە ئاستێکی نوێ</p>
-                <button class="btn btn-primary" id="closeAchievement">زۆر باشە!</button>
+                <div class="achievement-xp" id="achievementXP"></div>
+                <button class="btn btn-primary" id="closeAchievement">زۆر باشە! 👏</button>
+            </div>
+        </div>
+
+        <!-- Lucky Wheel Popup -->
+        <div class="popup-overlay" id="luckyWheelPopup">
+            <div class="popup-card">
+                <button class="popup-close" id="closeWheel">✕</button>
+                <h2>🎡 چەرخی بەختی</h2>
+                <p>بخولێنە و خەڵات بەدەست بهێنە!</p>
+                <div class="lucky-wheel-container">
+                    <div class="lucky-wheel" id="luckyWheel">
+                        <div class="wheel-segment" style="--i:0; --color:#ff6b6b;">50 XP</div>
+                        <div class="wheel-segment" style="--i:1; --color:#ffc800;">100 💎</div>
+                        <div class="wheel-segment" style="--i:2; --color:#1cb0f6;">❤️ دڵ</div>
+                        <div class="wheel-segment" style="--i:3; --color:#58cc02;">30 XP</div>
+                        <div class="wheel-segment" style="--i:4; --color:#ce82ff;">200 💎</div>
+                        <div class="wheel-segment" style="--i:5; --color:#ff9f43;">🏆 بەدج</div>
+                    </div>
+                    <div class="wheel-pointer">▼</div>
+                </div>
+                <button class="btn btn-primary btn-lg" id="spinWheel">بخولێنە! 🎰</button>
+            </div>
+        </div>
+
+        <!-- Treasure Box Popup -->
+        <div class="popup-overlay" id="treasureBoxPopup">
+            <div class="popup-card">
+                <button class="popup-close" id="closeTreasure">✕</button>
+                <h2>📦 سندوقی گەنجینە</h2>
+                <p>کرتە بکە بۆ کردنەوە!</p>
+                <div class="treasure-box" id="treasureBox">🎁</div>
+                <button class="btn btn-primary btn-lg" id="openTreasure">بیکەرەوە 🔓</button>
             </div>
         </div>
 
         <!-- Confetti Canvas -->
         <canvas id="confettiCanvas"></canvas>
 
-        <!-- Notifications -->
+        <!-- Notifications Container -->
         <div class="notifications-container" id="notificationsContainer"></div>
 
-    </div>
-
-    <!-- Lucky Wheel -->
-    <div class="popup-overlay" id="luckyWheelPopup">
-        <div class="popup-card">
-            <h2>🎡 چەرخی بەختی</h2>
-            <div class="lucky-wheel" id="luckyWheel">
-                <div class="wheel-segments">
-                    <div class="segment" style="--i:0">50 XP</div>
-                    <div class="segment" style="--i:1">100 💎</div>
-                    <div class="segment" style="--i:2">❤️</div>
-                    <div class="segment" style="--i:3">30 XP</div>
-                    <div class="segment" style="--i:4">200 💎</div>
-                    <div class="segment" style="--i:5">🏆</div>
-                </div>
-                <div class="wheel-pointer">▼</div>
-            </div>
-            <button class="btn btn-primary" id="spinWheel">بخولێنە!</button>
-        </div>
-    </div>
-
-    <!-- Treasure Box -->
-    <div class="popup-overlay" id="treasureBoxPopup">
-        <div class="popup-card">
-            <h2>📦 سندوقی گەنجینە</h2>
-            <div class="treasure-box" id="treasureBox">🎁</div>
-            <p>کرتە بکە بۆ کردنەوە!</p>
-            <button class="btn btn-primary" id="openTreasure">بیکەرەوە</button>
-        </div>
     </div>
 
     <script src="app.js"></script>
