@@ -57,26 +57,68 @@ const state = {
 };
 
 // ===== LESSONS DATA =====
+// NOTE: Extended vocabulary is in data/vocabulary.js (ZIMAN_VOCAB_EN).
+// Topics here cover A1→B2 across 40 categories; each topic's words array
+// is kept at 10–15 entries for quiz UX. The full word bank (1,600+ entries)
+// is available via vocabByCategory() / vocabByLevel() for adaptive quizzes.
 const lessons = {
     'en-ku': { name: 'ئینگلیزی → کوردی', icon: '🇬🇧', topics: [
-        { id:1, title:'ئەلفوبێ',    words:['A=ئەی','B=بی','C=سی','D=دی','E=ئی','F=ئێف','G=جی','H=ئەیچ','I=ئای','J=جەی'] },
-        { id:2, title:'سڵاوکردن',   words:['Hello=سڵاو','Good morning=بەیانیت باش','Thank you=سوپاس','Goodbye=خواحافیزی','Please=تکایە','You\'re welcome=خۆشەویستانە','Sorry=ببووربە','Excuse me=ببووربە'] },
-        { id:3, title:'ژمارەکان',   words:['One=یەک','Two=دوو','Three=سێ','Four=چوار','Five=پێنج','Six=شەش','Seven=حەوت','Eight=هەشت','Nine=نۆ','Ten=دە'] },
-        { id:4, title:'ڕەنگەکان',   words:['Red=سوور','Blue=شین','Green=سەوز','Yellow=زەرد','Black=ڕەش','White=سپی','Orange=نارەنجی','Purple=مۆر'] },
-        { id:5, title:'خێزان',      words:['Mother=دایک','Father=باوک','Sister=خوشک','Brother=برا','Family=خێزان','Son=کوڕ','Daughter=کچ','Grandfather=باپیر'] },
-        { id:6, title:'خواردن',     words:['Water=ئاو','Bread=نان','Rice=برنج','Meat=گۆشت','Tea=چا','Milk=شیر','Egg=هێلکە','Fruit=مێوە'] },
-        { id:7,  title:'گەشت',          words:['Airport=فڕۆکەخانە','Hotel=هوتێل','Taxi=تاکسی','Ticket=بلیت','Map=نەخشە','Passport=پاسپۆرت','Bag=جانتا','Train=شەمەندەفەر'] },
-        { id:8,  title:'ئامێرەکان',     words:['Chair=کورسی','Table=مێز','Door=دەرگا','Window=پەنجەرە','Bed=جێخەو','Lamp=چرا','Book=کتێب','Pen=پێنووس','Phone=تەلەفۆن','Computer=کۆمپیووتەر'] },
-        { id:9,  title:'جەستە',         words:['Head=سەر','Eye=چاو','Ear=گوێ','Nose=لووت','Mouth=دەم','Hand=دەست','Foot=پێ','Heart=دڵ','Back=پشت','Shoulder=مەر'] },
-        { id:10, title:'کات و ڕۆژ',    words:['Morning=بەیانی','Afternoon=نیوەڕۆ','Evening=ئێوارە','Night=شەو','Today=ئەمڕۆ','Tomorrow=سبەینێ','Yesterday=دوێنێ','Week=هەفتە','Month=مانگ','Year=ساڵ'] },
-        { id:11, title:'ئاب و هەوا',    words:['Sun=خۆر','Rain=باران','Wind=با','Snow=بەفر','Cloud=هەور','Hot=گەرم','Cold=سارد','Warm=گەرمای','Storm=توفان','Thunder=ئەرعد'] },
-        { id:12, title:'پیشەکان',        words:['Doctor=دکتۆر','Teacher=مامۆستا','Engineer=ئەندازیار','Farmer=گەلاڵە','Police=پۆلیس','Driver=شۆفێر','Chef=باشپێز','Lawyer=پارێزەر','Nurse=پەرستار','Artist=هونەرمەند'] },
-        { id:13, title:'هەستەکان',      words:['Happy=خۆشحاڵ','Sad=خەفەتی','Angry=تووڕە','Tired=مەندووی','Hungry=برسی','Thirsty=تینوو','Scared=ترسان','Surprised=سەرسام','Bored=کووڕمایی','Excited=ڕۆحانی'] },
-        { id:14, title:'ڕستەی ڕۆژانە',  words:['I am=من ئێمە','You are=تۆ ئێیت','We are=ئێمە ئێین','Where is=لەکوێیە','How much=چەند پارەیە','I want=دەمەوێت','I need=پێویستمە','Thank you very much=زۆر سوپاس','See you later=تا دواتر','Have a nice day=ڕۆژت خۆش بێت'] },
-        { id:15, title:'تایبەتییەکان',  words:['Big=گەورە','Small=بچووک','Long=درێژ','Short=کورت','New=نوێ','Old=کۆن','Fast=خێرا','Slow=هێواش','Beautiful=جوان','Difficult=سەختی'] },
-        { id:16, title:'ڕووەکان',       words:['Mountain=چیا','River=ڕووبار','Forest=دار','Lake=گۆل','Desert=بیابان','Sea=دەریا','Field=مەرگ','City=شار','Village=گوند','Road=ڕێگا'] },
-        { id:17, title:'ئۆتۆمبێل',      words:['Car=ئۆتۆمبێل','Bus=ئۆتۆبێس','Bicycle=دووچەرخە','Motorcycle=مۆتۆر','Ship=کەشتی','Airplane=فڕۆکە','Truck=ئۆتۆمبێلی گران','Ambulance=ئامبولانس','Fire truck=ئۆتۆمبێلی ئاگر','Helicopter=هێلیکۆپتەر'] },
-        { id:18, title:'گیانلەبەران',   words:['Cat=پشیلە','Dog=سەگ','Bird=باڵندە','Fish=ماسی','Horse=ئەسپ','Cow=مانگا','Sheep=مەڕ','Lion=شێر','Eagle=هەڵۆ','Butterfly=پەپووڵە'] },
+        // ── A1 FOUNDATION ──────────────────────────────────────
+        { id:1,  title:'🔤 ئەلفوبێ',              level:'A1', words:['A=ئەی','B=بی','C=سی','D=دی','E=ئی','F=ئێف','G=جی','H=ئەیچ','I=ئای','J=جەی','K=کەی','L=ئێڵ','M=ئێم','N=ئێن','O=ئۆ'] },
+        { id:2,  title:'👋 سڵاوکردن',              level:'A1', words:['Hello=سڵاو','Good morning=بەیانیت باش','Good evening=ئێوارت باش','Good night=شەوت باش','Thank you=سوپاس','Please=تکایە','Sorry=ببووربە','You\'re welcome=خۆشەویستانە','Goodbye=خواحافیزی','See you later=تا دواتر','Yes=بەڵێ','No=نەخێر'] },
+        { id:3,  title:'🔢 ژمارە ١-٢٠',            level:'A1', words:['One=یەک','Two=دوو','Three=سێ','Four=چوار','Five=پێنج','Six=شەش','Seven=حەوت','Eight=هەشت','Nine=نۆ','Ten=دە','Eleven=یازدە','Twelve=دوازدە','Twenty=بیست','Hundred=سەد','Thousand=هەزار'] },
+        { id:4,  title:'🎨 ڕەنگەکان',              level:'A1', words:['Red=سوور','Blue=شین','Green=سەوز','Yellow=زەرد','Black=ڕەش','White=سپی','Orange=نارەنجی','Purple=مۆر','Pink=پەمبە','Brown=قاوەیی','Grey=خاکستەری','Gold=زێڕین'] },
+        { id:5,  title:'👨‍👩‍👧‍👦 خێزان',                level:'A1', words:['Mother=دایک','Father=باوک','Sister=خوشک','Brother=برا','Son=کوڕ','Daughter=کچ','Grandfather=باپیر','Grandmother=دایبابا','Husband=مێرد','Wife=هاوسەر','Baby=منداڵی بچووک','Family=خێزان'] },
+        { id:6,  title:'🫀 جەستە ١',               level:'A1', words:['Head=سەر','Face=رووخسار','Eye=چاو','Ear=گوێ','Nose=لووت','Mouth=دەم','Tooth=دندان','Neck=مل','Hand=دەست','Finger=پێچ','Foot=پێ','Heart=دڵ'] },
+        { id:7,  title:'🍽️ خواردن و خواردنەوە',    level:'A1', words:['Water=ئاو','Bread=نان','Rice=برنج','Meat=گۆشت','Chicken=مریشک','Egg=هێلکە','Cheese=پەنیر','Milk=شیر','Tea=چا','Coffee=قاوە','Sugar=شەکر','Salt=خوێو'] },
+        { id:8,  title:'🍎 مێوەکان',               level:'A1', words:['Apple=سێو','Banana=بەلەوان','Orange=پرتقال','Grape=ترێ','Watermelon=شووتی','Strawberry=فراو','Lemon=لیمۆ','Mango=مانگا','Cherry=گیلاس','Peach=خووخ','Pear=ئەمرود','Pomegranate=هنار'] },
+        { id:9,  title:'🥦 سەوزەکان',              level:'A1', words:['Tomato=تەماتە','Potato=باتاتا','Onion=پیاز','Garlic=سیر','Cucumber=خیار','Pepper=بیبار','Carrot=گەزەر','Spinach=ئیسپانا','Eggplant=بادنجان','Cabbage=کەلەم','Corn=جگەر','Mushroom=کروپە'] },
+        { id:10, title:'⏰ کات و ڕۆژ',             level:'A1', words:['Morning=بەیانی','Afternoon=نیوەڕۆ','Evening=ئێوارە','Night=شەو','Today=ئەمڕۆ','Tomorrow=سبەینێ','Yesterday=دوێنێ','Week=هەفتە','Month=مانگ','Year=ساڵ','Hour=کاتژمێر','Minute=خولەک'] },
+        { id:11, title:'📅 ڕۆژەکانی هەفتە',        level:'A1', words:['Monday=دووشەممە','Tuesday=سێشەممە','Wednesday=چوارشەممە','Thursday=پێنجشەممە','Friday=هەینی','Saturday=شەممە','Sunday=یەکشەممە'] },
+        { id:12, title:'📆 مانگەکان',               level:'A1', words:['January=کانوونی دووەم','February=شوبات','March=ئازار','April=نیسان','May=ئایار','June=حوزەیران','July=تەمووز','August=ئاب','September=ئەیلووڵ','October=تشرینی یەکەم','November=تشرینی دووەم','December=کانوونی یەکەم'] },
+        { id:13, title:'🌤️ ئاب و هەوا',             level:'A1', words:['Sun=خۆر','Moon=مانگ','Star=ئەستێرە','Rain=باران','Snow=بەفر','Wind=با','Cloud=هەور','Storm=توفان','Hot=گەرم','Cold=سارد','Warm=گەرمایی','Fog=مەگز'] },
+        { id:14, title:'🌿 سروشت',                  level:'A1', words:['Mountain=چیا','River=ڕووبار','Lake=گۆڵ','Sea=دەریا','Forest=دار','Desert=بیابان','Tree=دار','Flower=گوڵ','Grass=گیا','Rock=بەرد','Sky=ئاسمان','Island=دووردانە'] },
+        // ── A1 CONTINUED ───────────────────────────────────────
+        { id:15, title:'🐾 گیانلەبەران ١',          level:'A1', words:['Cat=پشیلە','Dog=سەگ','Horse=ئەسپ','Cow=مانگا','Sheep=مەڕ','Goat=بزن','Donkey=کەر','Lion=شێر','Tiger=پلنگ','Bear=هەورامی','Wolf=گورگ','Fox=ڕووبای'] },
+        { id:16, title:'🐦 باڵندەکان',              level:'A1', words:['Eagle=هەڵۆ','Sparrow=گنجیشک','Pigeon=کەوتر','Parrot=ببەغا','Owl=کووسی','Chicken=مریشک','Duck=مروو','Butterfly=پەپووڵە','Bee=هەنگوینبزووڵە','Ant=مرۆوی'] },
+        { id:17, title:'👤 جێناوەکان',              level:'A1', words:['I=من','You=تۆ','He=ئەو (پیاو)','She=ئەو (ژن)','We=ئێمە','They=ئەوان','My=مینی','Your=تۆی','His/Her=ئەوی','Our=ئێمەی','This=ئەمە','That=ئەوە'] },
+        { id:18, title:'❓ پرسیارەکان',             level:'A1', words:['Who=کێ','What=چی','Where=لەکوێ','When=کەی','Why=بۆچی','How=چۆن','How much=چەند پارەیە','How many=چەند','Which=کامیان','Whose=ئەوی کێیە'] },
+        // ── A2 LEVEL ───────────────────────────────────────────
+        { id:19, title:'🏠 ماڵ و ژوورەکان',         level:'A2', words:['House=ماڵ','Door=دەرگا','Window=پەنجەرە','Roof=بان','Kitchen=متبەخ','Bathroom=دشتشووی','Bedroom=ژووری نووستن','Living room=ژووری نووستنگا','Garden=باغچە','Floor=زەوی','Wall=دیوار','Stairs=پلەکان'] },
+        { id:20, title:'🪑 ئامێرەکان',              level:'A2', words:['Chair=کورسی','Table=مێز','Bed=جێخەو','Sofa=دیوان','Cupboard=کابینت','Shelf=رەف','Mirror=ئاوێنە','Lamp=چرا','Curtain=پەردە','Carpet=خالیچە','Fridge=سارکردنەوە','Oven=تەنوور'] },
+        { id:21, title:'👗 جل و بەرگ',              level:'A2', words:['Shirt=کراس','Trousers=پانتۆڵ','Jacket=جاکێت','Coat=قاپووت','Shoes=پێڵاو','Socks=گوریلۆک','Hat=کولاو','Scarf=کیسپک','Gloves=دەستکێش','Jeans=جینز','Sweater=پووڵۆوەر','Belt=کەمەر'] },
+        { id:22, title:'✈️ گەشت و سەفەر',            level:'A2', words:['Airport=فڕۆکەخانە','Hotel=هوتێل','Ticket=بلیت','Passport=پاسپۆرت','Visa=ڤیزا','Map=نەخشە','Luggage=جانتا','Room=ژوور','Reservation=حجزکردن','Restaurant=چێشتخانە','Tour guide=ڕێنمایی','Border=سنوور'] },
+        { id:23, title:'🚗 گواستنەوە',               level:'A2', words:['Car=ئۆتۆمبێل','Bus=ئۆتۆبێس','Train=شەمەندەفەر','Airplane=فڕۆکە','Ship=کەشتی','Bicycle=دووچەرخە','Motorcycle=مۆتۆر','Taxi=تاکسی','Truck=کامیۆن','Helicopter=هێلیکۆپتەر','Road=ڕێگا','Bridge=پرد'] },
+        { id:24, title:'📍 شوێنەکان',               level:'A2', words:['Hospital=نەخۆشخانە','School=قوتابخانە','University=زانکۆ','Market=بازاڕ','Bank=بانک','Library=پەرتووکخانە','Museum=موزەخانە','Cinema=سینەما','Mosque=مزگەوت','Park=پارک','Police=پۆلیس','Station=گارەجی'] },
+        { id:25, title:'👩‍💼 پیشەکان ١',              level:'A2', words:['Doctor=دکتۆر','Teacher=مامۆستا','Engineer=ئەندازیار','Nurse=پەرستار','Lawyer=پارێزەر','Driver=شۆفێر','Chef=باشپێز','Farmer=گەلاڵە','Soldier=سەربازی','Artist=هونەرمەند','Journalist=ڕۆژنامەوان','Pilot=فڕۆکەڕان'] },
+        { id:26, title:'👩‍💼 پیشەکان ٢',              level:'A2', words:['Programmer=پڕۆگرامەر','Designer=دیزاینەر','Accountant=حیسابدار','Architect=مرفۆلۆج','Pharmacist=دارووفرۆش','Dentist=دکتۆری دندان','Scientist=زانستوان','Economist=ئابووریدان','Psychologist=دکتۆری دەروونناسی','Police officer=پۆلیس'] },
+        { id:27, title:'😊 هەستەکان',               level:'A2', words:['Happy=خۆشحاڵ','Sad=خەفەتی','Angry=تووڕە','Tired=مەندوو','Scared=ترسان','Excited=مەستی','Bored=کووڕمایی','Surprised=سەرسام','Lonely=تەنها','Proud=سەربەرز','Jealous=چاوتەرس','Grateful=سوپاسگوزار'] },
+        { id:28, title:'✨ تایبەتییەکان ١',           level:'A2', words:['Big=گەورە','Small=بچووک','Long=درێژ','Short=کورت','Tall=بەرز','Heavy=قورس','Fast=خێرا','Slow=هێواش','New=نوێ','Old=کۆن','Beautiful=جوان','Clean=پاک'] },
+        { id:29, title:'✨ تایبەتییەکان ٢',           level:'A2', words:['Hard=سەخت','Soft=نەرم','Strong=بەهێز','Weak=لاوازی','Rich=دەوڵەمەند','Poor=هەژار','Funny=پێکەنین هاتوو','Kind=بایەخ','Clever=زیرەک','Expensive=گران','Cheap=هەرزان','Important=گرنگ'] },
+        { id:30, title:'↔️ دژووەکان',               level:'A2', words:['Hot=گەرم / Cold=سارد','Big=گەورە / Small=بچووک','Fast=خێرا / Slow=هێواش','New=نوێ / Old=کۆن','Open=کراوە / Closed=داخراو','Rich=دەوڵەمەند / Poor=هەژار','Strong=بەهێز / Weak=لاوازی','Day=ڕۆژ / Night=شەو','Light=ڕووناک / Dark=تاریک','Love=خۆشەویستی / Hate=ڕەزیل'] },
+        { id:31, title:'📌 ئامووزەکان',              level:'A2', words:['In=لە','On=سەر','Under=خوار','Between=نێوان','Behind=پشت','In front of=پێشەوە','Near=نزیک','Far=دووری','Inside=ژوورەوە','Outside=دەرەوە','North=باکووری','South=باشووری'] },
+        { id:32, title:'🗺️ ئاراستە',                 level:'A2', words:['North=باکووری','South=باشووری','East=ڕۆژهەڵات','West=ڕۆژئاوا','Left=هەستی چەپ','Right=ڕاست','Straight=ڕاستەوخۆ','Turn=ئاراستەکردن','Near=نزیک','Far=دووری'] },
+        // ── A2 VERBS & PHRASES ─────────────────────────────────
+        { id:33, title:'⚡ لەکردنی بنەڕەتی ١',       level:'A2', words:['To be=بوون','To have=هەبوون','To do=کردن','To say=گوتن','To know=زانین','To see=بینین','To eat=خواردن','To drink=خواردنەوە','To sleep=نووستن','To work=کارکردن','To study=خوێندن','To play=یاریکردن'] },
+        { id:34, title:'⚡ لەکردنی بنەڕەتی ٢',       level:'A2', words:['To go=چوون','To come=هاتن','To walk=ڕوومالکردن','To run=ڕووخستن','To buy=کڕین','To sell=فرۆشتن','To give=دان','To take=وەرگرتن','To open=کردنەوە','To close=داخستن','To help=یارمەتیدان','To want=خواستن'] },
+        { id:35, title:'💬 ڕستەی ڕۆژانە ١',          level:'A2', words:['I am hungry=برسیمە','I am thirsty=تینووم','I am tired=مەندووم','I am lost=گومبوومە','I don\'t understand=تێناگەم','I don\'t know=نازانم','I want to learn Kurdish=دەمەوێت کوردی فێربم','Call a doctor=دکتۆر بانگ بکە','Good luck=سەرکەوتوو بی','Congratulations=پیرۆزبایی'] },
+        { id:36, title:'💬 ڕستەی ڕۆژانە ٢',          level:'A2', words:['Where is the bathroom?=دەستشووی لەکوێیە؟','How much does it cost?=چەند پارەیە؟','Can you help me?=دەتوانیت یارمەتیم بدەیت؟','What time is it?=کاتژمێر چەندەیە؟','Speak slowly=هێواش قسە بکە','Repeat please=دووبارە بکەرەوە','Have a good trip=گەشتی خۆش','Get well soon=زووی خۆشبەست','Happy new year=ساڵی نوێتان پیرۆزبێت','Take care=لە خۆت بپارێزە'] },
+        // ── B1 LEVEL ───────────────────────────────────────────
+        { id:37, title:'📚 خوێندن و زانکۆ',          level:'B1', words:['Book=کتێب','Dictionary=فەرهەنگ','Grammar=ڕێزمان','Vocabulary=وشەکان','Exam=تاقیکردنەوە','Homework=ئەرکی ماڵ','Degree=بڕوانامە','Scholarship=بورس','Research=لێکۆڵینەوە','Lesson=وانە','Exercise=مەشق','Grade=نمرە'] },
+        { id:38, title:'🏥 تەندروستی',                level:'B1', words:['Medicine=دارمان','Pill=حەبە','Fever=گەرمای تووشی','Headache=سەردەرد','Stomachache=ئەگردەرد','Cough=کۆکەی','Allergy=هەستیاری','Blood pressure=زەخمی خوێن','First aid=ئیلافی یەکەم','Ambulance=ئامبولانس','Operation=نیشتن','X-ray=ئەشعە'] },
+        { id:39, title:'⚽ وەرزش و کارا کاتی',        level:'B1', words:['Football=توپ','Basketball=باسکێتبۆل','Swimming=مەلەکردن','Running=ڕووخستن','Tennis=تێنیس','Boxing=بۆکس','Gym=سالۆنی وەرزشی','Champion=قەهرەمان','Reading=خوێندن','Photography=وێنەگرتن','Gardening=باغوانی','Cooking=خواردن پێزین'] },
+        { id:40, title:'🎵 موزیک و هونەر',             level:'B1', words:['Music=موزیک','Singing=گۆرانی گوتن','Guitar=گیتار','Drum=دهل','Piano=پیانۆ','Song=گۆرانی','Novel=ڕۆمان','Poetry=شیعر','Theatre=تیاتر','Exhibition=پیشانگا','Sculpture=پەیکەرتاشی','Masterpiece=ئەثەری گەورە'] },
+        { id:41, title:'💻 تەکنەلۆژیا',               level:'B1', words:['Phone=تەلەفۆن','Computer=کۆمپیووتەر','Internet=ئینتەرنێت','Website=ماڵپەڕ','Application=ئەپ','Password=پاسوورد','Email=ئیمەیڵ','Social media=تۆڕی کۆمەڵایەتی','Camera=کامێرا','Battery=باتری','Download=داونلود','AI=زیرەکی دەستکردی'] },
+        { id:42, title:'🛒 بازاڕکردن و پارە',          level:'B1', words:['Shop=دوکان','Price=بایەخ','Discount=داشکاندن','Cash=پارەی نەقد','Credit card=کارتی بانکی','Salary=مووچە','Tax=بڕگەی باج','Loan=قەرز','Profit=قازانج','Receipt=پسوولە','Expensive=گران','Cheap=هەرزان'] },
+        { id:43, title:'🍜 چێشتخانە',                 level:'B1', words:['Menu=لیستی خواردن','Waiter=خزمەتکار','Bill=حیساب','Tip=قەیش','Reservation=حجزکردن','Table for two=مێزی دووکەسی','I would like=دەمەوێت','Takeaway=بردن','Vegetarian=دەرختخور','Sweet=شیرین','Sour=ترش','Spicy=ترش و تیژ'] },
+        { id:44, title:'🎭 کولتور و ئایین',            level:'B1', words:['Culture=کولتور','Tradition=دەرفەت','Celebration=جەژن','Wedding=جەژنی هاوسەرگیری','Religion=ئایین','Islam=ئیسلام','Prayer=نوێژ','Fasting=ڕۆژووگرتن','Peace=ئاشتی','Pilgrimage=حەج','Funeral=شین','Congratulations=پیرۆزبایی'] },
+        { id:45, title:'🌐 دنیا و وڵاتان',              level:'B1', words:['Country=وڵات','Capital=پایتەخت','City=شار','Village=گوند','Language=زمان','Culture=کولتور','Geography=جوگرافیا','Continent=قارە','Europe=ئەوروپا','Asia=ئاسیا','Africa=ئەفریقا','America=ئەمریکا'] },
+        // ── B2 LEVEL ───────────────────────────────────────────
+        { id:46, title:'🏛️ سیاسەت و کۆمەڵگا',         level:'B2', words:['Government=حکومەت','Democracy=دیموکراسی','Election=هەڵبژاردن','Freedom=ئازادی','Rights=مافەکان','Constitution=یاسای بنەڕەتی','Parliament=پەرلەمان','Protest=خۆپیشاندان','Justice=دادگەری','War=جەنگ','Treaty=ئەقید','Diplomacy=دیپلۆماسی'] },
+        { id:47, title:'🔬 زانست و ژینگە',              level:'B2', words:['Energy=وزە','Chemical=کیمیایی','Evolution=گەشەکردن','Climate change=گۆڕانی ئاب و هەوا','Pollution=قیرانی ژینگە','Gravity=ڕووی زەوی','DNA=ژینگە','Atom=ئەتۆم','Earthquake=بومەلەرزە','Volcano=ئاگرکوو','Biodiversity=جۆراوجۆری ژیان','Ecosystem=ئیکۆسیستەم'] },
+        { id:48, title:'💬 گوتارەکان و مەتەڵ',          level:'B2', words:['Time is money=کات زێڕه','Knowledge is power=زانین هێزە','Better late than never=دواتر باشترە لە هیچکات','Actions speak louder than words=کردار لە قسەوە بلندترە','Break a leg=بەتاللا باشت بێت','No pain no gain=بێ ئەزیەت بێ قازانج','Practice makes perfect=مەشق کەمال دەبێت'] },
+        { id:49, title:'🗨️ ئەدەب و پەیوەندی',           level:'B2', words:['To promise=بەڵێندان','To explain=ڕوونکردنەوە','To negotiate=مامەڵەکردن','To persuade=دڵنیاکردن','To disagree=ئامانجنەبون','To complain=گیلۆکردن','To apologize=لێبووردەخواستن','To congratulate=پیرۆزی کردن','To encourage=هەڵبکێشاندن','To argue=ناکۆکی'] },
+        { id:50, title:'🎓 زانست و فەلسەفە',            level:'B2', words:['Philosophy=فەلسەفە','Psychology=دەروونناسی','Economics=ئابووری','Sociology=کۆمەڵناسی','History=مێژوو','Mathematics=ماتماتیک','Physics=فیزیک','Chemistry=کیمیا','Biology=بیۆلۆژی','Literature=وێژە','Linguistics=زمانناسی','Anthropology=مرۆڤناسی'] },
     ]},
     'ar-ku': { name:'عەرەبی → کوردی', icon:'🇸🇦', topics:[
         { id:1, title:'تحيات — سڵاوکردن', words:['السلام عليكم=سڵاو','صباح الخير=بەیانیت باش','مساء الخير=ئێوارت باش','شكراً=سوپاس','عفواً=تکایە','كيف حالك=چۆنی','أنا بخير=باشم','مع السلامة=خواحافیزی','إلى اللقاء=تا دیکەوە','يشرفنا=خوشحاڵبووین'] },
@@ -2406,113 +2448,230 @@ function aiGrammarTip() {
     askAI(q);
 }
 
-// ===== PAGE: INSTRUCTOR PORTAL (COMING SOON) =====
+// ===== PAGE: INSTRUCTOR PORTAL =====
 function renderInstructors(c) {
-    const th = getLangTheme();
+    const th  = getLangTheme();
+    const wa  = AppConfig.contact.whatsapp;
+    const tg  = AppConfig.contact.telegram;
+
+    const checklist = [
+        { n:'١', i:'👤', t:'ناوی تەواو',             d:'ناو و بوکی تەواو بنووسە (وەک لە بڕوانامەکەتدایە)' },
+        { n:'٢', i:'📧', t:'ئیمەیڵ و ژمارەی تەلەفۆن',d:'ئیمەیڵی کارکردن + ژمارەی واتسئاپ کارا' },
+        { n:'٣', i:'📄', t:'CV / ڕێزوانامە',          d:'فایلی PDF یان Word ی ژیاننامەی کارکردنت' },
+        { n:'٤', i:'📸', t:'وێنەی تایبەتی',            d:'وێنەی ئەندازەی پاسپۆرت، شتاو و ڕوون' },
+        { n:'٥', i:'📚', t:'بابەتی فێرکاری',           d:'زمانی تایبەتمەندیت (ئینگلیزی، عەرەبی، تورکی…)' },
+        { n:'٦', i:'💰', t:'نرخی وانە (بهایێ خوله)',   d:'نرخی هەر وانەیەک یان پاکێجی مانگانە' },
+        { n:'٧', i:'🗓️', t:'خشتەی کاتی (دێمێ وانەگوتنێ)', d:'ئەی کام ڕۆژ و کام کاتژمێر بەردەستی' },
+        { n:'٨', i:'🎯', t:'شێوازی وانەگوتن',         d:'شێوازی فێرکاریت — تیۆری، پراکتیکی، ئۆنلاین…' },
+    ];
+
     const features = [
-        { i:'📝', t:'نووسینی وانە',      d:'وانەی تایبەت بنووسە و بەکارهێنەران فێر بکات' },
-        { i:'🎥', t:'ئەپلۆدی ڤیدیۆ',    d:'ڤیدیۆی فێرکاری بارکە ڕاستەوخۆ لە پلاتفۆرم' },
-        { i:'❓', t:'دروستکردنی کویز',   d:'تاقیکردنەوەی تایبەت دروست بکە' },
-        { i:'📊', t:'شوپاندنی فێرخواز',  d:'پێشکەوتنی خوێندکارانت بشوپێنە' },
-        { i:'💬', t:'چاتی ڕاستەوخۆ',     d:'بەکارهێنەران سوال لەت بپرسن' },
-        { i:'💰', t:'داهاتی مامۆستا',     d:'لەگەڵ پلاتفۆرم هاوبەشی داهات بە' },
+        { i:'📝', t:'نووسینی وانە',     d:'وانەی تایبەت بنووسە' },
+        { i:'🎥', t:'ئەپلۆدی ڤیدیۆ',   d:'ڤیدیۆ بارکە ڕاستەوخۆ' },
+        { i:'❓', t:'دروستکردنی کویز',  d:'تاقیکردنەوەی تایبەت' },
+        { i:'📊', t:'شوپاندنی خوێندکار',d:'پێشکەوتنی قوتابییان ببینە' },
+        { i:'💬', t:'چاتی ڕاستەوخۆ',   d:'سوالی قوتابی وەڵام بدەرەوە' },
+        { i:'💰', t:'٧٠٪ داهاتت',      d:'٧٠٪ بۆ مامۆستا · ٣٠٪ بۆ پلاتفۆرم' },
     ];
 
     c.innerHTML = `
-        <div style="text-align:center;padding:4px 0">
+    <div style="text-align:right;padding-bottom:24px">
 
-            <!-- HERO -->
-            <div style="background:linear-gradient(135deg,${th.accent}14,${th.accent}05);
-                        border-radius:var(--radius);padding:32px 20px 28px;margin-bottom:18px;
-                        border:1.5px solid ${th.accent}22;position:relative;overflow:hidden">
-                <div style="position:absolute;top:-40px;left:-40px;width:130px;height:130px;
-                            background:${th.accent}07;border-radius:50%;pointer-events:none"></div>
-                <div style="position:absolute;bottom:-25px;right:-25px;width:90px;height:90px;
-                            background:${th.accent}05;border-radius:50%;pointer-events:none"></div>
+        <!-- ══ HERO ══ -->
+        <div style="background:linear-gradient(135deg,${th.accent}18,${th.accent}05);
+                    border-radius:var(--radius);padding:28px 20px 24px;margin-bottom:16px;
+                    border:1.5px solid ${th.accent}28;position:relative;overflow:hidden;text-align:center">
+            <div style="position:absolute;top:-40px;left:-40px;width:150px;height:150px;
+                        background:${th.accent}06;border-radius:50%;pointer-events:none"></div>
+            <div style="position:absolute;bottom:-30px;right:-30px;width:100px;height:100px;
+                        background:${th.accent}05;border-radius:50%;pointer-events:none"></div>
+            <div style="font-size:56px;margin-bottom:8px">🎓</div>
+            <h2 style="font-size:22px;margin-bottom:4px">بەشی مامۆستایان</h2>
+            <p style="font-size:14px;color:var(--text-secondary);max-width:310px;
+                      margin:0 auto 14px;line-height:1.7">
+                مامۆستا یان پیشەیی؟ لەگەڵ زیمان یەکبکەوە و هەزاران فێرخوازی کوردستان و جیهان فێربکە.
+                ٧٠٪ی داهات ڕاستەوخۆ بۆ تۆ دێت.
+            </p>
+            <!-- Contact buttons -->
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+                <a href="https://wa.me/${wa}?text=${encodeURIComponent('سڵاو! دەمەوێت وەک مامۆستا لە زیمان تۆمار ببم.')}"
+                   target="_blank" rel="noopener"
+                   style="display:inline-flex;align-items:center;gap:8px;
+                          background:#25D366;color:#fff;border-radius:99px;
+                          padding:11px 22px;font-size:13px;font-weight:700;
+                          text-decoration:none;box-shadow:0 4px 14px #25D36640">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    </svg>
+                    پەیوەندی واتسئاپ
+                </a>
+                <a href="https://t.me/${tg}"
+                   target="_blank" rel="noopener"
+                   style="display:inline-flex;align-items:center;gap:8px;
+                          background:#229ED9;color:#fff;border-radius:99px;
+                          padding:11px 22px;font-size:13px;font-weight:700;
+                          text-decoration:none;box-shadow:0 4px 14px #229ED940">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                    </svg>
+                    پەیوەندی تێلێگرام
+                </a>
+            </div>
+        </div>
 
-                <div style="font-size:54px;margin-bottom:10px">🎓</div>
-                <h2 style="font-size:21px;margin-bottom:6px">بەشی مامۆستایان</h2>
-                <h3 style="font-size:28px;font-weight:900;color:${th.accent};margin-bottom:10px;
-                            letter-spacing:-0.5px;line-height:1.2">
-                    لە نێزیک چاوەڕێبن!
+        <!-- ══ CHECKLIST SECTION ══ -->
+        <div style="margin-bottom:16px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                <span style="font-size:20px">📋</span>
+                <h3 style="font-size:16px;font-weight:800;margin:0">
+                    زانیارییەکانت ئامادە بکە — پێش پەیوەندیکردن
                 </h3>
-                <p style="color:var(--text-secondary);font-size:14px;
-                           max-width:300px;margin:0 auto;line-height:1.65">
-                    ئێمە ئامادەی بانگهێشتی مامۆستا و پیشەیییەکان دەکرێین بۆ ئەوەی وانەی خۆیان
-                    لە زیمان بنووسن و شاری کوردی فێربوونی زمان بەرزتر ببێت.
-                </p>
             </div>
-
-            <!-- COMING SOON PILL -->
-            <div style="display:inline-flex;align-items:center;gap:8px;background:var(--surface);
-                        border:1.5px solid ${th.accent}35;border-radius:99px;padding:8px 22px;
-                        margin-bottom:20px;box-shadow:var(--shadow)">
-                <span style="width:8px;height:8px;background:#F59E0B;border-radius:50%;
-                             display:inline-block;animation:pulse 1.4s ease-in-out infinite"></span>
-                <span style="font-size:13px;font-weight:700;color:var(--text-primary)">
-                    زووی بەردەست دەبێت · Coming Soon
-                </span>
-            </div>
-
-            <!-- FEATURE PREVIEW -->
-            <h3 style="margin-bottom:12px;text-align:right;font-size:15px;color:var(--text-secondary)">
-                مامۆستا دەتوانێت:
-            </h3>
-            <div style="display:grid;gap:10px;margin-bottom:20px;text-align:right">
-                ${features.map(f => `
-                <div class="card" style="display:flex;align-items:center;gap:12px;
-                             padding:14px 16px;border-right:3px solid ${th.accent}55">
-                    <span style="font-size:24px;flex-shrink:0">${f.i}</span>
+            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;line-height:1.65">
+                کاتێک پەیوەندیمان پێوە دەکەیت، تکایە ئەم زانیارییانە ئامادە بکە. ئەمانە پێویستن بۆ
+                پروسەی پشکنین و تۆمارکردنت وەک مامۆستای زیمان.
+            </p>
+            <div style="display:grid;gap:10px">
+                ${checklist.map(item => `
+                <div style="display:flex;align-items:flex-start;gap:12px;
+                            background:var(--surface);border-radius:var(--radius);
+                            padding:14px 16px;border:1px solid var(--border);
+                            border-right:3px solid ${th.accent}88">
+                    <div style="min-width:32px;height:32px;border-radius:50%;
+                                background:${th.accent}18;color:${th.accent};
+                                display:flex;align-items:center;justify-content:center;
+                                font-size:16px;font-weight:900;flex-shrink:0">
+                        ${item.i}
+                    </div>
                     <div>
-                        <strong style="display:block;font-size:14px;margin-bottom:2px">${f.t}</strong>
-                        <span style="font-size:12px;color:var(--text-secondary)">${f.d}</span>
+                        <strong style="display:block;font-size:14px;margin-bottom:3px">
+                            ${item.n}. ${item.t}
+                        </strong>
+                        <span style="font-size:12px;color:var(--text-secondary);line-height:1.6">
+                            ${item.d}
+                        </span>
                     </div>
                 </div>`).join('')}
             </div>
+        </div>
 
-            <!-- SIGN-UP FORM -->
-            <div class="card" style="border:1.5px dashed ${th.accent}50;
-                                     background:${th.accent}06;text-align:right">
-                <p style="font-size:16px;font-weight:700;margin-bottom:4px">
-                    🙋 مامۆستایی؟ ناوت تۆمار بکە!
-                </p>
-                <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px">
-                    ئەوەی یەکەم مامۆستا بن دەستخۆشی تایبەتیان هەیە — دووری نەبن.
-                </p>
-
-                <input id="instrName"  class="input" type="text"
-                       placeholder="ناوت"                style="margin-bottom:8px"  />
-                <input id="instrEmail" class="input" type="email"
-                       placeholder="ئیمەیڵ یان ژمارەی واتسئاپ" style="margin-bottom:8px" />
-                <select id="instrLang" class="input" style="margin-bottom:12px">
-                    <option value="">زمانی تایبەتمەندیت هەڵبژێرە</option>
-                    <option>ئینگلیزی</option><option>عەرەبی</option>
-                    <option>تورکی</option><option>فارسی</option>
-                    <option>فەرەنسی</option><option>ئەڵمانی</option>
-                    <option>ئیسپانی</option><option>ئیتاڵی</option>
-                    <option>ڕووسی</option><option>چینی</option>
-                    <option>ژاپۆنی</option><option>کۆری</option>
-                </select>
-                <button class="btn btn-primary btn-block" onclick="submitInstructorInterest()"
-                        style="background:linear-gradient(135deg,${th.accent},${th.accent}cc);font-size:14px">
-                    ✅ ناوم تۆمار بکە — پێم ئاگادار بکەرەوە
-                </button>
+        <!-- ══ HOW TO APPLY ══ -->
+        <div class="card" style="background:linear-gradient(135deg,${th.accent}10,${th.accent}04);
+                                  border:1.5px solid ${th.accent}30;margin-bottom:16px;text-align:center">
+            <p style="font-size:15px;font-weight:800;margin-bottom:8px">📨 چۆن دەتۆمارم؟</p>
+            <p style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:16px">
+                ئامادەی زانیارییەکانت کە بوو، بەیەکێکی ئەم ڕێگایانە پەیوەندیمان پێوە بکە.
+                تیمی زیمان لە ناوبازنەی <strong>٢٤ کاتژمێر</strong> وەڵامت دەداتەوە.
+            </p>
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+                <a href="https://wa.me/${wa}?text=${encodeURIComponent('سڵاو! ناوم [ناوت] ئە. دەمەوێت وەک مامۆستای [زمانی تایبەتمەندیت] لە زیمان تۆمار ببم. ئامادەی ناردنی CV و زانیارییەکانم.')}"
+                   target="_blank" rel="noopener"
+                   style="display:inline-flex;align-items:center;gap:7px;
+                          background:#25D366;color:#fff;border-radius:99px;
+                          padding:10px 20px;font-size:13px;font-weight:700;
+                          text-decoration:none">
+                    📱 واتسئاپ — ${wa}
+                </a>
+                <a href="https://t.me/${tg}"
+                   target="_blank" rel="noopener"
+                   style="display:inline-flex;align-items:center;gap:7px;
+                          background:#229ED9;color:#fff;border-radius:99px;
+                          padding:10px 20px;font-size:13px;font-weight:700;
+                          text-decoration:none">
+                    ✈️ تێلێگرام — @${tg}
+                </a>
             </div>
-        </div>`;
+        </div>
+
+        <!-- ══ WHAT YOU GET ══ -->
+        <h3 style="font-size:15px;font-weight:800;margin-bottom:12px">
+            🌟 مامۆستا لە زیمان دەتوانێت:
+        </h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+            ${features.map(f => `
+            <div style="background:var(--surface);border-radius:var(--radius);
+                        padding:14px 12px;border:1px solid var(--border);
+                        border-top:3px solid ${th.accent}77;text-align:center">
+                <div style="font-size:26px;margin-bottom:6px">${f.i}</div>
+                <strong style="font-size:13px;display:block;margin-bottom:3px">${f.t}</strong>
+                <span style="font-size:11px;color:var(--text-secondary)">${f.d}</span>
+            </div>`).join('')}
+        </div>
+
+        <!-- ══ REVENUE MODEL ══ -->
+        <div class="card" style="border:1.5px solid #22C55E44;background:#22C55E08;margin-bottom:16px;text-align:center">
+            <div style="font-size:32px;margin-bottom:6px">💰</div>
+            <p style="font-size:15px;font-weight:800;margin-bottom:6px">مۆدێلی داهات</p>
+            <div style="display:flex;justify-content:center;gap:20px;margin-bottom:8px">
+                <div style="text-align:center">
+                    <div style="font-size:28px;font-weight:900;color:#22C55E">٧٠٪</div>
+                    <div style="font-size:12px;color:var(--text-secondary)">بۆ مامۆستا</div>
+                </div>
+                <div style="font-size:28px;color:var(--border);align-self:center">|</div>
+                <div style="text-align:center">
+                    <div style="font-size:28px;font-weight:900;color:${th.accent}">٣٠٪</div>
+                    <div style="font-size:12px;color:var(--text-secondary)">بۆ پلاتفۆرم</div>
+                </div>
+            </div>
+            <p style="font-size:12px;color:var(--text-secondary);margin:0;line-height:1.6">
+                پارە هەر مانگ بۆ حیسابی بانکیت یان واتسئاپ دەنێردرێت.
+                هیچ پارەی دەستپێکیشکی نییە.
+            </p>
+        </div>
+
+        <!-- ══ QUICK INTEREST FORM ══ -->
+        <div class="card" style="border:1.5px dashed ${th.accent}55;background:${th.accent}06">
+            <p style="font-size:15px;font-weight:800;margin-bottom:4px">🙋 ناوت تۆمار بکە — پێت ئاگادار دەبینەوە</p>
+            <p style="font-size:12px;color:var(--text-secondary);margin-bottom:14px;line-height:1.6">
+                ئامادە نیت هەنووکە؟ ناو و زمانت بنووسە، کاتێک پۆرتاڵ ئامادە بوو یەکەم ئاگادارات دەکەینەوە.
+            </p>
+            <input id="instrName"  class="input" type="text"
+                   placeholder="ناوی تەواوت"           style="margin-bottom:8px" />
+            <input id="instrPhone" class="input" type="tel"
+                   placeholder="ژمارەی واتسئاپ (+964…)" style="margin-bottom:8px" />
+            <input id="instrEmail" class="input" type="email"
+                   placeholder="ئیمەیڵ (ئیختیاری)"    style="margin-bottom:8px" />
+            <select id="instrLang" class="input" style="margin-bottom:12px">
+                <option value="">زمانی تایبەتمەندیت هەڵبژێرە</option>
+                <option>ئینگلیزی 🇬🇧</option>
+                <option>عەرەبی 🇸🇦</option>
+                <option>تورکی 🇹🇷</option>
+                <option>فارسی 🇮🇷</option>
+                <option>فەرەنسی 🇫🇷</option>
+                <option>ئەڵمانی 🇩🇪</option>
+                <option>ئیسپانی 🇪🇸</option>
+                <option>ئیتاڵی 🇮🇹</option>
+                <option>ڕووسی 🇷🇺</option>
+                <option>چینی 🇨🇳</option>
+                <option>ژاپۆنی 🇯🇵</option>
+                <option>کۆری 🇰🇷</option>
+                <option>پۆرتوگالی 🇵🇹</option>
+                <option>هیندی 🇮🇳</option>
+                <option>زمانێکی تر</option>
+            </select>
+            <button class="btn btn-primary btn-block" onclick="submitInstructorInterest()"
+                    style="background:linear-gradient(135deg,${th.accent},${th.accent}cc);font-size:14px">
+                ✅ ناوم تۆمار بکە — زووی پێم ئاگادار بکەرەوە
+            </button>
+        </div>
+    </div>`;
 }
 
 function submitInstructorInterest() {
     const name  = (document.getElementById('instrName')?.value  || '').trim();
+    const phone = (document.getElementById('instrPhone')?.value || '').trim();
     const email = (document.getElementById('instrEmail')?.value || '').trim();
     const lang  = document.getElementById('instrLang')?.value   || '';
-    if (!name || !email) { toast('تکایە ناو و ئیمەیڵ داخڵ بکە'); return; }
+    if (!name || !phone) { toast('تکایە ناو و ژمارەی واتسئاپت داخڵ بکە'); return; }
     const list = JSON.parse(localStorage.getItem('zm_instructor_list') || '[]');
-    list.push({ name, email, lang, date: new Date().toISOString() });
+    list.push({ name, phone, email, lang, date: new Date().toISOString() });
     localStorage.setItem('zm_instructor_list', JSON.stringify(list));
-    toast('✅ سوپاس! دوایەکێ پێت دەگەین 🎓');
-    ['instrName','instrEmail'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
+    // Also open WhatsApp with pre-filled message
+    const msg = `سڵاو! ناوم ${name} ئە. دەمەوێت وەک مامۆستای ${lang || 'زمان'} لە زیمان تۆمار ببم. ژمارەم: ${phone}`;
+    window.open(`https://wa.me/${AppConfig.contact.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
+    toast('✅ سوپاس! واتسئاپ کراوەتەوە — تیم لە ٢٤ کاتژمێر وەڵامت دەداتەوە 🎓');
+    ['instrName','instrPhone','instrEmail'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = '';
     });
     const sel = document.getElementById('instrLang');
     if (sel) sel.selectedIndex = 0;
