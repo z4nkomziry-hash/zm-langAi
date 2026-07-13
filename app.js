@@ -65,7 +65,18 @@ const lessons = {
         { id:4, title:'ڕەنگەکان',   words:['Red=سوور','Blue=شین','Green=سەوز','Yellow=زەرد','Black=ڕەش','White=سپی','Orange=نارەنجی','Purple=مۆر'] },
         { id:5, title:'خێزان',      words:['Mother=دایک','Father=باوک','Sister=خوشک','Brother=برا','Family=خێزان','Son=کوڕ','Daughter=کچ','Grandfather=باپیر'] },
         { id:6, title:'خواردن',     words:['Water=ئاو','Bread=نان','Rice=برنج','Meat=گۆشت','Tea=چا','Milk=شیر','Egg=هێلکە','Fruit=مێوە'] },
-        { id:7, title:'گەشت',       words:['Airport=فڕۆکەخانە','Hotel=هوتێل','Taxi=تاکسی','Ticket=بلیت','Map=نەخشە','Passport=پاسپۆرت','Bag=جانتا','Train=شەمەندەفەر'] },
+        { id:7,  title:'گەشت',          words:['Airport=فڕۆکەخانە','Hotel=هوتێل','Taxi=تاکسی','Ticket=بلیت','Map=نەخشە','Passport=پاسپۆرت','Bag=جانتا','Train=شەمەندەفەر'] },
+        { id:8,  title:'ئامێرەکان',     words:['Chair=کورسی','Table=مێز','Door=دەرگا','Window=پەنجەرە','Bed=جێخەو','Lamp=چرا','Book=کتێب','Pen=پێنووس','Phone=تەلەفۆن','Computer=کۆمپیووتەر'] },
+        { id:9,  title:'جەستە',         words:['Head=سەر','Eye=چاو','Ear=گوێ','Nose=لووت','Mouth=دەم','Hand=دەست','Foot=پێ','Heart=دڵ','Back=پشت','Shoulder=مەر'] },
+        { id:10, title:'کات و ڕۆژ',    words:['Morning=بەیانی','Afternoon=نیوەڕۆ','Evening=ئێوارە','Night=شەو','Today=ئەمڕۆ','Tomorrow=سبەینێ','Yesterday=دوێنێ','Week=هەفتە','Month=مانگ','Year=ساڵ'] },
+        { id:11, title:'ئاب و هەوا',    words:['Sun=خۆر','Rain=باران','Wind=با','Snow=بەفر','Cloud=هەور','Hot=گەرم','Cold=سارد','Warm=گەرمای','Storm=توفان','Thunder=ئەرعد'] },
+        { id:12, title:'پیشەکان',        words:['Doctor=دکتۆر','Teacher=مامۆستا','Engineer=ئەندازیار','Farmer=گەلاڵە','Police=پۆلیس','Driver=شۆفێر','Chef=باشپێز','Lawyer=پارێزەر','Nurse=پەرستار','Artist=هونەرمەند'] },
+        { id:13, title:'هەستەکان',      words:['Happy=خۆشحاڵ','Sad=خەفەتی','Angry=تووڕە','Tired=مەندووی','Hungry=برسی','Thirsty=تینوو','Scared=ترسان','Surprised=سەرسام','Bored=کووڕمایی','Excited=ڕۆحانی'] },
+        { id:14, title:'ڕستەی ڕۆژانە',  words:['I am=من ئێمە','You are=تۆ ئێیت','We are=ئێمە ئێین','Where is=لەکوێیە','How much=چەند پارەیە','I want=دەمەوێت','I need=پێویستمە','Thank you very much=زۆر سوپاس','See you later=تا دواتر','Have a nice day=ڕۆژت خۆش بێت'] },
+        { id:15, title:'تایبەتییەکان',  words:['Big=گەورە','Small=بچووک','Long=درێژ','Short=کورت','New=نوێ','Old=کۆن','Fast=خێرا','Slow=هێواش','Beautiful=جوان','Difficult=سەختی'] },
+        { id:16, title:'ڕووەکان',       words:['Mountain=چیا','River=ڕووبار','Forest=دار','Lake=گۆل','Desert=بیابان','Sea=دەریا','Field=مەرگ','City=شار','Village=گوند','Road=ڕێگا'] },
+        { id:17, title:'ئۆتۆمبێل',      words:['Car=ئۆتۆمبێل','Bus=ئۆتۆبێس','Bicycle=دووچەرخە','Motorcycle=مۆتۆر','Ship=کەشتی','Airplane=فڕۆکە','Truck=ئۆتۆمبێلی گران','Ambulance=ئامبولانس','Fire truck=ئۆتۆمبێلی ئاگر','Helicopter=هێلیکۆپتەر'] },
+        { id:18, title:'گیانلەبەران',   words:['Cat=پشیلە','Dog=سەگ','Bird=باڵندە','Fish=ماسی','Horse=ئەسپ','Cow=مانگا','Sheep=مەڕ','Lion=شێر','Eagle=هەڵۆ','Butterfly=پەپووڵە'] },
     ]},
     'ar-ku': { name:'عەرەبی → کوردی', icon:'🇸🇦', topics:[
         { id:1, title:'تحيات — سڵاوکردن', words:['السلام عليكم=سڵاو','صباح الخير=بەیانیت باش','مساء الخير=ئێوارت باش','شكراً=سوپاس','عفواً=تکایە','كيف حالك=چۆنی','أنا بخير=باشم','مع السلامة=خواحافیزی','إلى اللقاء=تا دیکەوە','يشرفنا=خوشحاڵبووین'] },
@@ -84,6 +95,36 @@ const lessons = {
         { id:5, title:'Yiyecek — خواردن', words:['Su=ئاو','Ekmek=نان','Pirinç=برنج','Et=گۆشت','Çay=چا','Süt=شیر','Yumurta=هێلکە','Meyve=مێوە','Sebze=سەوزە','Şeker=شەکر'] },
         { id:6, title:'Seyahat — گەشت', words:['Havalimanı=فڕۆکەخانە','Otel=هوتێل','Pasaport=پاسپۆرت','Bilet=بلیت','Çanta=جانتا','Harita=نەخشە','Taksi=تاکسی','Tren=شەمەندەفەر'] },
         { id:7, title:'Günlük — ڕۆژانە', words:['Sabah=بەیانی','Gece=شەو','Gün=ڕۆژ','Hafta=هەفتە','Ay=مانگ','Yıl=ساڵ','Şimdi=ئێستا','Yarın=سبەینێ'] },
+    ]},
+    'fr-ku': { name:'فەرەنسی → کوردی', icon:'🇫🇷', topics:[
+        { id:1,  title:'Salutations — سڵاوکردن', words:['Bonjour=سڵاو','Bonsoir=ئێوارت باش','Merci=سوپاس',"S'il vous plaît=تکایە",'Excusez-moi=ببووربە','Comment allez-vous=چۆنی','Je vais bien=باشم','Au revoir=خواحافیزی','À bientôt=تا دواتر','Bienvenue=بەخێربێی'] },
+        { id:2,  title:'Nombres — ژمارەکان', words:['Un=یەک','Deux=دوو','Trois=سێ','Quatre=چوار','Cinq=پێنج','Six=شەش','Sept=حەوت','Huit=هەشت','Neuf=نۆ','Dix=دە'] },
+        { id:3,  title:'Couleurs — ڕەنگەکان', words:['Rouge=سوور','Bleu=شین','Vert=سەوز','Jaune=زەرد','Noir=ڕەش','Blanc=سپی','Orange=نارەنجی','Violet=مۆر','Rose=پەمبە','Marron=قاوەیی'] },
+        { id:4,  title:'Famille — خێزان', words:['Mère=دایک','Père=باوک','Sœur=خوشک','Frère=برا','Grand-père=باپیر','Grand-mère=دایبابا','Fils=کوڕ','Fille=کچ','Mari=مێرد','Femme=ژن'] },
+        { id:5,  title:'Nourriture — خواردن', words:['Eau=ئاو','Pain=نان','Riz=برنج','Viande=گۆشت','Thé=چا','Lait=شیر','Œuf=هێلکە','Fruit=مێوە','Légume=سەوزە','Sucre=شەکر'] },
+        { id:6,  title:'Voyage — گەشت', words:['Aéroport=فڕۆکەخانە','Hôtel=هوتێل','Passeport=پاسپۆرت','Billet=بلیت','Sac=جانتا','Carte=نەخشە','Taxi=تاکسی','Train=شەمەندەفەر'] },
+        { id:7,  title:'Corps — جەستە', words:['Tête=سەر','Œil=چاو','Oreille=گوێ','Nez=لووت','Bouche=دەم','Main=دەست','Pied=پێ','Cœur=دڵ','Dos=پشت','Épaule=مەر'] },
+        { id:8,  title:'Météo — ئاب و هەوا', words:['Soleil=خۆر','Pluie=باران','Vent=با','Neige=بەفر','Nuage=هەور','Chaud=گەرم','Froid=سارد','Tiède=گەرمای','Tempête=توفان','Tonnerre=ئەرعد'] },
+    ]},
+    'de-ku': { name:'ئەڵمانی → کوردی', icon:'🇩🇪', topics:[
+        { id:1,  title:'Begrüßung — سڵاوکردن', words:['Hallo=سڵاو','Guten Morgen=بەیانیت باش','Guten Abend=ئێوارت باش','Danke=سوپاس','Bitte=تکایە','Entschuldigung=ببووربە','Wie geht es Ihnen=چۆنی','Mir geht es gut=باشم','Auf Wiedersehen=خواحافیزی','Willkommen=بەخێربێی'] },
+        { id:2,  title:'Zahlen — ژمارەکان', words:['Eins=یەک','Zwei=دوو','Drei=سێ','Vier=چوار','Fünf=پێنج','Sechs=شەش','Sieben=حەوت','Acht=هەشت','Neun=نۆ','Zehn=دە'] },
+        { id:3,  title:'Farben — ڕەنگەکان', words:['Rot=سوور','Blau=شین','Grün=سەوز','Gelb=زەرد','Schwarz=ڕەش','Weiß=سپی','Orange=نارەنجی','Lila=مۆر','Rosa=پەمبە','Braun=قاوەیی'] },
+        { id:4,  title:'Familie — خێزان', words:['Mutter=دایک','Vater=باوک','Schwester=خوشک','Bruder=برا','Großvater=باپیر','Großmutter=دایبابا','Sohn=کوڕ','Tochter=کچ','Ehemann=مێرد','Ehefrau=ژن'] },
+        { id:5,  title:'Essen — خواردن', words:['Wasser=ئاو','Brot=نان','Reis=برنج','Fleisch=گۆشت','Tee=چا','Milch=شیر','Ei=هێلکە','Obst=مێوە','Gemüse=سەوزە','Zucker=شەکر'] },
+        { id:6,  title:'Reise — گەشت', words:['Flughafen=فڕۆکەخانە','Hotel=هوتێل','Reisepass=پاسپۆرت','Ticket=بلیت','Tasche=جانتا','Karte=نەخشە','Taxi=تاکسی','Zug=شەمەندەفەر'] },
+        { id:7,  title:'Körper — جەستە', words:['Kopf=سەر','Auge=چاو','Ohr=گوێ','Nase=لووت','Mund=دەم','Hand=دەست','Fuß=پێ','Herz=دڵ','Rücken=پشت','Schulter=مەر'] },
+        { id:8,  title:'Wetter — ئاب و هەوا', words:['Sonne=خۆر','Regen=باران','Wind=با','Schnee=بەفر','Wolke=هەور','Heiß=گەرم','Kalt=سارد','Warm=گەرمای','Sturm=توفان','Donner=ئەرعد'] },
+    ]},
+    'es-ku': { name:'ئیسپانی → کوردی', icon:'🇪🇸', topics:[
+        { id:1,  title:'Saludos — سڵاوکردن', words:['Hola=سڵاو','Buenos días=بەیانیت باش','Buenas noches=ئێوارت باش','Gracias=سوپاس','Por favor=تکایە','Perdón=ببووربە','Cómo estás=چۆنی','Estoy bien=باشم','Adiós=خواحافیزی','Bienvenido=بەخێربێی'] },
+        { id:2,  title:'Números — ژمارەکان', words:['Uno=یەک','Dos=دوو','Tres=سێ','Cuatro=چوار','Cinco=پێنج','Seis=شەش','Siete=حەوت','Ocho=هەشت','Nueve=نۆ','Diez=دە'] },
+        { id:3,  title:'Colores — ڕەنگەکان', words:['Rojo=سوور','Azul=شین','Verde=سەوز','Amarillo=زەرد','Negro=ڕەش','Blanco=سپی','Naranja=نارەنجی','Morado=مۆر','Rosa=پەمبە','Marrón=قاوەیی'] },
+        { id:4,  title:'Familia — خێزان', words:['Madre=دایک','Padre=باوک','Hermana=خوشک','Hermano=برا','Abuelo=باپیر','Abuela=دایبابا','Hijo=کوڕ','Hija=کچ','Esposo=مێرد','Esposa=ژن'] },
+        { id:5,  title:'Comida — خواردن', words:['Agua=ئاو','Pan=نان','Arroz=برنج','Carne=گۆشت','Té=چا','Leche=شیر','Huevo=هێلکە','Fruta=مێوە','Verdura=سەوزە','Azúcar=شەکر'] },
+        { id:6,  title:'Viaje — گەشت', words:['Aeropuerto=فڕۆکەخانە','Hotel=هوتێل','Pasaporte=پاسپۆرت','Billete=بلیت','Bolsa=جانتا','Mapa=نەخشە','Taxi=تاکسی','Tren=شەمەندەفەر'] },
+        { id:7,  title:'Cuerpo — جەستە', words:['Cabeza=سەر','Ojo=چاو','Oreja=گوێ','Nariz=لووت','Boca=دەم','Mano=دەست','Pie=پێ','Corazón=دڵ','Espalda=پشت','Hombro=مەر'] },
+        { id:8,  title:'Clima — ئاب و هەوا', words:['Sol=خۆر','Lluvia=باران','Viento=با','Nieve=بەفر','Nube=هەور','Caliente=گەرم','Frío=سارد','Tibio=گەرمای','Tormenta=توفان','Trueno=ئەرعد'] },
     ]},
     'fa-ku': { name:'فارسی → کوردی', icon:'🇮🇷', topics:[
         { id:1, title:'احوالپرسی — سڵاوکردن', words:['سلام=سڵاو','صبح بخیر=بەیانیت باش','عصر بخیر=ئێوارت باش','ممنون=سوپاس','لطفاً=تکایە','حالت چطوره=چۆنی','خوبم=باشم','خداحافظ=خواحافیزی','تا دیدار=تا دیکەوە','خوش آمدید=بەخێربێی'] },
@@ -574,11 +615,15 @@ const pageRenderers = {
     'ai-teacher':renderAITeacher,
     progress:    renderProgress,
     achievements:renderAchievements,
-    community:   renderCommunity,
-    packages:    renderPackages,
-    sponsor:     renderSponsor,
-    contact:     renderContact,
-    settings:    renderSettings,
+    community:       renderCommunity,
+    instructors:     renderInstructors,
+    'fill-blank':    renderFillBlank,
+    'match-pairs':   renderMatchPairs,
+    'sentence-order':renderSentenceOrder,
+    packages:        renderPackages,
+    sponsor:         renderSponsor,
+    contact:         renderContact,
+    settings:        renderSettings,
 };
 
 function navigateTo(page) {
@@ -652,12 +697,16 @@ function renderHome(c) {
         : '📜 سۆرانی';
 
     const quickActions = [
-        { page:'lessons',    icon:'📚', label:'وانەکان',    color: th.accent },
-        { page:'quiz',       icon:'📝', label:'کویز',       color:'#0EA5E9' },
-        { page:'flashcards', icon:'🃏', label:'فلاشکارت',  color:'#10B981' },
-        { page:'speed-quiz', icon:'⚡', label:'کویزی خێرا', color:'#F59E0B' },
-        { page:'listening',  icon:'🎧', label:'بیستن',      color:'#8B5CF6' },
-        { page:'speaking',   icon:'🎤', label:'قسەکردن',    color:'#EF4444' },
+        { page:'lessons',        icon:'📚', label:'وانەکان',      color: th.accent },
+        { page:'quiz',           icon:'📝', label:'کویز',         color:'#0EA5E9' },
+        { page:'flashcards',     icon:'🃏', label:'فلاشکارت',    color:'#10B981' },
+        { page:'speed-quiz',     icon:'⚡', label:'کویزی خێرا',   color:'#F59E0B' },
+        { page:'fill-blank',     icon:'✏️', label:'شوێنی بەتاڵ', color:'#6366F1' },
+        { page:'match-pairs',    icon:'🔗', label:'جوت کردن',     color:'#EC4899' },
+        { page:'sentence-order', icon:'🔀', label:'ڕیزکردن',      color:'#14B8A6' },
+        { page:'listening',      icon:'🎧', label:'بیستن',        color:'#8B5CF6' },
+        { page:'speaking',       icon:'🎤', label:'قسەکردن',      color:'#EF4444' },
+        { page:'ai-teacher',     icon:'🤖', label:'مامۆستای AI', color:'#F97316' },
     ];
 
     c.innerHTML = `
@@ -1347,6 +1396,30 @@ function renderAITeacher(c) {
             </div>
         </div>
 
+        <!-- Adaptive AI Shortcut Chips -->
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+            <button onclick="aiSuggestPlan()" style="background:${th.accent}15;color:${th.accent};
+                    border:1px solid ${th.accent}40;padding:6px 12px;border-radius:99px;
+                    font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">
+                📋 پلانی هەفتەیی
+            </button>
+            <button onclick="aiAssessLevel()" style="background:#10B98115;color:#059669;
+                    border:1px solid #10B98140;padding:6px 12px;border-radius:99px;
+                    font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">
+                🎯 پشکنینی ئاست
+            </button>
+            <button onclick="aiDailySentence()" style="background:#F59E0B15;color:#D97706;
+                    border:1px solid #F59E0B40;padding:6px 12px;border-radius:99px;
+                    font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">
+                ✨ ڕستەی ئەمڕۆ
+            </button>
+            <button onclick="aiGrammarTip()" style="background:#8B5CF615;color:#7C3AED;
+                    border:1px solid #8B5CF640;padding:6px 12px;border-radius:99px;
+                    font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">
+                📖 تێبینیی ڕێزمان
+            </button>
+        </div>
+
         <!-- API key card -->
         ${!hasKey ? `
         <div class="card ai-key-card" style="border:1.5px solid ${th.accent};margin-bottom:12px">
@@ -2034,6 +2107,415 @@ function renderContact(c) {
             <h3 style="margin-bottom:4px">📧 ئیمەیڵ</h3>
             <a href="mailto:${AppConfig.contact.email}" style="color:var(--primary)">${escHtml(AppConfig.contact.email || 'support@ziman.app')}</a>
         </div>`;
+}
+
+// ===== PAGE: FILL-IN-THE-BLANK QUIZ =====
+function renderFillBlank(c) {
+    const allWords = getAllWords();
+    if (allWords.length < 4) {
+        c.innerHTML = '<h2>✏️ شوێنی بەتاڵ</h2><div class="card"><p>وشەی پێویست نییە. پێشتر وانەیەک دابگرە.</p></div>';
+        return;
+    }
+    const th  = getLangTheme();
+    const raw = allWords[Math.floor(Math.random() * allWords.length)];
+    const { src, target } = getDialectWord(raw);
+
+    // Alternate: ask for source or target
+    const askForSource = Math.random() > 0.5;
+    const correctAns   = askForSource ? src : target;
+    const displayWord  = askForSource ? target : src;
+    const hint         = askForSource
+        ? 'بە ئینگلیزی/زمانی فێرخواز چۆن دەنووسرێت؟'
+        : 'واتای کوردی چییە؟';
+
+    const wrongs = allWords
+        .filter(w => w !== raw)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3)
+        .map(w => askForSource ? getDialectWord(w).src : getDialectWord(w).target);
+    const opts = [...wrongs, correctAns].sort(() => Math.random() - 0.5);
+
+    const blank = `<span style="background:${th.accent}22;padding:2px 20px;border-radius:6px;
+                               border-bottom:2.5px solid ${th.accent};font-weight:700">_____</span>`;
+
+    c.innerHTML = `
+        <h2 style="margin-bottom:12px">✏️ شوێنی بەتاڵ پڕبکەرەوە</h2>
+        <div class="card" style="text-align:center;padding:28px 20px;margin:0 0 16px;
+             border-top:3px solid ${th.accent}">
+            <p style="font-size:32px;font-weight:800;margin-bottom:8px;unicode-bidi:isolate" dir="auto">
+                ${escHtml(displayWord)}
+            </p>
+            <p style="color:var(--text-secondary);margin-bottom:10px;font-size:14px">${hint}</p>
+            <p style="font-size:22px">${blank}</p>
+            <button class="btn btn-sm" style="margin-top:10px"
+                    onclick="speakWord('${escAttr(src)}')" aria-label="گوێ بگرە">🔊 گوێ بگرە</button>
+        </div>
+        <div class="options-grid" id="fbOpts" role="group" aria-label="وەڵامەکان">
+            ${opts.map(o => `
+            <button class="option-btn" dir="auto"
+                    onclick="checkFillBlank('${escAttr(o)}','${escAttr(correctAns)}',this)">
+                ${escHtml(o)}
+            </button>`).join('')}
+        </div>`;
+}
+
+function checkFillBlank(sel, correct, btn) {
+    document.querySelectorAll('#fbOpts .option-btn').forEach(b => { b.disabled = true; });
+    if (sel === correct) {
+        btn.classList.add('correct');
+        celebrateCorrect(btn, 12);
+        toast('✅ ڕاستە! +12 XP');
+    } else {
+        btn.classList.add('wrong');
+        celebrateWrong(btn);
+        document.querySelectorAll('#fbOpts .option-btn').forEach(b => {
+            if (b.textContent.trim() === correct) b.classList.add('correct');
+        });
+    }
+    _trackTimeout(setTimeout(() => renderFillBlank(document.getElementById('mainContent')), 1600));
+}
+
+// ===== PAGE: MATCH PAIRS QUIZ =====
+function renderMatchPairs(c) {
+    const allWords = getAllWords();
+    if (allWords.length < 5) {
+        c.innerHTML = '<h2>🔗 جوت کردنەوە</h2><div class="card"><p>وشەی پێویست نییە. پێشتر وانەیەک دابگرە.</p></div>';
+        return;
+    }
+    const th     = getLangTheme();
+    const count  = Math.min(5, allWords.length);
+    const chosen = allWords.sort(() => Math.random() - 0.5).slice(0, count);
+    const pairs  = chosen.map(w => getDialectWord(w));
+    const lefts  = pairs.map(p => p.src).sort(() => Math.random() - 0.5);
+    const rights = pairs.map(p => p.target).sort(() => Math.random() - 0.5);
+
+    window._mp = { pairs, selected: null, matched: 0, total: count, startTime: Date.now() };
+
+    c.innerHTML = `
+        <h2 style="margin-bottom:8px">🔗 جوت کردنەوە</h2>
+        <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px">
+            ✅ <span id="mpMatched">0</span> / ${count} — وشەکان بجوت بکەرەوە
+        </p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="mpGrid">
+            ${lefts.map(l => `
+                <button class="option-btn mp-btn" data-word="${escAttr(l)}" data-side="left"
+                        onclick="selectMP(this,'${escAttr(l)}','left')"
+                        style="min-height:52px;text-align:center;font-size:14px">${escHtml(l)}</button>`).join('')}
+            ${rights.map(r => `
+                <button class="option-btn mp-btn" data-word="${escAttr(r)}" data-side="right"
+                        onclick="selectMP(this,'${escAttr(r)}','right')"
+                        style="min-height:52px;text-align:center;font-size:14px;color:${th.accent}">${escHtml(r)}</button>`).join('')}
+        </div>
+        <p style="text-align:center;color:var(--text-muted);font-size:12px;margin-top:12px">
+            لایەکی چەپ هەڵبژێرە، دواتر لایەکی ڕاست
+        </p>`;
+}
+
+function selectMP(btn, word, side) {
+    const d  = window._mp;
+    const th = getLangTheme();
+    if (!d || btn.disabled) return;
+
+    if (!d.selected) {
+        d.selected = { btn, word, side };
+        btn.style.boxShadow  = `0 0 0 3px ${th.accent}`;
+        btn.style.background = `${th.accent}22`;
+        return;
+    }
+
+    const prev = d.selected;
+    d.selected = null;
+
+    // Must pick from opposite sides; if same side → switch selection
+    if (prev.side === side) {
+        prev.btn.style.boxShadow  = '';
+        prev.btn.style.background = '';
+        d.selected = { btn, word, side };
+        btn.style.boxShadow  = `0 0 0 3px ${th.accent}`;
+        btn.style.background = `${th.accent}22`;
+        return;
+    }
+
+    const leftWord  = side === 'left' ? word : prev.word;
+    const rightWord = side === 'right' ? word : prev.word;
+    const leftBtn   = side === 'left' ? btn  : prev.btn;
+    const rightBtn  = side === 'right' ? btn  : prev.btn;
+
+    const isMatch = d.pairs.some(p => p.src === leftWord && p.target === rightWord);
+
+    if (isMatch) {
+        [leftBtn, rightBtn].forEach(b => {
+            b.classList.add('correct');
+            b.style.boxShadow  = '';
+            b.disabled = true;
+        });
+        d.matched++;
+        state.user.xp += 15;
+        playBeep(800, 0.1);
+        const sc = document.getElementById('mpMatched');
+        if (sc) sc.textContent = d.matched;
+        save();
+        if (d.matched === d.total) {
+            const secs = Math.round((Date.now() - d.startTime) / 1000);
+            playChime('complete');
+            spawnConfetti();
+            toast(`🎉 هەموویان جوت کران! ${secs}ث — +${d.total * 15} XP`);
+            _trackTimeout(setTimeout(() => navigateTo('home'), 1800));
+        }
+    } else {
+        [leftBtn, rightBtn].forEach(b => {
+            b.classList.add('wrong');
+            b.style.boxShadow  = '';
+            b.style.background = '';
+        });
+        celebrateWrong(leftBtn);
+        _trackTimeout(setTimeout(() => {
+            [leftBtn, rightBtn].forEach(b => b.classList.remove('wrong'));
+        }, 600));
+    }
+}
+
+// ===== PAGE: SENTENCE ORDER QUIZ =====
+function renderSentenceOrder(c) {
+    const th = getLangTheme();
+    const sentences = [
+        { words:['زمانی','کوردی','زۆر','جوانە'],             answer:'زمانی کوردی زۆر جوانە',             meaning:'Kurdish language is very beautiful' },
+        { words:['بەیانیت','باش','مامۆستا'],                  answer:'بەیانیت باش مامۆستا',                meaning:'Good morning, teacher' },
+        { words:['ناوم','ئارامە','و','خۆشحاڵم'],             answer:'ناوم ئارامە و خۆشحاڵم',             meaning:'My name is Aram and I am happy' },
+        { words:['فێربوونی','زمان','سوودمەندە'],             answer:'فێربوونی زمان سوودمەندە',             meaning:'Learning a language is beneficial' },
+        { words:['ئەمڕۆ','کویزی','نوێم','هەیە'],             answer:'ئەمڕۆ کویزی نوێم هەیە',             meaning:'Today I have a new quiz' },
+        { words:['دڵم','لە','کوردستان','خۆشە'],             answer:'دڵم لە کوردستان خۆشە',               meaning:'I love Kurdistan' },
+        { words:['ڕۆژانە','زمانی','کوردی','دەخوێنم'],       answer:'ڕۆژانە زمانی کوردی دەخوێنم',         meaning:'I study Kurdish daily' },
+        { words:['مامۆستام','زۆر','باشە'],                    answer:'مامۆستام زۆر باشە',                   meaning:'My teacher is very good' },
+        { words:['ئاوی','سارد','دەمەوێت'],                   answer:'ئاوی سارد دەمەوێت',                   meaning:'I want cold water' },
+        { words:['کتێبەکە','لەسەر','مێزە'],                  answer:'کتێبەکە لەسەر مێزە',                  meaning:'The book is on the table' },
+    ];
+    const s       = sentences[Math.floor(Math.random() * sentences.length)];
+    const shuffled = [...s.words].sort(() => Math.random() - 0.5);
+    window._so    = { answer: s.answer, selected: [], meaning: s.meaning };
+
+    c.innerHTML = `
+        <h2 style="margin-bottom:8px">🔀 ڕیزکردنی ڕستە</h2>
+        <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px">
+            وشەکان بەکرتەکردن هەڵبژێرە بەم ڕیزانەی درووست:
+        </p>
+        <div class="card" style="min-height:64px;display:flex;flex-wrap:wrap;gap:8px;
+             align-items:center;padding:16px;margin-bottom:14px;
+             border-top:3px solid ${th.accent}" id="soAnswer" dir="rtl">
+            <span id="soPlaceholder" style="color:var(--text-muted);font-size:13px">
+                لێرە ئامادە دەبێت...
+            </span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;
+                    justify-content:center" id="soWords">
+            ${shuffled.map(w => `
+            <button onclick="soSelect('${escAttr(w)}',this)"
+                    style="background:${th.accent}18;color:${th.accent};
+                           border:1.5px solid ${th.accent}40;padding:8px 14px;
+                           border-radius:var(--radius-sm);font-size:15px;cursor:pointer">
+                ${escHtml(w)}
+            </button>`).join('')}
+        </div>
+        <div style="display:flex;gap:8px">
+            <button class="btn btn-sm" style="background:var(--surface-hover)"
+                    onclick="renderSentenceOrder(document.getElementById('mainContent'))">
+                ↺ دووبارە
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="soCheck()">✅ پشکنین</button>
+        </div>
+        <div id="soFeedback" style="margin-top:12px"></div>`;
+}
+
+function soSelect(word, btn) {
+    const d = window._so;
+    if (!d || btn.disabled) return;
+    btn.disabled     = true;
+    btn.style.opacity = '0.35';
+    d.selected.push(word);
+
+    const ans = document.getElementById('soAnswer');
+    const ph  = document.getElementById('soPlaceholder');
+    if (ph) ph.style.display = 'none';
+    if (ans) {
+        const chip = document.createElement('span');
+        chip.style.cssText = 'background:var(--primary-alpha);color:var(--primary);padding:4px 12px;' +
+                             'border-radius:99px;font-size:14px;cursor:pointer;user-select:none';
+        chip.textContent = word;
+        chip.title       = 'کرتە بکە بۆ سڕینەوە';
+        chip.onclick     = () => {
+            const idx = d.selected.lastIndexOf(word);
+            if (idx !== -1) d.selected.splice(idx, 1);
+            chip.remove();
+            btn.disabled      = false;
+            btn.style.opacity = '1';
+            if (!ans.querySelector('span') && ph) ph.style.display = '';
+        };
+        ans.appendChild(chip);
+    }
+}
+
+function soCheck() {
+    const d  = window._so;
+    const fb = document.getElementById('soFeedback');
+    if (!d || !d.selected.length) { toast('ئەولا وشەیەک هەڵبژێرە'); return; }
+    const attempt = d.selected.join(' ');
+    if (attempt === d.answer) {
+        if (fb) fb.innerHTML = `<div class="card" style="background:var(--success-light);color:var(--success);
+            text-align:center;padding:14px">
+            ✅ ڕاستە! واتا: <em>${escHtml(d.meaning)}</em></div>`;
+        celebrateCorrect(fb, 20);
+        toast('🎉 ڕاست! +20 XP');
+        _trackTimeout(setTimeout(() => renderSentenceOrder(document.getElementById('mainContent')), 2000));
+    } else {
+        if (fb) fb.innerHTML = `<div class="card" style="background:var(--danger-light);color:var(--danger);padding:14px">
+            ❌ هەڵەیە. وەڵامی درووست: <strong dir="rtl">${escHtml(d.answer)}</strong></div>`;
+        celebrateWrong(fb);
+    }
+}
+
+// ===== AI TEACHER: ADAPTIVE HELPER CALLS =====
+function aiSuggestPlan() {
+    const lang = lessons[state.settings.currentLanguage]?.name || 'کوردی';
+    const q = `زمانی فێربووم: ${lang}. ئاستم ${state.user.level} و ${state.user.totalWords} وشەم فێربووە و ${state.user.xp} XPم هەیە. پلانی فێربوونی هەفتەیەکم بنووسە بە کوردی — ڕۆژ بە ڕۆژ.`;
+    const inp = document.getElementById('aiInput');
+    if (inp) inp.value = q;
+    askAI(q);
+}
+
+function aiAssessLevel() {
+    const lang = lessons[state.settings.currentLanguage]?.name || 'کوردی';
+    const q = `فێرخوازم لە ${lang}. ${state.user.totalWords} وشەم فێربووە و ئاستم ${state.user.level}ە. ٣ پرسیاری پشکنین دروست بکە (جۆراوجۆر: هەڵبژاردەیی، ڕستەسازی)، لەپاش وەڵامیان ئاستم دیاری بکە و پێشنیارم بدە.`;
+    const inp = document.getElementById('aiInput');
+    if (inp) inp.value = q;
+    askAI(q);
+}
+
+function aiDailySentence() {
+    const lang = lessons[state.settings.currentLanguage]?.name || 'کوردی';
+    const q = `ڕستەی ئەمڕۆم بنووسە لە ${lang} — ئاستی ئاسانی مامناوەند، نە زۆر ئاسان نە زۆر سەخت. پاشان ڕووناکی بکەرەوە (ڕێزمان + واژە) و ٢ ڕستەی پەیوەندیدار هاوتا فێر بکە.`;
+    const inp = document.getElementById('aiInput');
+    if (inp) inp.value = q;
+    askAI(q);
+}
+
+function aiGrammarTip() {
+    const lang = lessons[state.settings.currentLanguage]?.name || 'کوردی';
+    const q = `تێبینییەکی ڕێزمانی گرنگ بمدە لە ${lang} کە زیاتر فێرخوازان هەڵەی تێدا دەکەن. نموونەی ڕاست و هەڵە بنووسە و ڕووناکی بکەرەوە.`;
+    const inp = document.getElementById('aiInput');
+    if (inp) inp.value = q;
+    askAI(q);
+}
+
+// ===== PAGE: INSTRUCTOR PORTAL (COMING SOON) =====
+function renderInstructors(c) {
+    const th = getLangTheme();
+    const features = [
+        { i:'📝', t:'نووسینی وانە',      d:'وانەی تایبەت بنووسە و بەکارهێنەران فێر بکات' },
+        { i:'🎥', t:'ئەپلۆدی ڤیدیۆ',    d:'ڤیدیۆی فێرکاری بارکە ڕاستەوخۆ لە پلاتفۆرم' },
+        { i:'❓', t:'دروستکردنی کویز',   d:'تاقیکردنەوەی تایبەت دروست بکە' },
+        { i:'📊', t:'شوپاندنی فێرخواز',  d:'پێشکەوتنی خوێندکارانت بشوپێنە' },
+        { i:'💬', t:'چاتی ڕاستەوخۆ',     d:'بەکارهێنەران سوال لەت بپرسن' },
+        { i:'💰', t:'داهاتی مامۆستا',     d:'لەگەڵ پلاتفۆرم هاوبەشی داهات بە' },
+    ];
+
+    c.innerHTML = `
+        <div style="text-align:center;padding:4px 0">
+
+            <!-- HERO -->
+            <div style="background:linear-gradient(135deg,${th.accent}14,${th.accent}05);
+                        border-radius:var(--radius);padding:32px 20px 28px;margin-bottom:18px;
+                        border:1.5px solid ${th.accent}22;position:relative;overflow:hidden">
+                <div style="position:absolute;top:-40px;left:-40px;width:130px;height:130px;
+                            background:${th.accent}07;border-radius:50%;pointer-events:none"></div>
+                <div style="position:absolute;bottom:-25px;right:-25px;width:90px;height:90px;
+                            background:${th.accent}05;border-radius:50%;pointer-events:none"></div>
+
+                <div style="font-size:54px;margin-bottom:10px">🎓</div>
+                <h2 style="font-size:21px;margin-bottom:6px">بەشی مامۆستایان</h2>
+                <h3 style="font-size:28px;font-weight:900;color:${th.accent};margin-bottom:10px;
+                            letter-spacing:-0.5px;line-height:1.2">
+                    لە نێزیک چاوەڕێبن!
+                </h3>
+                <p style="color:var(--text-secondary);font-size:14px;
+                           max-width:300px;margin:0 auto;line-height:1.65">
+                    ئێمە ئامادەی بانگهێشتی مامۆستا و پیشەیییەکان دەکرێین بۆ ئەوەی وانەی خۆیان
+                    لە زیمان بنووسن و شاری کوردی فێربوونی زمان بەرزتر ببێت.
+                </p>
+            </div>
+
+            <!-- COMING SOON PILL -->
+            <div style="display:inline-flex;align-items:center;gap:8px;background:var(--surface);
+                        border:1.5px solid ${th.accent}35;border-radius:99px;padding:8px 22px;
+                        margin-bottom:20px;box-shadow:var(--shadow)">
+                <span style="width:8px;height:8px;background:#F59E0B;border-radius:50%;
+                             display:inline-block;animation:pulse 1.4s ease-in-out infinite"></span>
+                <span style="font-size:13px;font-weight:700;color:var(--text-primary)">
+                    زووی بەردەست دەبێت · Coming Soon
+                </span>
+            </div>
+
+            <!-- FEATURE PREVIEW -->
+            <h3 style="margin-bottom:12px;text-align:right;font-size:15px;color:var(--text-secondary)">
+                مامۆستا دەتوانێت:
+            </h3>
+            <div style="display:grid;gap:10px;margin-bottom:20px;text-align:right">
+                ${features.map(f => `
+                <div class="card" style="display:flex;align-items:center;gap:12px;
+                             padding:14px 16px;border-right:3px solid ${th.accent}55">
+                    <span style="font-size:24px;flex-shrink:0">${f.i}</span>
+                    <div>
+                        <strong style="display:block;font-size:14px;margin-bottom:2px">${f.t}</strong>
+                        <span style="font-size:12px;color:var(--text-secondary)">${f.d}</span>
+                    </div>
+                </div>`).join('')}
+            </div>
+
+            <!-- SIGN-UP FORM -->
+            <div class="card" style="border:1.5px dashed ${th.accent}50;
+                                     background:${th.accent}06;text-align:right">
+                <p style="font-size:16px;font-weight:700;margin-bottom:4px">
+                    🙋 مامۆستایی؟ ناوت تۆمار بکە!
+                </p>
+                <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px">
+                    ئەوەی یەکەم مامۆستا بن دەستخۆشی تایبەتیان هەیە — دووری نەبن.
+                </p>
+
+                <input id="instrName"  class="input" type="text"
+                       placeholder="ناوت"                style="margin-bottom:8px"  />
+                <input id="instrEmail" class="input" type="email"
+                       placeholder="ئیمەیڵ یان ژمارەی واتسئاپ" style="margin-bottom:8px" />
+                <select id="instrLang" class="input" style="margin-bottom:12px">
+                    <option value="">زمانی تایبەتمەندیت هەڵبژێرە</option>
+                    <option>ئینگلیزی</option><option>عەرەبی</option>
+                    <option>تورکی</option><option>فارسی</option>
+                    <option>فەرەنسی</option><option>ئەڵمانی</option>
+                    <option>ئیسپانی</option><option>ئیتاڵی</option>
+                    <option>ڕووسی</option><option>چینی</option>
+                    <option>ژاپۆنی</option><option>کۆری</option>
+                </select>
+                <button class="btn btn-primary btn-block" onclick="submitInstructorInterest()"
+                        style="background:linear-gradient(135deg,${th.accent},${th.accent}cc);font-size:14px">
+                    ✅ ناوم تۆمار بکە — پێم ئاگادار بکەرەوە
+                </button>
+            </div>
+        </div>`;
+}
+
+function submitInstructorInterest() {
+    const name  = (document.getElementById('instrName')?.value  || '').trim();
+    const email = (document.getElementById('instrEmail')?.value || '').trim();
+    const lang  = document.getElementById('instrLang')?.value   || '';
+    if (!name || !email) { toast('تکایە ناو و ئیمەیڵ داخڵ بکە'); return; }
+    const list = JSON.parse(localStorage.getItem('zm_instructor_list') || '[]');
+    list.push({ name, email, lang, date: new Date().toISOString() });
+    localStorage.setItem('zm_instructor_list', JSON.stringify(list));
+    toast('✅ سوپاس! دوایەکێ پێت دەگەین 🎓');
+    ['instrName','instrEmail'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    const sel = document.getElementById('instrLang');
+    if (sel) sel.selectedIndex = 0;
 }
 
 // ===== PAGE: SETTINGS =====
