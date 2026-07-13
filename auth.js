@@ -118,10 +118,6 @@ function simulateSMS(phone, otp) {
 // VALIDATION ENGINE
 // ============================================================
 
-/**
- * Validates a single field. Returns { ok, msg }.
- * Shows/clears inline error beneath the field.
- */
 function validateField(id, rules) {
     const el = document.getElementById(id);
     const val = el ? el.value.trim() : '';
@@ -162,7 +158,6 @@ function clearAllFieldErrors() {
     document.querySelectorAll('.auth-field-err').forEach(el => { el.style.display = 'none'; });
 }
 
-// Mobile: accepts +964XXXXXXXXXX, 07XXXXXXXXX, 009647XXXXXXXXX formats
 const MOBILE_RE = /^(\+964|00964|0)(7[3-9]\d{8}|\d{9,10})$/;
 const EMAIL_RE  = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -280,7 +275,6 @@ function authLogin(email, password) {
     if (!user) return { ok: false, msg: '❌ ئیمەیڵ یان پاسوۆرد هەڵەیە.' };
     if (!user.verified) return { ok: false, msg: '⚠️ تکایە ئەژمارەکەت دڵنیابکەرەوە پێش چوونەژوورەوە.' };
 
-    // Sync session with freshest user record
     setSession(user);
 
     addDebugEntry({
@@ -356,7 +350,7 @@ function activateLicenseKey(key) {
         if (!users[idx].activatedPackages.includes(foundPkg))
             users[idx].activatedPackages.push(foundPkg);
         setUsers(users);
-        setSession(users[idx]); // persist updated session immediately
+        setSession(users[idx]);
     }
 
     addDebugEntry({
@@ -391,7 +385,6 @@ function showAuthModal(mode = 'signin') {
 
     overlay.addEventListener('click', e => { if (e.target === overlay) closeAuthModal(); });
 
-    // Auto-focus first input
     setTimeout(() => {
         const first = overlay.querySelector('input:not([type=hidden])');
         first?.focus();
@@ -594,7 +587,7 @@ function _buildResetForm() {
 }
 
 // ============================================================
-// FORM HANDLERS
+// FORM HELPERS & LOADING STATES
 // ============================================================
 
 function showAuthMsg(msg, type = 'error') {
@@ -643,7 +636,6 @@ function updatePassStrength(val) {
     label.style.color     = lvl.color;
 }
 
-// ---- Progress bar helpers ----
 function _startProgress() {
     const bar = document.getElementById('authProgressBar');
     if (bar) { bar.style.width = '0'; bar.classList.add('auth-progress-running'); }
@@ -653,7 +645,6 @@ function _stopProgress() {
     if (bar) { bar.classList.remove('auth-progress-running'); bar.style.width = '100%'; setTimeout(() => { bar.style.width = '0'; }, 400); }
 }
 
-// ---- Button loading state ----
 function _setBtnLoading(btn, loading) {
     if (!btn) return;
     btn.disabled = loading;
@@ -670,7 +661,10 @@ function _setBtnLoading(btn, loading) {
     }
 }
 
-// ---- Sign In ----
+// ============================================================
+// FORM SUBMIT HANDLERS
+// ============================================================
+
 function handleSignIn() {
     clearAllFieldErrors();
     const email = document.getElementById('siEmail')?.value.trim();
@@ -699,14 +693,12 @@ function handleSignIn() {
         refreshAuthNavUI();
         if (typeof toast === 'function') toast(`✅ بەخێربێی، ${res.user.fullName}!`);
         if (typeof spawnConfetti === 'function') spawnConfetti();
-        // If user has packages, navigate to dashboard
         if (res.user.activatedPackages?.length) {
             setTimeout(() => { if (typeof navigateTo === 'function') navigateTo('account'); }, 600);
         }
     }, 950);
 }
 
-// ---- Sign Up ----
 function handleSignUp() {
     if (!validateSignUpFields()) return;
 
@@ -739,7 +731,6 @@ function handleSignUp() {
     }, 1400);
 }
 
-// ---- Forgot Password ----
 function handleForgot() {
     clearAllFieldErrors();
     if (!validateField('fpEmail', [
@@ -763,7 +754,6 @@ function handleForgot() {
     }, 1100);
 }
 
-// ---- OTP Verify ----
 function handleOTPVerify() {
     const otp = _getOTPValue();
     if (otp.length < 6) { showAuthMsg('❌ کۆدی تەواو داخل بکە (٦ ژمارە).'); return; }
@@ -772,7 +762,6 @@ function handleOTPVerify() {
     _setBtnLoading(btn, true);
     _startProgress();
 
-    // Shake animation on all cells while checking
     document.querySelectorAll('.auth-otp-cell').forEach(c => c.classList.add('otp-checking'));
 
     setTimeout(() => {
@@ -790,7 +779,6 @@ function handleOTPVerify() {
             return;
         }
 
-        // Success — green flash
         document.querySelectorAll('.auth-otp-cell').forEach(c => c.classList.add('otp-correct'));
         setTimeout(() => {
             closeAuthModal();
@@ -802,7 +790,6 @@ function handleOTPVerify() {
     }, 1000);
 }
 
-// ---- Reset Password ----
 function handleReset() {
     clearAllFieldErrors();
     let ok = true;
@@ -891,8 +878,8 @@ function showActivateModal() {
         <div class="activate-student-strip">
             <span class="activate-avatar">🎓</span>
             <div>
-                <strong>${escHtml(session.fullName)}</strong>
-                <span>${escHtml(session.id)}</span>
+                <strong>${session.fullName}</strong>
+                <span>${session.id}</span>
             </div>
         </div>
 
@@ -946,14 +933,13 @@ function handleActivateKey() {
 
         if (!res.ok) {
             if (msg) { msg.textContent = res.msg; msg.className = 'auth-msg auth-msg-error'; msg.style.display = 'block'; }
-            // Shake the input
             const inp = document.getElementById('licKeyInput');
             if (inp) { inp.classList.add('shake-err'); setTimeout(() => inp.classList.remove('shake-err'), 500); }
             return;
         }
 
         if (msg) {
-            msg.innerHTML = `<strong>🎉 پاکێجی ${escHtml(res.pkgName)} بە سەرکەوتوویی چالاک کرا!</strong>`;
+            msg.innerHTML = `<strong>🎉 پاکێجی ${res.pkgName} بە سەرکەوتوویی چالاک کرا!</strong>`;
             msg.className = 'auth-msg auth-msg-success auth-msg-big';
             msg.style.display = 'block';
         }
@@ -970,13 +956,13 @@ function handleActivateKey() {
 }
 
 // ============================================================
-// DEBUG CONSOLE  — v2: collapsible, search, copy-all
+// DEBUG CONSOLE
 // ============================================================
 
 let _debugOpen    = false;
 let _dcActiveTab  = 'log';
 let _dcKeyFilter  = '';
-let _dcCollapsed  = {};  // pkg -> bool
+let _dcCollapsed  = {};
 
 function buildDebugConsoleHTML() {
     const log      = getDebugLog();
@@ -984,31 +970,29 @@ function buildDebugConsoleHTML() {
     const users    = getUsers();
     const session  = getSession();
 
-    // ---- Activity Log ----
     const logHTML = log.length === 0
         ? `<div class="dc-empty">هێشتا هیچ چالاکییەک نیە...</div>`
         : log.map((e, i) => `
             <div class="dc-entry dc-entry-${e.type || 'info'}" style="animation-delay:${Math.min(i*0.03,0.3)}s">
                 <div class="dc-entry-header">
                     <span class="dc-icon">${e.icon || '📌'}</span>
-                    <span class="dc-label">${escHtml(e.label || '')}</span>
+                    <span class="dc-label">${e.label || ''}</span>
                     <span class="dc-ts">${new Date(e.ts).toLocaleTimeString('en-GB')}</span>
                 </div>
                 ${e.otp ? `
                 <div class="dc-otp-reveal">
                     <span class="dc-otp-label">کۆدی OTP:</span>
-                    <strong class="dc-otp-code" id="otpCode${i}">${escHtml(e.otp)}</strong>
+                    <strong class="dc-otp-code" id="otpCode${i}">${e.otp}</strong>
                     <button class="dc-copy-btn" onclick="
-                        navigator.clipboard.writeText('${escHtml(e.otp)}')
+                        navigator.clipboard.writeText('${e.otp}')
                             .then(()=>{ this.textContent='✅ کۆپی کرا!'; setTimeout(()=>this.textContent='📋 کۆپی',1500); })">
                         📋 کۆپی
                     </button>
                 </div>` : ''}
-                ${e.subject ? `<div class="dc-email-subject">📌 ${escHtml(e.subject)}</div>` : ''}
-                ${e.body ? `<pre class="dc-body">${escHtml(e.body)}</pre>` : ''}
+                ${e.subject ? `<div class="dc-email-subject">📌 ${e.subject}</div>` : ''}
+                ${e.body ? `<pre class="dc-body">${e.body}</pre>` : ''}
             </div>`).join('');
 
-    // ---- License Keys ----
     const filteredEntries = Object.entries(LICENSE_KEYS).map(([pkg, keys]) => {
         const filtered = _dcKeyFilter
             ? keys.filter(k => k.toLowerCase().includes(_dcKeyFilter.toLowerCase()))
@@ -1019,7 +1003,7 @@ function buildDebugConsoleHTML() {
     const keysHTML = `
         <div class="dc-keys-search-wrap">
             <input type="text" class="dc-search" placeholder="🔍 گەڕان لە کلیلەکان..."
-                   value="${escHtml(_dcKeyFilter)}"
+                   value="${_dcKeyFilter}"
                    oninput="_dcKeyFilter=this.value;refreshDebugConsole();switchDCTab('keys')">
         </div>
         ${filteredEntries.map(({ pkg, keys, all }) => {
@@ -1032,7 +1016,7 @@ function buildDebugConsoleHTML() {
                 <div class="dc-keys-pkg-header" onclick="_dcCollapsed['${pkg}']=!_dcCollapsed['${pkg}'];refreshDebugConsole();switchDCTab('keys')" style="cursor:pointer">
                     <span class="dc-pkg-toggle">${isOpen ? '▼' : '▶'}</span>
                     <span class="dc-pkg-icon">${PACKAGE_ICONS[pkg] || '🎫'}</span>
-                    <span class="dc-pkg-name">${escHtml(PACKAGE_NAMES[pkg] || pkg)}</span>
+                    <span class="dc-pkg-name">${PACKAGE_NAMES[pkg] || pkg}</span>
                     <span class="dc-badge dc-badge-green">${avail.length} بەردەست</span>
                     <span class="dc-badge dc-badge-red">${used.length} بەکارچووە</span>
                     ${availFiltered.length > 0 ? `
@@ -1048,10 +1032,10 @@ function buildDebugConsoleHTML() {
                         const isUsed = usedKeys.includes(k);
                         return `
                         <div class="dc-key ${isUsed ? 'dc-key-used' : 'dc-key-avail'}">
-                            <code class="dc-key-code">${escHtml(k)}</code>
+                            <code class="dc-key-code">${k}</code>
                             ${!isUsed
                                 ? `<button class="dc-mini-copy" title="کۆپی"
-                                       onclick="navigator.clipboard.writeText('${escHtml(k)}').then(()=>{ this.textContent='✅'; setTimeout(()=>this.textContent='📋',1500); })">📋</button>`
+                                       onclick="navigator.clipboard.writeText('${k}').then(()=>{ this.textContent='✅'; setTimeout(()=>this.textContent='📋',1500); })">📋</button>`
                                 : `<span class="dc-used-x">✗ بەکارچووە</span>`}
                         </div>`;
                     }).join('')}
@@ -1059,7 +1043,6 @@ function buildDebugConsoleHTML() {
             </div>`;
         }).join('')}`;
 
-    // ---- Students ----
     const usersHTML = users.length === 0
         ? `<div class="dc-empty">هیچ فێرخوازێک تۆمار نەکراوە.</div>`
         : users.map(u => `
@@ -1067,16 +1050,16 @@ function buildDebugConsoleHTML() {
             <div class="dc-user-top">
                 <div class="dc-user-avatar">${u.verified ? '🎓' : '⏳'}</div>
                 <div class="dc-user-meta">
-                    <strong>${escHtml(u.fullName)}</strong>
-                    <span class="dc-user-id">${escHtml(u.id)}</span>
+                    <strong>${u.fullName}</strong>
+                    <span class="dc-user-id">${u.id}</span>
                     ${session && session.id === u.id ? '<span class="dc-active-badge">● چالاک</span>' : ''}
                 </div>
                 <div class="dc-user-status">${u.verified ? '<span class="dc-verified">✅</span>' : '<span class="dc-unverified">⏳</span>'}</div>
             </div>
             <div class="dc-user-details">
-                <div class="dc-user-detail-row"><span>📧</span><code>${escHtml(u.email)}</code></div>
-                <div class="dc-user-detail-row"><span>📱</span><code>${escHtml(u.mobile)}</code></div>
-                <div class="dc-user-detail-row"><span>🔐</span><code>${escHtml(u.password)}</code></div>
+                <div class="dc-user-detail-row"><span>📧</span><code>${u.email}</code></div>
+                <div class="dc-user-detail-row"><span>📱</span><code>${u.mobile}</code></div>
+                <div class="dc-user-detail-row"><span>🔐</span><code>${u.password}</code></div>
                 <div class="dc-user-detail-row"><span>🎫</span>
                     ${u.activatedPackages?.length
                         ? u.activatedPackages.map(p => `<span class="dc-pkg-pill" style="background:${PACKAGE_COLORS[p]}22;color:${PACKAGE_COLORS[p]};border:1px solid ${PACKAGE_COLORS[p]}44">${PACKAGE_ICONS[p]} ${p}</span>`).join('')
@@ -1171,7 +1154,7 @@ function refreshDebugConsole() {
 }
 
 // ============================================================
-// STUDENT DASHBOARD PAGE  — full rich layout
+// STUDENT DASHBOARD PAGE
 // ============================================================
 
 function renderAccount(c) {
@@ -1194,7 +1177,6 @@ function renderAccount(c) {
     const pkgs = session.activatedPackages || [];
     const hasPackage = pkgs.length > 0;
 
-    // XP and level from app state
     const xp     = (typeof state !== 'undefined') ? (state.user?.xp     || 0) : 0;
     const streak = (typeof state !== 'undefined') ? (state.user?.streak  || 0) : 0;
     const words  = (typeof state !== 'undefined') ? (state.user?.totalWords || 0) : 0;
@@ -1203,17 +1185,16 @@ function renderAccount(c) {
     const memberSince = new Date(session.createdAt).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
 
     c.innerHTML = `
-    <!-- HERO BANNER -->
     <div class="dash-hero">
         <div class="dash-hero-bg"></div>
         <div class="dash-hero-content">
             <div class="dash-avatar">${hasPackage ? '🎓' : '👤'}</div>
             <div class="dash-hero-info">
-                <h2 class="dash-name">${escHtml(session.fullName)}</h2>
+                <h2 class="dash-name">${session.fullName}</h2>
                 <div class="dash-student-id">
                     <span>🆔</span>
-                    <code>${escHtml(session.id)}</code>
-                    <button class="dash-copy-id" onclick="navigator.clipboard.writeText('${escHtml(session.id)}').then(()=>toast('✅ ID کۆپی کرا!'))" title="کۆپی">📋</button>
+                    <code>${session.id}</code>
+                    <button class="dash-copy-id" onclick="navigator.clipboard.writeText('${session.id}').then(()=>toast('✅ ID کۆپی کرا!'))" title="کۆپی">📋</button>
                 </div>
                 <div class="dash-status-row">
                     <span class="dash-badge-verified">✅ دڵنیاکراو</span>
@@ -1223,7 +1204,6 @@ function renderAccount(c) {
         </div>
     </div>
 
-    <!-- STATS ROW -->
     <div class="dash-stats-row">
         <div class="dash-stat">
             <span class="dash-stat-icon">⭐</span>
@@ -1247,7 +1227,6 @@ function renderAccount(c) {
         </div>
     </div>
 
-    <!-- PACKAGES SECTION -->
     <div class="card dash-section">
         <div class="dash-section-header">
             <h3>🎫 پاکێجەکانم</h3>
@@ -1271,22 +1250,20 @@ function renderAccount(c) {
                </div>`}
     </div>
 
-    <!-- PERSONAL INFO -->
     <div class="card dash-section">
         <div class="dash-section-header">
             <h3>📋 زانیاری کەسی</h3>
         </div>
         <div class="dash-info-grid">
-            <div class="dash-info-item"><span>👤 ناو</span><strong>${escHtml(session.fullName)}</strong></div>
-            <div class="dash-info-item"><span>👨 باوک</span><strong>${escHtml(session.fatherName || '—')}</strong></div>
-            <div class="dash-info-item"><span>👴 باپیر</span><strong>${escHtml(session.grandfatherName || '—')}</strong></div>
-            <div class="dash-info-item"><span>📱 مۆبایل</span><strong dir="ltr">${escHtml(session.mobile || '—')}</strong></div>
-            <div class="dash-info-item"><span>📧 ئیمەیڵ</span><strong dir="ltr" style="font-size:12px">${escHtml(session.email)}</strong></div>
+            <div class="dash-info-item"><span>👤 ناو</span><strong>${session.fullName}</strong></div>
+            <div class="dash-info-item"><span>👨 باوک</span><strong>${session.fatherName || '—'}</strong></div>
+            <div class="dash-info-item"><span>👴 باپیر</span><strong>${session.grandfatherName || '—'}</strong></div>
+            <div class="dash-info-item"><span>📱 مۆبایل</span><strong dir="ltr">${session.mobile || '—'}</strong></div>
+            <div class="dash-info-item"><span>📧 ئیمەیڵ</span><strong dir="ltr" style="font-size:12px">${session.email}</strong></div>
             <div class="dash-info-item"><span>📅 تۆمارکراوە</span><strong>${memberSince}</strong></div>
         </div>
     </div>
 
-    <!-- QUICK ACTIONS -->
     <div class="card dash-section">
         <div class="dash-section-header"><h3>⚡ کردارە خێراکان</h3></div>
         <div class="dash-quick-grid">
@@ -1305,7 +1282,6 @@ function renderAccount(c) {
         </div>
     </div>
 
-    <!-- DEV TOOLS + LOGOUT -->
     <div class="dash-footer-row">
         <button class="dash-dev-btn" onclick="openDebugConsole()">🛠️ Dev Console</button>
         <button class="dash-logout-btn" onclick="authLogout()">🚪 چوونەدەرەوە</button>
@@ -1313,7 +1289,7 @@ function renderAccount(c) {
 }
 
 // ============================================================
-// NAV UI REFRESH
+// NAV UI REFRESH — Safely Patched
 // ============================================================
 
 function refreshAuthNavUI() {
@@ -1325,7 +1301,7 @@ function refreshAuthNavUI() {
     if (btn) {
         if (session) {
             btn.textContent = `🎓 ${session.fullName.split(' ')[0]}`;
-            btn.onclick     = () => navigateTo('account');
+            btn.onclick     = () => { if (typeof navigateTo === 'function') navigateTo('account'); };
             btn.classList.add('auth-nav-btn-active');
         } else {
             btn.textContent = '🔐 داخلبوون';
@@ -1336,10 +1312,6 @@ function refreshAuthNavUI() {
     if (name)   name.textContent   = session ? session.fullName : (typeof lsGet === 'function' ? lsGet('zm_name','فێرخواز') : 'فێرخواز');
     if (avatar) avatar.textContent = session ? '🎓' : '👤';
 }
-
-// ============================================================
-// FLOATING DEBUG FAB
-// ============================================================
 
 function injectDebugFAB() {
     if (document.getElementById('debugFAB')) return;
@@ -1354,19 +1326,16 @@ function injectDebugFAB() {
 }
 
 // ============================================================
-// INIT — runs after DOM ready, restores session from localStorage
+// INIT SYSTEM
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Inject FAB
     injectDebugFAB();
 
-    // 2. Register account page renderer
     if (typeof pageRenderers !== 'undefined') {
         pageRenderers['account'] = renderAccount;
     }
 
-    // 3. Inject auth button into header
     const headerStats = document.querySelector('.header-stats');
     if (headerStats && !document.getElementById('authNavBtn')) {
         const authBtn      = document.createElement('button');
@@ -1374,10 +1343,11 @@ document.addEventListener('DOMContentLoaded', () => {
         authBtn.className  = 'auth-nav-btn';
         authBtn.innerHTML  = '🔐 داخلبوون';
         authBtn.onclick    = () => showAuthModal('signin');
-        headerStats.parentNode.insertBefore(authBtn, headerStats.nextSibling);
+        if (headerStats.parentNode) {
+            headerStats.parentNode.insertBefore(authBtn, headerStats.nextSibling);
+        }
     }
 
-    // 4. Add "ئەژمارەکەم" to side menu (only once)
     const menuLists = document.querySelectorAll('.side-menu .menu-list');
     if (menuLists.length > 0 && !document.querySelector('[data-nav="account"]')) {
         const li = document.createElement('li');
@@ -1386,18 +1356,15 @@ document.addEventListener('DOMContentLoaded', () => {
         menuLists[0].insertBefore(li, menuLists[0].firstChild);
     }
 
-    // 5. Restore session — sync freshest user data from users array
     const session = getSession();
     if (session) {
         const users  = getUsers();
         const latest = users.find(u => u.id === session.id);
-        if (latest) setSession(latest); // keep session in sync with any changes
+        if (latest) setSession(latest);
     }
 
-    // 6. Refresh nav UI to reflect restored session
     refreshAuthNavUI();
 
-    // 7. Keyboard shortcuts
     document.addEventListener('keydown', e => {
         if (e.key === 'Escape') {
             document.getElementById('authOverlay')?.remove();
