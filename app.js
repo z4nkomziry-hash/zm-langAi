@@ -1846,12 +1846,28 @@ function renderCommunity(c) {
 
 // ===== PAGE: PACKAGES =====
 function renderPackages(c) {
-    let html = '<h2 style="margin-bottom:12px">💳 پاکێجەکان</h2>';
+    // Check activated packages from auth session
+    let activatedPkgs = [];
+    try {
+        const session = JSON.parse(localStorage.getItem('zm_auth_session') || 'null');
+        if (session && session.activatedPackages) activatedPkgs = session.activatedPackages;
+    } catch {}
+
+    let html = `
+        <h2 style="margin-bottom:4px">💳 پاکێجەکان</h2>
+        <p style="color:var(--text-secondary);font-size:13px;margin-bottom:8px">کلیلی مەجازت هەیە؟ یان بە پارەدان چالاک بکە</p>
+        <button class="btn btn-block" style="background:linear-gradient(135deg,#4F46E5,#6366F1);color:#fff;margin-bottom:18px;font-weight:700;border-radius:var(--radius-sm);padding:13px;font-size:14px;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(79,70,229,.35)"
+                onclick="typeof showActivateModal==='function'?showActivateModal():toast('بارکردن...')">
+            🔑 چالاکردنی پاکێج بە کلیلی مەجاز
+        </button>`;
+
     for (const k in packages) {
         const p = packages[k];
+        const isActive = activatedPkgs.includes(k);
         html += `
-            <div class="card ${p.featured ? 'featured' : ''}" style="border-right:4px solid ${p.color}">
-                ${p.featured ? '<span class="badge badge-premium" style="margin-bottom:8px;display:inline-block">⭐ پێشنیارکراو</span>' : ''}
+            <div class="card ${p.featured ? 'featured' : ''}" style="border-right:4px solid ${p.color};${isActive ? 'box-shadow:0 0 0 2px ' + p.color + '55,var(--shadow);' : ''}">
+                ${isActive ? `<span class="badge" style="background:${p.color};color:#fff;margin-bottom:8px;display:inline-block;padding:4px 10px;border-radius:99px;font-size:11px">✅ چالاککراو</span>` : ''}
+                ${p.featured && !isActive ? '<span class="badge badge-premium" style="margin-bottom:8px;display:inline-block">⭐ پێشنیارکراو</span>' : ''}
                 <h3 style="color:${p.color};margin-bottom:4px">${escHtml(p.name)}</h3>
                 <p style="font-size:28px;font-weight:800;margin-bottom:8px">
                     ${escHtml(p.price)}<small style="font-size:14px;font-weight:500;color:var(--text-secondary)"> / ${escHtml(p.period)}</small>
@@ -1859,7 +1875,12 @@ function renderPackages(c) {
                 <ul style="list-style:none;padding:0;margin-bottom:16px">
                     ${p.features.map(f => `<li style="padding:3px 0;font-size:14px">✅ ${escHtml(f)}</li>`).join('')}
                 </ul>
-                <button class="btn btn-primary btn-block" onclick="buyPackage('${escAttr(k)}')">${escHtml(p.btnText)}</button>
+                ${isActive
+                    ? `<button class="btn btn-block" style="background:${p.color}22;color:${p.color};border:1.5px solid ${p.color}55;font-weight:700" disabled>✅ چالاککراوە</button>`
+                    : `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                           <button class="btn btn-primary btn-block" onclick="buyPackage('${escAttr(k)}')">${escHtml(p.btnText)}</button>
+                           ${k !== 'free' ? `<button class="btn btn-block" style="background:var(--surface-hover);border:1.5px solid var(--border);font-size:12px" onclick="typeof showActivateModal==='function'?showActivateModal():toast('بارکردن...')">🔑 کلیل</button>` : ''}
+                       </div>`}
             </div>`;
     }
     c.innerHTML = html;
