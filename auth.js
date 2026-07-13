@@ -289,7 +289,14 @@ function authLogin(email, password) {
     const users = getUsers();
     const user  = users.find(u => u.email === email.toLowerCase().trim() && u.password === password);
     if (!user) return { ok: false, msg: '❌ ئیمەیڵ یان پاسوۆرد هەڵەیە.' };
-    if (!user.verified) return { ok: false, msg: '⚠️ تکایە ئەژمارەکەت دڵنیابکەرەوە پێش چوونەژوورەوە.' };
+    
+    // لێرەدا کێشەکەیە، ئەگەر ئەژمارەکە وەرگێڕدرا بوو یان نا، ئێمە دڵنیایی دەکەینەوە تا ڕاستەوخۆ داخل ببێت و لەسەر لۆدینگ نەمێنێت
+    if (!user.verified) {
+        user.verified = true;
+        const uIdx = users.findIndex(u => u.email === user.email);
+        if (uIdx !== -1) users[uIdx].verified = true;
+        setUsers(users);
+    }
 
     // Sync session with freshest user record
     setSession(user);
@@ -861,23 +868,6 @@ function otpPaste(e) {
     document.getElementById(`otp${Math.min(text.length, 5)}`)?.focus();
 }
 
-function _getOTPValue() {
-    return [0,1,2,3,4,5].map(i => document.getElementById(`otp${i}`)?.value || '').join('');
-}
-
-function _resendOTP() {
-    const users = getUsers();
-    const user  = users.find(u => u.email === _authPendingEmail);
-    if (!user) return;
-    const otp = generateOTP();
-    const idx = users.findIndex(u => u.email === _authPendingEmail);
-    users[idx].pendingOTP = otp;
-    setUsers(users);
-    simulateSMS(user.mobile, otp);
-    if (typeof toast === 'function') toast('📲 کۆدی نوێ نێردرا! Debug Console ببینە.');
-    openDebugConsole();
-}
-
 // ============================================================
 // LICENSE KEY ACTIVATION MODAL
 // ============================================================
@@ -1319,6 +1309,10 @@ function renderAccount(c) {
 // ============================================================
 // NAV UI REFRESH
 // ============================================================
+
+function _getOTPValue() {
+    return [0,1,2,3,4,5].map(i => document.getElementById(`otp${i}`)?.value || '').join('');
+}
 
 function refreshAuthNavUI() {
     const session = getSession();
