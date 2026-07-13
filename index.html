@@ -9,20 +9,12 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="Ziman - فێربوونی ١٥ زمانی جیهانی بە شێوازی کارلێككەر">
     <link rel="manifest" href="manifest.json">
-    <!-- Inline SVG favicon — no separate file needed, eliminates 404 -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%234F46E5'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='white'>🌍</text></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%234F46E5'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='white'>🌍</text></svg>">
     <title>Ziman - فێربوونی زمان</title>
 
-    <!-- Kurdish/Persian-native fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!--
-      Font stack (RTL Kurdish priority):
-      1. Estedad      — purpose-built for Farsi/Kurdish, excellent ە ڕ ێ ۆ coverage
-      2. Noto Naskh   — broad Unicode Arabic-script coverage
-      3. Noto Kufi    — geometric fallback
-    -->
     <link href="https://fonts.googleapis.com/css2?family=Estedad:wght@400;500;600;700;800;900&family=Noto+Naskh+Arabic:wght@400;500;600;700;800&family=Noto+Kufi+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="style.css">
@@ -31,7 +23,6 @@
 
     <div class="app-container">
 
-        <!-- ===== HEADER ===== -->
         <header class="app-header glass" role="banner">
             <button class="menu-btn" id="menuBtn" aria-label="مینیو بکەرەوە" aria-expanded="false" aria-controls="sideMenu">
                 <span aria-hidden="true"></span>
@@ -47,10 +38,8 @@
             </div>
         </header>
 
-        <!-- ===== SIDEBAR OVERLAY (mobile) ===== -->
         <div class="menu-overlay" id="menuOverlay" role="presentation" aria-hidden="true"></div>
 
-        <!-- ===== SIDE NAVIGATION ===== -->
         <nav class="side-menu glass" id="sideMenu" aria-label="مینیوی سەرەکی">
             <div class="menu-profile gradient-primary">
                 <div class="menu-avatar" aria-hidden="true" id="menuAvatar">👤</div>
@@ -86,10 +75,8 @@
             </ul>
         </nav>
 
-        <!-- ===== MAIN CONTENT ===== -->
         <main class="main-content" id="mainContent" role="main" aria-label="ناوەڕۆکی سەرەکی" tabindex="-1"></main>
 
-        <!-- ===== BOTTOM NAVIGATION (mobile) ===== -->
         <nav class="bottom-nav glass" aria-label="ناویگەیشن">
             <button onclick="navigateTo('home')" class="active" data-nav="home" aria-label="سەرەکی" aria-current="page">
                 <span aria-hidden="true">🏠</span>
@@ -113,20 +100,22 @@
             </button>
         </nav>
 
-        <!-- AI floating button — hidden on desktop (sidebar already has it) -->
         <button class="ai-bubble" id="aiBubble" onclick="navigateTo('ai-teacher')" aria-label="مامۆستای AI بکەرەوە" title="مامۆستای AI">
             🤖
         </button>
 
-    </div><!-- /.app-container -->
+    </div><canvas id="confettiCanvas" aria-hidden="true"></canvas>
 
-    <!-- Canvas for confetti (outside app-container so it covers everything) -->
-    <canvas id="confettiCanvas" aria-hidden="true"></canvas>
-
-    <!-- Toast notification region — announced to screen readers -->
     <div class="toast-container" id="toastContainer" role="status" aria-live="polite" aria-atomic="false"></div>
 
-    <!-- Scripts -->
+    <div class="auth-overlay" id="authOverlay" aria-modal="true" role="dialog" style="display: none;"></div>
+
+    <button class="debug-fab" id="debugFab" aria-label="Developer Tools Console" style="display: none;">
+        <span class="debug-fab-icon">🛠️</span>
+        <span class="debug-fab-label">Console</span>
+    </button>
+    <div class="debug-console" id="debugConsole" aria-label="Developer Sandbox View"></div>
+
     <script src="config.js"></script>
     <script src="app.js"></script>
     <script src="auth.js"></script>
