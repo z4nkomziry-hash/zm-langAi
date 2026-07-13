@@ -6,5 +6,5 @@ const AppConfig = {
         korek: '', zain: '', asia: '', qi: '', apple: '', itunes: ''
     },
     contact: { whatsapp: '9647506045491', telegram: 'z_14x', email: 'support@ziman.app' },
-    adminPassword: 'ziman2024'
+    adminPassword: 'Zm@Adm!n#2025$XK'
 };

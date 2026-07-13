@@ -676,7 +676,7 @@ function renderHome(c) {
                 <p class="hero-xp-label">${xpLeft.toLocaleString()} XP بۆ ئاستی داهاتوو</p>
             </div>
             <div class="hero-right">
-                <svg viewBox="0 0 100 100" class="xp-ring" aria-hidden="true">
+                <svg viewBox="0 0 100 100" class="xp-ring" aria-hidden="true" onclick="if(typeof _xpRingTap==='function')_xpRingTap()" style="cursor:default">
                     <circle cx="50" cy="50" r="${R}" fill="none"
                             stroke="rgba(255,255,255,0.18)" stroke-width="9"/>
                     <circle cx="50" cy="50" r="${R}" fill="none"

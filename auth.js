@@ -6,42 +6,42 @@
 
 'use strict';
 
-// ===== HARDCODED LICENSE KEYS (25 per package) =====
+// ===== HARDCODED LICENSE KEYS (25 per package) — rotated 2025-07-13 =====
 const LICENSE_KEYS = {
     plus: [
-        'ZIMAN-PLUS-A1B2C3','ZIMAN-PLUS-D4E5F6','ZIMAN-PLUS-G7H8I9','ZIMAN-PLUS-J1K2L3','ZIMAN-PLUS-M4N5O6',
-        'ZIMAN-PLUS-P7Q8R9','ZIMAN-PLUS-S1T2U3','ZIMAN-PLUS-V4W5X6','ZIMAN-PLUS-Y7Z8A9','ZIMAN-PLUS-B1C2D3',
-        'ZIMAN-PLUS-E4F5G6','ZIMAN-PLUS-H7I8J9','ZIMAN-PLUS-K1L2M3','ZIMAN-PLUS-N4O5P6','ZIMAN-PLUS-Q7R8S9',
-        'ZIMAN-PLUS-T1U2V3','ZIMAN-PLUS-W4X5Y6','ZIMAN-PLUS-Z7A8B9','ZIMAN-PLUS-C1D2E3','ZIMAN-PLUS-F4G5H6',
-        'ZIMAN-PLUS-I7J8K9','ZIMAN-PLUS-L1M2N3','ZIMAN-PLUS-O4P5Q6','ZIMAN-PLUS-R7S8T9','ZIMAN-PLUS-U1V2W3'
+        'ZIMAN-PLUS-8JLEWT2J','ZIMAN-PLUS-VS9HYCN2','ZIMAN-PLUS-U6HTT6EL','ZIMAN-PLUS-5E79FP4L','ZIMAN-PLUS-WKLJPWM4',
+        'ZIMAN-PLUS-WXYHW5P6','ZIMAN-PLUS-VQTVR4DN','ZIMAN-PLUS-FYTY2R6B','ZIMAN-PLUS-MLW5T6AS','ZIMAN-PLUS-72W2UX33',
+        'ZIMAN-PLUS-VN9P3LDM','ZIMAN-PLUS-GC2XXGGH','ZIMAN-PLUS-8KQU9W4U','ZIMAN-PLUS-7NHVJLW3','ZIMAN-PLUS-ZXKY2WFP',
+        'ZIMAN-PLUS-K7K28VV3','ZIMAN-PLUS-YVD7HPZY','ZIMAN-PLUS-QJZPL8FF','ZIMAN-PLUS-6JWQ9ESE','ZIMAN-PLUS-SYWE29GH',
+        'ZIMAN-PLUS-PB3NGZQG','ZIMAN-PLUS-2R955LYZ','ZIMAN-PLUS-RHC7K5JH','ZIMAN-PLUS-TDESTM93','ZIMAN-PLUS-MGFJZ6WP'
     ],
     premium: [
-        'ZIMAN-PREM-A2B3C4','ZIMAN-PREM-D5E6F7','ZIMAN-PREM-G8H9I1','ZIMAN-PREM-J2K3L4','ZIMAN-PREM-M5N6O7',
-        'ZIMAN-PREM-P8Q9R1','ZIMAN-PREM-S2T3U4','ZIMAN-PREM-V5W6X7','ZIMAN-PREM-Y8Z9A1','ZIMAN-PREM-B2C3D4',
-        'ZIMAN-PREM-E5F6G7','ZIMAN-PREM-H8I9J1','ZIMAN-PREM-K2L3M4','ZIMAN-PREM-N5O6P7','ZIMAN-PREM-Q8R9S1',
-        'ZIMAN-PREM-T2U3V4','ZIMAN-PREM-W5X6Y7','ZIMAN-PREM-Z8A9B1','ZIMAN-PREM-C2D3E4','ZIMAN-PREM-F5G6H7',
-        'ZIMAN-PREM-I8J9K1','ZIMAN-PREM-L2M3N4','ZIMAN-PREM-O5P6Q7','ZIMAN-PREM-R8S9T1','ZIMAN-PREM-U2V3W4'
+        'ZIMAN-PREM-GAPYHALF','ZIMAN-PREM-V6RVMQZY','ZIMAN-PREM-RP2XSPCL','ZIMAN-PREM-66EBBGS2','ZIMAN-PREM-VYLMUEX4',
+        'ZIMAN-PREM-3FCZLKQY','ZIMAN-PREM-A7C7XS5N','ZIMAN-PREM-3R76SHXJ','ZIMAN-PREM-GRNMDVHC','ZIMAN-PREM-UQBZCWW4',
+        'ZIMAN-PREM-DRJRNANY','ZIMAN-PREM-TCZPH4JQ','ZIMAN-PREM-VTCU82HG','ZIMAN-PREM-JAXW8FY3','ZIMAN-PREM-SRRFCSE9',
+        'ZIMAN-PREM-TX4THUWL','ZIMAN-PREM-A39GYZZA','ZIMAN-PREM-ENSDX2WX','ZIMAN-PREM-VH386AU2','ZIMAN-PREM-RGPFVX2J',
+        'ZIMAN-PREM-88EP5ZQJ','ZIMAN-PREM-AKU8LXXB','ZIMAN-PREM-AN2K3Y7N','ZIMAN-PREM-TFSGDGYY','ZIMAN-PREM-3QGL6M8M'
     ],
     family: [
-        'ZIMAN-FAM-A3B4C5D','ZIMAN-FAM-E6F7G8H','ZIMAN-FAM-I9J1K2L','ZIMAN-FAM-M3N4O5P','ZIMAN-FAM-Q6R7S8T',
-        'ZIMAN-FAM-U9V1W2X','ZIMAN-FAM-Y3Z4A5B','ZIMAN-FAM-C6D7E8F','ZIMAN-FAM-G9H1I2J','ZIMAN-FAM-K3L4M5N',
-        'ZIMAN-FAM-O6P7Q8R','ZIMAN-FAM-S9T1U2V','ZIMAN-FAM-W3X4Y5Z','ZIMAN-FAM-A6B7C8D','ZIMAN-FAM-E9F1G2H',
-        'ZIMAN-FAM-I3J4K5L','ZIMAN-FAM-M6N7O8P','ZIMAN-FAM-Q9R1S2T','ZIMAN-FAM-U3V4W5X','ZIMAN-FAM-Y6Z7A8B',
-        'ZIMAN-FAM-C9D1E2F','ZIMAN-FAM-G3H4I5J','ZIMAN-FAM-K6L7M8N','ZIMAN-FAM-O9P1Q2R','ZIMAN-FAM-S3T4U5V'
+        'ZIMAN-FAM-ZK6WUVZQGC','ZIMAN-FAM-YRZ52H6RMW','ZIMAN-FAM-HZVSEU4RRF','ZIMAN-FAM-NXF8A76J6Q','ZIMAN-FAM-9TBGS5EUMC',
+        'ZIMAN-FAM-JHU979K5LU','ZIMAN-FAM-VJN8RE6DRN','ZIMAN-FAM-BA5LC8RY84','ZIMAN-FAM-HLVNNXNWTV','ZIMAN-FAM-P36C52DPFU',
+        'ZIMAN-FAM-4REFG8GBJ3','ZIMAN-FAM-SQUU8AQZM2','ZIMAN-FAM-FFD3G74BHA','ZIMAN-FAM-39Y677BG4Y','ZIMAN-FAM-JBKDACVNMK',
+        'ZIMAN-FAM-Q74C62VK8Y','ZIMAN-FAM-Z6KTS39949','ZIMAN-FAM-WV2QW24EAW','ZIMAN-FAM-ULTNWRT8U7','ZIMAN-FAM-JBAFD35VS5',
+        'ZIMAN-FAM-G863MDRVQS','ZIMAN-FAM-NCQG53F4GM','ZIMAN-FAM-CNRB68LWGL','ZIMAN-FAM-Q6TQ84FXTN','ZIMAN-FAM-Z2SUR779DU'
     ],
     student: [
-        'ZIMAN-STU-A4B5C6D','ZIMAN-STU-E7F8G9H','ZIMAN-STU-I1J2K3L','ZIMAN-STU-M4N5O6P','ZIMAN-STU-Q7R8S9T',
-        'ZIMAN-STU-U1V2W3X','ZIMAN-STU-Y4Z5A6B','ZIMAN-STU-C7D8E9F','ZIMAN-STU-G1H2I3J','ZIMAN-STU-K4L5M6N',
-        'ZIMAN-STU-O7P8Q9R','ZIMAN-STU-S1T2U3V','ZIMAN-STU-W4X5Y6Z','ZIMAN-STU-A7B8C9D','ZIMAN-STU-E1F2G3H',
-        'ZIMAN-STU-I4J5K6L','ZIMAN-STU-M7N8O9P','ZIMAN-STU-Q1R2S3T','ZIMAN-STU-U4V5W6X','ZIMAN-STU-Y7Z8A9B',
-        'ZIMAN-STU-C1D2E3F','ZIMAN-STU-G4H5I6J','ZIMAN-STU-K7L8M9N','ZIMAN-STU-O1P2Q3R','ZIMAN-STU-S4T5U6V'
+        'ZIMAN-STU-XER6D574CT','ZIMAN-STU-KKD86LQ268','ZIMAN-STU-AMYTNLNDMR','ZIMAN-STU-9TNXVX5J8B','ZIMAN-STU-B94GYGA6P5',
+        'ZIMAN-STU-WSJUWLW8Q8','ZIMAN-STU-RZ597J9TFQ','ZIMAN-STU-YNFTNZ2BCA','ZIMAN-STU-NHMUUD7BZJ','ZIMAN-STU-YPWUL47WS5',
+        'ZIMAN-STU-9RM2ACCRBW','ZIMAN-STU-TNURTVLBQV','ZIMAN-STU-KNE3RUTUKE','ZIMAN-STU-6G64M3QS9M','ZIMAN-STU-5V9PDQZREQ',
+        'ZIMAN-STU-43RSGE7CQQ','ZIMAN-STU-VVQEXQZX5E','ZIMAN-STU-GMWA9DT3FC','ZIMAN-STU-LNV3KUUD9F','ZIMAN-STU-TMVTU73AV8',
+        'ZIMAN-STU-BR45DZP9BH','ZIMAN-STU-X5X4AVLYZG','ZIMAN-STU-PGXAA2JK5S','ZIMAN-STU-FPWCBA65DH','ZIMAN-STU-DGERBSPDS4'
     ],
     business: [
-        'ZIMAN-BIZ-A5B6C7D8','ZIMAN-BIZ-E9F1G2H3','ZIMAN-BIZ-I4J5K6L7','ZIMAN-BIZ-M8N9O1P2','ZIMAN-BIZ-Q3R4S5T6',
-        'ZIMAN-BIZ-U7V8W9X1','ZIMAN-BIZ-Y2Z3A4B5','ZIMAN-BIZ-C6D7E8F9','ZIMAN-BIZ-G1H2I3J4','ZIMAN-BIZ-K5L6M7N8',
-        'ZIMAN-BIZ-O9P1Q2R3','ZIMAN-BIZ-S4T5U6V7','ZIMAN-BIZ-W8X9Y1Z2','ZIMAN-BIZ-A3B4C5D6','ZIMAN-BIZ-E7F8G9H1',
-        'ZIMAN-BIZ-I2J3K4L5','ZIMAN-BIZ-M6N7O8P9','ZIMAN-BIZ-Q1R2S3T4','ZIMAN-BIZ-U5V6W7X8','ZIMAN-BIZ-Y9Z1A2B3',
-        'ZIMAN-BIZ-C4D5E6F7','ZIMAN-BIZ-G8H9I1J2','ZIMAN-BIZ-K3L4M5N6','ZIMAN-BIZ-O7P8Q9R1','ZIMAN-BIZ-S2T3U4V5'
+        'ZIMAN-BIZ-YWVHN2D95BT2','ZIMAN-BIZ-Y4Z4PW5HJDGJ','ZIMAN-BIZ-DKSBVM7CCRMH','ZIMAN-BIZ-4K8PEPN2TETS','ZIMAN-BIZ-7H8P3KSFVY62',
+        'ZIMAN-BIZ-JLHB7NRETCET','ZIMAN-BIZ-PZMG2SUUAGWY','ZIMAN-BIZ-Z8VF7M25N5GG','ZIMAN-BIZ-667CT8P347H8','ZIMAN-BIZ-EHXNPFFQ5DEF',
+        'ZIMAN-BIZ-JGVC8GGPT9ZR','ZIMAN-BIZ-9NAP32MHJC5W','ZIMAN-BIZ-4MZ2S8CYW2JK','ZIMAN-BIZ-EFADTJBEWKKX','ZIMAN-BIZ-PB6GN4B52LX4',
+        'ZIMAN-BIZ-4TUHAB7F6X4Z','ZIMAN-BIZ-AYSUBFV5PWVY','ZIMAN-BIZ-YKA9QQZB2N46','ZIMAN-BIZ-69246FG5HUTP','ZIMAN-BIZ-BM6TA8K6G4GR',
+        'ZIMAN-BIZ-72H35B3X5Z9F','ZIMAN-BIZ-NRM5HGDBS7QA','ZIMAN-BIZ-6PNNMXPXM5YZ','ZIMAN-BIZ-RGV3DCXMZEAB','ZIMAN-BIZ-G8ED46C6F2P3'
     ]
 };
 
@@ -562,10 +562,6 @@ function _buildOTPForm() {
     </div>
     <h2 class="auth-title">دڵنیاکردنەوەی ئەژمارە</h2>
     <p class="auth-sub">کۆدی ٦ ژمارەیی نێردراوی بۆ مۆبایلەکەت داخل بکە</p>
-    <div class="auth-otp-hint-box">
-        <span>🛠️</span>
-        <span>کۆدەکە لە <strong>Debug Console</strong> (دوگمەی 🛠️ چەپ-خوار) بەردەستە</span>
-    </div>
     <div class="auth-otp-inputs" id="otpInputs">
         ${[0,1,2,3,4,5].map(i =>
             `<input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"
@@ -753,7 +749,6 @@ function handleSignUp() {
         _authPendingEmail = email;
         showAuthModal('otp');
         if (typeof toast === 'function') toast('📲 کۆدی دڵنیاکردنەوە نێردرا!');
-        openDebugConsole();
     }, 1400);
 }
 
@@ -777,7 +772,7 @@ function handleForgot() {
         if (!res.ok) { showAuthMsg(res.msg); return; }
         _authPendingEmail = email;
         showAuthMsg(res.msg, 'success');
-        setTimeout(() => { showAuthModal('reset'); openDebugConsole(); }, 1800);
+        setTimeout(() => { showAuthModal('reset'); }, 1800);
     }, 1100);
 }
 
@@ -909,10 +904,6 @@ function showActivateModal() {
         <button class="auth-btn auth-btn-primary" id="activateBtn" onclick="handleActivateKey()">
             <span class="btn-text">✅ چالاکردن</span>
             <span class="btn-icon"></span>
-        </button>
-
-        <button class="auth-btn auth-btn-ghost" onclick="openDebugConsole();this.closest('.activate-overlay').remove()">
-            🛠️ کلیلەکان لە Console ببینە و کۆپی بکە
         </button>
     </div>`;
     document.body.appendChild(overlay);
@@ -1134,6 +1125,8 @@ function switchDCTab(tab) {
 }
 
 function openDebugConsole() {
+    const _sess = getSession();
+    if (!_sess?.isAdmin && !window._devUnlocked) return;
     _debugOpen = true;
     let dc = document.getElementById('debugConsole');
     if (!dc) {
@@ -1301,7 +1294,7 @@ function renderAccount(c) {
     </div>
 
     <div class="dash-footer-row">
-        <button class="dash-dev-btn" onclick="openDebugConsole()">🛠️ Dev Console</button>
+        ${getSession()?.isAdmin ? '<button class="dash-dev-btn" onclick="openDebugConsole()">🛠️ Dev Console</button>' : ''}
         <button class="dash-logout-btn" onclick="authLogout()">🚪 چوونەدەرەوە</button>
     </div>`;
 }
@@ -1335,11 +1328,30 @@ function refreshAuthNavUI() {
     if (avatar) avatar.textContent = session ? '🎓' : '👤';
 }
 
+
+// ===== SECRET DEV UNLOCK — 5 rapid taps on XP ring =====
+let _xpTapCount = 0, _xpTapTimer = null;
+function _xpRingTap() {
+    _xpTapCount++;
+    clearTimeout(_xpTapTimer);
+    _xpTapTimer = setTimeout(() => { _xpTapCount = 0; }, 1800);
+    if (_xpTapCount >= 5) {
+        _xpTapCount = 0;
+        window._devUnlocked = true;
+        injectDebugFAB();
+        openDebugConsole();
+        if (typeof toast === 'function') toast('🛠️ Developer Mode فامکراوەتەوە');
+    }
+}
+window._xpRingTap = _xpRingTap;
 // ============================================================
 // FLOATING DEBUG FAB
 // ============================================================
 
 function injectDebugFAB() {
+    // Only visible to admins or when secret XP-ring trigger is used
+    const sess = getSession();
+    if (!sess?.isAdmin && !window._devUnlocked) return;
     if (document.getElementById('debugFAB')) return;
     const fab       = document.createElement('button');
     fab.id          = 'debugFAB';
