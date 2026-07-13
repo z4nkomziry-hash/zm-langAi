@@ -105,6 +105,17 @@ function simulateEmail(to, subject, body) {
     addDebugEntry({ type: 'email', icon: '📧', label: `ئیمەیڵ بۆ: ${to}`, subject, body });
 }
 
+// Escaping function for utility use
+function escHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 function simulateSMS(phone, otp) {
     addDebugEntry({
         type: 'sms', icon: '📱',
@@ -455,7 +466,7 @@ function _buildSignInForm() {
 
     <div class="auth-divider"><span>یان</span></div>
     <button class="auth-btn auth-btn-ghost" onclick="showAuthModal('signup')">✨ تۆمارکردنی ئەژمارەی نوێ</button>
-    <button class="auth-btn auth-btn-link" onclick="showAuthModal('forgot')">🔑 پاسوۆردت لەبیرچووە؟</button>`;
+    <button class="auth-btn auth-btn-link" onclick="showAuthModal('forgot')">🔑 پاسوۆردت لەبیرچووە?</button>`;
 }
 
 // ---------- SIGN UP ----------
@@ -1037,8 +1048,7 @@ function buildDebugConsoleHTML() {
                     <span class="dc-badge dc-badge-red">${used.length} بەکارچووە</span>
                     ${availFiltered.length > 0 ? `
                     <button class="dc-copy-all-btn" onclick="event.stopPropagation();
-                        navigator.clipboard.writeText(\`${availFiltered.join('\\n')}\`)
-                            .then(()=>{ this.textContent='✅ کۆپی کرا!'; setTimeout(()=>this.textContent='📋 هەمووی',1500); })">
+                        navigator.clipboard.writeText(\`${availFiltered.join('\\n')}\`)\n                            .then(()=>{ this.textContent='✅ کۆپی کرا!'; setTimeout(()=>this.textContent='📋 هەمووی',1500); })">
                         📋 هەمووی
                     </button>` : ''}
                 </div>
@@ -1203,7 +1213,6 @@ function renderAccount(c) {
     const memberSince = new Date(session.createdAt).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
 
     c.innerHTML = `
-    <!-- HERO BANNER -->
     <div class="dash-hero">
         <div class="dash-hero-bg"></div>
         <div class="dash-hero-content">
@@ -1223,7 +1232,6 @@ function renderAccount(c) {
         </div>
     </div>
 
-    <!-- STATS ROW -->
     <div class="dash-stats-row">
         <div class="dash-stat">
             <span class="dash-stat-icon">⭐</span>
@@ -1247,7 +1255,6 @@ function renderAccount(c) {
         </div>
     </div>
 
-    <!-- PACKAGES SECTION -->
     <div class="card dash-section">
         <div class="dash-section-header">
             <h3>🎫 پاکێجەکانم</h3>
@@ -1271,7 +1278,6 @@ function renderAccount(c) {
                </div>`}
     </div>
 
-    <!-- PERSONAL INFO -->
     <div class="card dash-section">
         <div class="dash-section-header">
             <h3>📋 زانیاری کەسی</h3>
@@ -1286,7 +1292,6 @@ function renderAccount(c) {
         </div>
     </div>
 
-    <!-- QUICK ACTIONS -->
     <div class="card dash-section">
         <div class="dash-section-header"><h3>⚡ کردارە خێراکان</h3></div>
         <div class="dash-quick-grid">
@@ -1305,7 +1310,6 @@ function renderAccount(c) {
         </div>
     </div>
 
-    <!-- DEV TOOLS + LOGOUT -->
     <div class="dash-footer-row">
         <button class="dash-dev-btn" onclick="openDebugConsole()">🛠️ Dev Console</button>
         <button class="dash-logout-btn" onclick="authLogout()">🚪 چوونەدەرەوە</button>
