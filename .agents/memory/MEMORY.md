@@ -1,3 +1,7 @@
 - [AI Teacher architecture](ai-teacher.md) — static site AI Teacher pattern; OpenAI key stored in localStorage, called via fetch() from browser; no backend needed.
 - [Lesson data format](lesson-data.md) — all 11 language pairs now have 7 topics each; word format is "source=کوردی" strings; always escape with escHtml() when rendering.
 - [Visual design system](visual-design.md) — Phase 2 polish: hero-card + xp-ring SVG, stat-strip, quick-grid, achievement-card, leaderboard-row all defined in style.css; page transitions via .page-enter class on main.
+- [Onboarding carousel](onboarding.md) — 4-step first-launch flow; gated by zm_onboarded=true in localStorage; function showOnboarding() returns bool; called from DOMContentLoaded before navigateTo('home').
+- [AI streaming + voice](ai-streaming.md) — askAI() uses fetch SSE stream (stream:true); _createStreamingBubble() returns {append,finish,text}; voice via SpeechRecognition; TTS via SpeechSynthesis; dialect aware system prompt via buildSystemPrompt().
+- [Font stack](font-stack.md) — Estedad (Kurdish/Persian-native) leads, then Noto Naskh Arabic, then Noto Kufi Arabic; all three loaded via Google Fonts link in index.html; --font CSS var drives everything.
+- [Dialect system](dialect-system.md) — zm_dialect key ('sorani'|'badini'); BADINI_MAP maps Kurdish target side; getDialectWord(wordStr) returns {src,target}; setDialect() persists + re-renders; quiz/flashcard/lesson all dialect-aware.

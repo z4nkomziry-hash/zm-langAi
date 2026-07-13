@@ -14,10 +14,16 @@
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%234F46E5'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='white'>🌍</text></svg>">
     <title>Ziman - فێربوونی زمان</title>
 
-    <!-- Kurdish-compatible font with Arabic script support -->
+    <!-- Kurdish/Persian-native fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!--
+      Font stack (RTL Kurdish priority):
+      1. Estedad      — purpose-built for Farsi/Kurdish, excellent ە ڕ ێ ۆ coverage
+      2. Noto Naskh   — broad Unicode Arabic-script coverage
+      3. Noto Kufi    — geometric fallback
+    -->
+    <link href="https://fonts.googleapis.com/css2?family=Estedad:wght@400;500;600;700;800;900&family=Noto+Naskh+Arabic:wght@400;500;600;700;800&family=Noto+Kufi+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="style.css">
 </head>

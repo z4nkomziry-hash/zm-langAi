@@ -41,9 +41,10 @@ const state = {
         totalWords: parseInt(lsGet('zm_words', '0'))   || 0,
     },
     settings: {
-        darkMode:        lsGet('zm_dark',  'false') === 'true',
-        amoledMode:      lsGet('zm_amoled','false') === 'true',
-        currentLanguage: lsGet('zm_lang', 'en-ku'),
+        darkMode:        lsGet('zm_dark',    'false')   === 'true',
+        amoledMode:      lsGet('zm_amoled', 'false')    === 'true',
+        currentLanguage: lsGet('zm_lang',   'en-ku'),
+        dialect:         lsGet('zm_dialect','sorani'),  // 'sorani' | 'badini'
     },
     learning: {
         history:   lsGetJSON('zm_history',   []),
@@ -170,6 +171,78 @@ const packages = {
 
 const paymentMethods = ['FIB','FastPay','USDT (TRC20)','Korek Card','Zain Card','Asia Card','Qi Card','Apple Gift Card','iTunes Gift Card'];
 
+// ===== LANGUAGE THEMES =====
+// Each language pair gets its own accent colour, hero gradient, shadow tint,
+// victory badge emoji, and localised "mastery" label.
+const LANG_THEMES = {
+    'en-ku': { accent:'#4F46E5', grad:'135deg,#4F46E5,#6366F1', shadow:'rgba(79,70,229,.38)',   badge:'🏅', victory:'زمانزانی ئینگلیزی' },
+    'ar-ku': { accent:'#059669', grad:'135deg,#059669,#10B981', shadow:'rgba(5,150,105,.38)',    badge:'🌙', victory:'زمانزانی عەرەبی'  },
+    'tr-ku': { accent:'#DC2626', grad:'135deg,#B91C1C,#EF4444', shadow:'rgba(220,38,38,.38)',    badge:'⭐', victory:'زمانزانی تورکی'   },
+    'fa-ku': { accent:'#0D9488', grad:'135deg,#0D9488,#14B8A6', shadow:'rgba(13,148,136,.38)',   badge:'🌺', victory:'زمانزانی فارسی'  },
+    'de-ku': { accent:'#D97706', grad:'135deg,#92400E,#F59E0B', shadow:'rgba(217,119,6,.38)',    badge:'🦅', victory:'زمانزانی ئەڵمانی' },
+    'fr-ku': { accent:'#1D4ED8', grad:'135deg,#1E40AF,#3B82F6', shadow:'rgba(29,78,216,.38)',    badge:'🗼', victory:'زمانزانی فەرەنسی' },
+    'es-ku': { accent:'#E11D48', grad:'135deg,#9F1239,#F43F5E', shadow:'rgba(225,29,72,.38)',    badge:'🌹', victory:'زمانزانی ئیسپانی' },
+    'ru-ku': { accent:'#7C3AED', grad:'135deg,#5B21B6,#8B5CF6', shadow:'rgba(124,58,237,.38)',   badge:'🏰', victory:'زمانزانی ڕووسی'  },
+    'zh-ku': { accent:'#EA580C', grad:'135deg,#9A3412,#F97316', shadow:'rgba(234,88,12,.38)',    badge:'🐉', victory:'زمانزانی چینی'   },
+    'ja-ku': { accent:'#DB2777', grad:'135deg,#9D174D,#EC4899', shadow:'rgba(219,39,119,.38)',   badge:'🌸', victory:'زمانزانی ژاپۆنی' },
+    'ko-ku': { accent:'#0891B2', grad:'135deg,#164E63,#06B6D4', shadow:'rgba(8,145,178,.38)',    badge:'🎋', victory:'زمانزانی کۆری'  },
+};
+
+// ===== BADINI (KURMANJI) MAP =====
+// Maps Sorani Kurdish target words → Badini/Kurmanji Latin equivalents.
+// Used when state.settings.dialect === 'badini'.
+const BADINI_MAP = {
+    'سڵاو':'Silav',         'بەیانیت باش':'Sibatî xweş',  'ئێوارت باش':'Êvarî xweş',
+    'سوپاس':'Spas',          'تکایە':'Ji kerema xwe',        'چۆنی':'Çawa yî',
+    'باشم':'Baş im',          'خواحافیزی':"Xatirê te",        'تا دیکەوە':'Heta carê din',
+    'بەخێربێی':'Bi xêr bêyî','خۆش بێی':'Spas',
+    'یەک':'Yek',   'دوو':'Du',   'سێ':'Sê',      'چوار':'Çar',
+    'پێنج':'Pênc', 'شەش':'Şeş', 'حەوت':'Heft',  'هەشت':'Heşt',
+    'نۆ':'Neh',    'دە':'Deh',
+    'سوور':'Sor',     'شین':'Şîn',       'سەوز':'Kesk',      'زەرد':'Zer',
+    'ڕەش':'Reş',     'سپی':'Spî',       'نارەنجی':'Porteqalî','مۆر':'Mor',
+    'پەمبە':'Pembe',  'قاوەیی':'Qehweyî',
+    'دایک':'Dayik',   'باوک':'Bav',      'خوشک':'Xwişk',    'برا':'Bira',
+    'باپیر':'Bapîr',  'دایبابا':'Dapîr', 'کوڕ':'Kur',        'کچ':'Keç',
+    'هاوسەر':'Hevjîn','خێزان':'Malbat',
+    'ئاو':'Av',        'نان':'Nan',       'برنج':'Birinc',    'گۆشت':'Goşt',
+    'چا':'Çay',        'شیر':'Şîr',      'هێلکە':'Hêk',      'مێوە':'Fêkî',
+    'سەوزە':'Sebze',   'شەکر':'Şekir',
+    'فڕۆکەخانە':'Balafirge','هوتێل':'Hotel','پاسپۆرت':'Pasaport',
+    'بلیت':'Bîlet',    'جانتا':'Çante',  'نەخشە':'Nexşe',
+    'تاکسی':'Taksî',   'شەمەندەفەر':'Trên',
+    'بەیانی':'Sibê',   'شەو':'Şev',      'ڕۆژ':'Roj',        'هەفتە':'Hefte',
+    'مانگ':'Meh',      'ساڵ':'Sal',      'ئێستا':'Niha',     'سبەینێ':'Sibe',
+};
+
+// ===== LANGUAGE & DIALECT HELPERS =====
+
+/** Returns the theme object for the currently selected language pair. */
+function getLangTheme() {
+    return LANG_THEMES[state.settings.currentLanguage] || LANG_THEMES['en-ku'];
+}
+
+/**
+ * Given a raw word string "source=کوردیSorani", returns the display pair
+ * respecting the active dialect. In Badini mode the Kurdish side is
+ * transliterated via BADINI_MAP; unmapped words fall back to Sorani.
+ */
+function getDialectWord(wordStr) {
+    const [src, sorani] = wordStr.split('=');
+    if (state.settings.dialect === 'badini') {
+        const badini = BADINI_MAP[sorani];
+        return { src, target: badini || sorani, isBadini: !!badini };
+    }
+    return { src, target: sorani, isBadini: false };
+}
+
+/** Apply the current language's accent colour to CSS custom property. */
+function applyLangAccent() {
+    const t = getLangTheme();
+    document.documentElement.style.setProperty('--lang-accent',  t.accent);
+    document.documentElement.style.setProperty('--lang-shadow',  t.shadow);
+}
+
 // ===== ACTIVE TIMER REGISTRY =====
 // All interval/timeout IDs are stored here so navigateTo() can clean them up.
 const _timers = { intervals: [], timeouts: [] };
@@ -253,7 +326,7 @@ function speakWord(word, lang = 'en-US') {
 
 function playBeep(freq = 600, dur = 0.1) {
     try {
-        const Ctx = window.AudioContext || window.webkitAudioContext; // fixed: added window.
+        const Ctx = window.AudioContext || window.webkitAudioContext;
         if (!Ctx) return;
         const ctx = new Ctx();
         const osc = ctx.createOscillator();
@@ -266,6 +339,159 @@ function playBeep(freq = 600, dur = 0.1) {
         osc.start();
         osc.stop(ctx.currentTime + dur);
     } catch (e) { /* AudioContext unavailable — silent fail */ }
+}
+
+/**
+ * Play a rich multi-note chime via Web Audio API.
+ * type: 'correct' | 'wrong' | 'levelup' | 'complete'
+ */
+function playChime(type = 'correct') {
+    try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+        const ctx = new Ctx();
+        const master = ctx.createGain();
+        master.gain.value = 0.28;
+        master.connect(ctx.destination);
+
+        function note(freq, start, dur, vol = 1) {
+            const osc  = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0, ctx.currentTime + start);
+            gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + start + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur);
+            osc.connect(gain);
+            gain.connect(master);
+            osc.start(ctx.currentTime + start);
+            osc.stop(ctx.currentTime + start + dur);
+        }
+
+        if (type === 'correct') {
+            note(523, 0,    0.12); // C5
+            note(659, 0.09, 0.12); // E5
+            note(784, 0.18, 0.20); // G5
+        } else if (type === 'wrong') {
+            note(220, 0,    0.18);
+            note(196, 0.15, 0.22);
+        } else if (type === 'levelup') {
+            [0,0.08,0.16,0.24,0.32].forEach((t,i) =>
+                note([523,587,659,698,784][i], t, 0.28, 1));
+        } else if (type === 'complete') {
+            note(523, 0,    0.12);
+            note(659, 0.10, 0.12);
+            note(784, 0.20, 0.12);
+            note(1047,0.30, 0.32);
+        }
+    } catch (e) { /* silent fail */ }
+}
+
+/**
+ * Spawn a floating "+N XP" label near the element that triggered the reward.
+ * Falls back to screen centre if no element given.
+ */
+function spawnXPLabel(amount, sourceEl) {
+    const label = document.createElement('div');
+    label.className = 'xp-float';
+    label.textContent = `+${amount} XP ⭐`;
+
+    // Position near source element or screen centre
+    let x = window.innerWidth  / 2;
+    let y = window.innerHeight / 2;
+    if (sourceEl) {
+        const r = sourceEl.getBoundingClientRect();
+        x = r.left + r.width  / 2;
+        y = r.top  + r.height / 2;
+    }
+    label.style.left = `${x}px`;
+    label.style.top  = `${y}px`;
+    label.style.transform = 'translateX(-50%)';
+    document.body.appendChild(label);
+    setTimeout(() => label.remove(), 1100);
+}
+
+/**
+ * Add XP to the user, pulse the header XP chip, show floating label,
+ * check for level-up, persist.  Returns the new XP total.
+ */
+function addXP(amount, sourceEl) {
+    const prevLevel = state.user.level;
+    state.user.xp  += amount;
+    state.user.level = Math.floor(state.user.xp / 1000) + 1;
+    save();
+    spawnXPLabel(amount, sourceEl);
+
+    // Pulse the header XP chip
+    const xpEl = document.getElementById('hXP');
+    if (xpEl) {
+        xpEl.parentElement.classList.remove('xp-gained');
+        void xpEl.parentElement.offsetWidth; // reflow
+        xpEl.parentElement.classList.add('xp-gained');
+        setTimeout(() => xpEl.parentElement.classList.remove('xp-gained'), 600);
+    }
+
+    if (state.user.level > prevLevel) celebrateLevelUp(state.user.level);
+    return state.user.xp;
+}
+
+/**
+ * Visually celebrate a correct answer on `el` (an HTMLElement).
+ * Adds the CSS animation class and plays the chime.
+ */
+function celebrateCorrect(el, xp = 10) {
+    playChime('correct');
+    if (el) {
+        el.classList.remove('correct-pop');
+        void el.offsetWidth;
+        el.classList.add('correct-pop');
+        setTimeout(() => el.classList.remove('correct-pop'), 500);
+    }
+    // Pulse the lang-accent glow on the element
+    const t = getLangTheme();
+    if (el) {
+        el.style.boxShadow = `0 0 0 4px ${t.accent}44`;
+        setTimeout(() => { if (el) el.style.boxShadow = ''; }, 500);
+    }
+    addXP(xp, el);
+}
+
+/**
+ * Visually indicate a wrong answer on `el`.
+ * Plays the wrong chime and shakes the element.
+ */
+function celebrateWrong(el) {
+    playChime('wrong');
+    if (el) {
+        el.classList.remove('wrong-shake');
+        void el.offsetWidth;
+        el.classList.add('wrong-shake');
+        setTimeout(() => el.classList.remove('wrong-shake'), 450);
+    }
+}
+
+/** Full-screen level-up celebration overlay. */
+function celebrateLevelUp(newLevel) {
+    playChime('levelup');
+    spawnConfetti();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'level-up-overlay';
+
+    const t = getLangTheme();
+    overlay.innerHTML = `
+        <div class="level-up-card">
+            <span class="level-up-emoji">${t.badge}</span>
+            <div class="level-up-title">ئاست ${newLevel}!</div>
+            <p class="level-up-sub">${t.victory}</p>
+            <p style="margin-top:8px;font-size:28px">🎉</p>
+            <button class="btn btn-primary" style="margin-top:20px;background:linear-gradient(${t.grad})"
+                    onclick="this.closest('.level-up-overlay').remove()">بەردەوام بە ▶</button>
+        </div>`;
+
+    document.body.appendChild(overlay);
+    // Auto-dismiss after 5s
+    setTimeout(() => overlay.remove(), 5000);
 }
 
 // ===== CONFETTI =====
@@ -366,82 +592,102 @@ function navigateTo(page) {
     const main = document.getElementById('mainContent');
     if (!main) return;
 
-    // 3. Render the requested page with entrance animation
+    // 3. Apply language accent to CSS root (keeps accent in sync after lang change)
+    applyLangAccent();
+
+    // 4. Render the requested page with spring-physics entrance animation
     if (pageRenderers[page]) {
         main.innerHTML = '';
         main.classList.remove('page-enter');
-        // Force reflow so the animation retriggers on every navigation
-        void main.offsetWidth;
+        void main.offsetWidth; // force reflow so animation retriggers
         main.classList.add('page-enter');
         pageRenderers[page](main);
     }
 
-    // 4. Update active state in SIDE MENU (uses data-nav attribute — no brittle string matching)
+    // 5. Update active state in SIDE MENU
     document.querySelectorAll('.side-menu .menu-list li button').forEach(btn => {
         const isActive = btn.dataset.nav === page;
         btn.classList.toggle('active', isActive);
+        if (isActive) btn.style.background = getLangTheme().accent;
+        else          btn.style.background = '';
     });
 
-    // 5. Update active state in BOTTOM NAV (same approach)
+    // 6. Update active state in BOTTOM NAV
     document.querySelectorAll('.bottom-nav button').forEach(btn => {
         const isActive = btn.dataset.nav === page;
         btn.classList.toggle('active', isActive);
         btn.setAttribute('aria-current', isActive ? 'page' : 'false');
     });
 
-    // 6. Scroll to top smoothly
+    // 7. Scroll to top smoothly
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // 7. Move focus to main content for keyboard/screen-reader users
+    // 8. Move focus to main content for keyboard/screen-reader users
     main.focus();
 }
 
 // ===== PAGE: HOME =====
 function renderHome(c) {
-    const u = state.user;
-    const xpToNext   = 1000;
-    const xpInLevel  = u.xp % xpToNext;
-    const xpPct      = (xpInLevel / xpToNext * 100).toFixed(1);
-    const xpLeft     = xpToNext - xpInLevel;
+    const u   = state.user;
+    const th  = getLangTheme();
+    const xpToNext  = 1000;
+    const xpInLevel = u.xp % xpToNext;
+    const xpPct     = (xpInLevel / xpToNext * 100).toFixed(1);
+    const xpLeft    = xpToNext - xpInLevel;
 
     // SVG circular XP ring
-    const R   = 42;
+    const R    = 42;
     const circ = 2 * Math.PI * R;
     const dash = (xpPct / 100 * circ).toFixed(1);
 
+    // Apply language accent to CSS root
+    applyLangAccent();
+
+    // Language package info
+    const langData = lessons[state.settings.currentLanguage];
+    const langName = langData ? langData.name : 'ئینگلیزی → کوردی';
+    const langIcon = langData ? langData.icon : '🇬🇧';
+    const dialectLabel = state.settings.dialect === 'badini'
+        ? '🔤 بادینی (کرمانجی)'
+        : '📜 سۆرانی';
+
     const quickActions = [
-        { page:'lessons',   icon:'📚', label:'وانەکان',   color:'#4F46E5' },
-        { page:'quiz',      icon:'📝', label:'کویز',      color:'#0EA5E9' },
-        { page:'flashcards',icon:'🃏', label:'فلاشکارت', color:'#10B981' },
-        { page:'speed-quiz',icon:'⚡', label:'کویزی خێرا',color:'#F59E0B' },
-        { page:'listening', icon:'🎧', label:'بیستن',     color:'#8B5CF6' },
-        { page:'speaking',  icon:'🎤', label:'قسەکردن',   color:'#EF4444' },
+        { page:'lessons',    icon:'📚', label:'وانەکان',    color: th.accent },
+        { page:'quiz',       icon:'📝', label:'کویز',       color:'#0EA5E9' },
+        { page:'flashcards', icon:'🃏', label:'فلاشکارت',  color:'#10B981' },
+        { page:'speed-quiz', icon:'⚡', label:'کویزی خێرا', color:'#F59E0B' },
+        { page:'listening',  icon:'🎧', label:'بیستن',      color:'#8B5CF6' },
+        { page:'speaking',   icon:'🎤', label:'قسەکردن',    color:'#EF4444' },
     ];
 
     c.innerHTML = `
-        <!-- HERO CARD -->
-        <div class="hero-card gradient-primary" style="color:#fff;margin-bottom:14px">
+        <!-- HERO CARD — language-themed gradient -->
+        <div class="hero-card lang-themed" style="background:linear-gradient(${th.grad});color:#fff;box-shadow:0 8px 32px ${th.shadow};margin-bottom:14px">
             <div class="hero-left">
                 <p class="hero-greeting">👋 سڵاو!</p>
                 <h2 class="hero-name">${escHtml(u.name)}</h2>
-                <div class="hero-level-badge">ئاست ${u.level}</div>
+                <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+                    <div class="hero-level-badge" style="background:rgba(255,255,255,.22)">ئاست ${u.level}</div>
+                    <div class="hero-level-badge" style="background:rgba(255,255,255,.15);font-size:11px">${langIcon} ${dialectLabel}</div>
+                </div>
                 <div class="hero-xp-bar">
-                    <div class="hero-xp-fill" style="width:${xpPct}%"></div>
+                    <div class="hero-xp-fill" style="width:${xpPct}%;background:#fff"></div>
                 </div>
                 <p class="hero-xp-label">${xpLeft.toLocaleString()} XP بۆ ئاستی داهاتوو</p>
             </div>
             <div class="hero-right">
                 <svg viewBox="0 0 100 100" class="xp-ring" aria-hidden="true">
                     <circle cx="50" cy="50" r="${R}" fill="none"
-                            stroke="rgba(255,255,255,0.2)" stroke-width="8"/>
+                            stroke="rgba(255,255,255,0.18)" stroke-width="9"/>
                     <circle cx="50" cy="50" r="${R}" fill="none"
-                            stroke="#fff" stroke-width="8"
+                            stroke="#fff" stroke-width="9"
                             stroke-linecap="round"
                             stroke-dasharray="${dash} ${(circ - parseFloat(dash)).toFixed(1)}"
                             stroke-dashoffset="${(circ / 4).toFixed(1)}"
                             class="xp-ring-fill"/>
-                    <text x="50" y="45" text-anchor="middle" fill="#fff" font-size="14" font-weight="800" font-family="var(--font)">${xpInLevel}</text>
-                    <text x="50" y="60" text-anchor="middle" fill="rgba(255,255,255,.75)" font-size="9" font-family="var(--font)">XP</text>
+                    <text x="50" y="44" text-anchor="middle" fill="#fff" font-size="13" font-weight="800" font-family="var(--font)">${xpInLevel}</text>
+                    <text x="50" y="57" text-anchor="middle" fill="rgba(255,255,255,.70)" font-size="9" font-family="var(--font)">XP</text>
+                    <text x="50" y="70" text-anchor="middle" fill="rgba(255,255,255,.55)" font-size="8" font-family="var(--font)">${th.badge}</text>
                 </svg>
             </div>
         </div>
@@ -449,7 +695,7 @@ function renderHome(c) {
         <!-- STAT STRIP -->
         <div class="stat-strip">
             <div class="stat-chip">
-                <span class="stat-chip-icon">🔥</span>
+                <span class="stat-chip-icon streak-fire">🔥</span>
                 <div>
                     <strong class="stat-chip-val">${u.streak}</strong>
                     <p class="stat-chip-lbl">ستریک</p>
@@ -478,14 +724,15 @@ function renderHome(c) {
             </div>
         </div>
 
-        <!-- CONTINUE LEARNING CTA -->
-        <button class="continue-card" onclick="navigateTo('lessons')">
-            <div class="continue-icon">📚</div>
+        <!-- CONTINUE LEARNING CTA — uses lang accent border -->
+        <button class="continue-card" onclick="navigateTo('lessons')"
+                style="border-color:${th.accent}33">
+            <div class="continue-icon">${langIcon}</div>
             <div class="continue-body">
                 <strong>بەردەوام بە</strong>
-                <p>وانەی داهاتوو چاوەڕوانتە</p>
+                <p>${escHtml(langName)}</p>
             </div>
-            <div class="continue-arrow">▶</div>
+            <div class="continue-arrow" style="color:${th.accent}">▶</div>
         </button>
 
         <!-- QUICK ACTIONS GRID -->
@@ -493,7 +740,7 @@ function renderHome(c) {
         <div class="quick-grid">
             ${quickActions.map(a => `
             <button class="quick-card" onclick="navigateTo('${escAttr(a.page)}')">
-                <div class="quick-icon" style="background:${a.color}22;color:${a.color}">${a.icon}</div>
+                <div class="quick-icon" style="background:${a.color}1a;color:${a.color}">${a.icon}</div>
                 <span class="quick-label">${escHtml(a.label)}</span>
             </button>`).join('')}
         </div>`;
@@ -541,14 +788,14 @@ function renderLessonsList() {
 
 function startLesson(lang, idx) {
     const data = lessons[lang].topics[idx];
-    state.user.xp         += 15;
-    state.user.gems        += 5;
-    state.user.totalWords  += data.words.length;
-    state.user.level        = Math.floor(state.user.xp / 1000) + 1;
+    state.user.gems       += 5;
+    state.user.totalWords += data.words.length;
     state.learning.history.push({ type:'lesson', lang, title:data.title, xp:15, date:new Date().toISOString() });
     save();
+    playChime('complete');
     spawnConfetti();
-    toast(`🎉 وانەی "${data.title}" تەواو بوو! +15 XP | +5 💎`);
+    toast(`🎉 وانەی "${escHtml(data.title)}" تەواو بوو! +15 XP | +5 💎`);
+    addXP(15);
 }
 
 // ===== PAGE: FLASHCARDS =====
@@ -560,14 +807,18 @@ function renderFlashcards(c) {
     }
     const shuffled = allWords.sort(() => Math.random() - 0.5).slice(0, 8);
     window._fc = { words: shuffled, idx: 0, flipped: false };
+    const w0 = getDialectWord(shuffled[0]);
+    const th = getLangTheme();
 
     c.innerHTML = `
         <h2 style="margin-bottom:12px">🃏 فلاشکارت</h2>
         <div class="flashcard" id="fc" onclick="flipFC()" role="button" tabindex="0"
              aria-label="فلاشکارت — کلیک بکە بیگۆڕێت">
             <div class="flashcard-inner">
-                <div class="flashcard-front"><span id="fcWord">${escHtml(shuffled[0].split('=')[0])}</span></div>
-                <div class="flashcard-back"><span id="fcTrans">${escHtml(shuffled[0].split('=')[1])}</span></div>
+                <div class="flashcard-front"><span id="fcWord" class="ku-text">${escHtml(w0.src)}</span></div>
+                <div class="flashcard-back" style="background:linear-gradient(${th.grad})">
+                    <span id="fcTrans" class="ku-text" dir="auto">${escHtml(w0.target)}</span>
+                </div>
             </div>
         </div>
         <div style="display:flex;gap:10px;justify-content:center;margin-top:4px">
@@ -591,13 +842,18 @@ function flipFC() {
 }
 
 function rateFC(r) {
-    const d = window._fc;
-    if (r === 'correct') { state.user.xp += 3; playBeep(700, 0.08); }
+    const d  = window._fc;
+    const fc = document.getElementById('fc');
+    if (r === 'correct') {
+        celebrateCorrect(fc, 3);
+    } else {
+        celebrateWrong(fc);
+    }
     d.idx++;
     d.flipped = false;
     if (d.idx >= d.words.length) {
-        state.user.xp += 10;
-        save();
+        addXP(10, fc);
+        playChime('complete');
         spawnConfetti();
         toast('🃏 فلاشکارت تەواو بوو! +10 XP');
         _trackTimeout(setTimeout(() => navigateTo('home'), 1500));
@@ -606,9 +862,8 @@ function rateFC(r) {
     const fcWord  = document.getElementById('fcWord');
     const fcTrans = document.getElementById('fcTrans');
     const fcIdx   = document.getElementById('fcIdx');
-    const fc      = document.getElementById('fc');
-    if (fcWord)  fcWord.textContent  = d.words[d.idx].split('=')[0];
-    if (fcTrans) fcTrans.textContent = d.words[d.idx].split('=')[1];
+    if (fcWord)  { const w = getDialectWord(d.words[d.idx]); fcWord.textContent  = w.src; }
+    if (fcTrans) { const w = getDialectWord(d.words[d.idx]); fcTrans.textContent = w.target; }
     if (fcIdx)   fcIdx.textContent   = d.idx + 1;
     if (fc)      fc.classList.remove('flipped');
     save();
@@ -621,19 +876,31 @@ function renderQuiz(c) {
         c.innerHTML = '<h2>📝 کویز</h2><div class="card"><p>وشەی پێویست نییە. پێشتر وانەیەک دابگرە.</p></div>';
         return;
     }
-    const q       = allWords[Math.floor(Math.random() * allWords.length)].split('=');
-    const wrong   = allWords.filter(w => w.split('=')[1] !== q[1]).sort(() => Math.random() - 0.5).slice(0, 3);
-    const opts    = [...wrong.map(w => w.split('=')[1]), q[1]].sort(() => Math.random() - 0.5);
+    const th      = getLangTheme();
+    const raw     = allWords[Math.floor(Math.random() * allWords.length)];
+    const qw      = getDialectWord(raw);
+    // Correct answer in active dialect
+    const correctTarget = qw.target;
+    // 3 distractors — also converted to active dialect
+    const wrongOpts = allWords
+        .filter(w => w.split('=')[1] !== raw.split('=')[1])
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3)
+        .map(w => getDialectWord(w).target);
+    const opts = [...wrongOpts, correctTarget].sort(() => Math.random() - 0.5);
 
     c.innerHTML = `
         <h2 style="margin-bottom:12px">📝 کویز</h2>
-        <div class="card" style="text-align:center;padding:28px 20px;margin:0 0 16px">
-            <p style="font-size:40px;margin-bottom:8px">${escHtml(q[0])}</p>
+        <div class="card" style="text-align:center;padding:28px 20px;margin:0 0 16px;
+             border-top:3px solid ${th.accent}">
+            <p style="font-size:40px;margin-bottom:8px;unicode-bidi:isolate" dir="auto">${escHtml(qw.src)}</p>
             <p style="color:var(--text-secondary);margin-bottom:12px">واتای چییە؟</p>
-            <button class="btn btn-sm" onclick="speakWord('${escAttr(q[0])}')" aria-label="گوێ بگرە">🔊 گوێ بگرە</button>
+            <button class="btn btn-sm" onclick="speakWord('${escAttr(qw.src)}')" aria-label="گوێ بگرە">🔊 گوێ بگرە</button>
         </div>
         <div class="options-grid" id="qzOpts" role="group" aria-label="وەڵامەکان">
-            ${opts.map(o => `<button class="option-btn" onclick="checkQuiz('${escAttr(o)}','${escAttr(q[1])}',this)">${escHtml(o)}</button>`).join('')}
+            ${opts.map(o => `
+            <button class="option-btn" dir="auto"
+                    onclick="checkQuiz('${escAttr(o)}','${escAttr(correctTarget)}',this)">${escHtml(o)}</button>`).join('')}
         </div>`;
 }
 
@@ -642,15 +909,13 @@ function checkQuiz(s, correct, btn) {
     allBtns.forEach(b => { b.disabled = true; });
     if (s === correct) {
         btn.classList.add('correct');
-        state.user.xp += 10;
-        playBeep(700, 0.1);
+        celebrateCorrect(btn, 10);
         toast('✅ ڕاستە! +10 XP');
     } else {
         btn.classList.add('wrong');
+        celebrateWrong(btn);
         allBtns.forEach(b => { if (b.textContent === correct) b.classList.add('correct'); });
-        playBeep(200, 0.2);
     }
-    save();
     _trackTimeout(setTimeout(() => renderQuiz(document.getElementById('mainContent')), 1500));
 }
 
@@ -708,25 +973,25 @@ function loadSpeedQ() {
 }
 
 function checkSp(s, correct, btn) {
-    const d    = window._sp;
-    const all  = document.querySelectorAll('#spOpts .option-btn');
+    const d   = window._sp;
+    const all = document.querySelectorAll('#spOpts .option-btn');
     all.forEach(b => { b.disabled = true; });
 
     if (s === correct) {
         btn.classList.add('correct');
+        celebrateCorrect(btn, 0); // XP added in bulk at finishSp
         d.score++;
         d.time += 2;
         const sc = document.getElementById('spScore');
         if (sc) sc.textContent = d.score;
-        playBeep(800, 0.06);
     } else {
         btn.classList.add('wrong');
+        celebrateWrong(btn);
         d.wrong++;
         d.time = Math.max(0, d.time - 3);
         const wr = document.getElementById('spWrong');
         if (wr) wr.textContent = d.wrong;
         all.forEach(b => { if (b.textContent === correct) b.classList.add('correct'); });
-        playBeep(200, 0.12);
     }
     d.idx++;
     save();
@@ -752,10 +1017,10 @@ function finishSp() {
     if (!d) return;
     if (d.timer) clearInterval(d.timer);
     const xp = d.score * 8;
-    state.user.xp += xp;
-    save();
+    playChime('complete');
     spawnConfetti();
     toast(`⚡ کویزی خێرا تەواو بوو! +${xp} XP`);
+    addXP(xp);
     _trackTimeout(setTimeout(() => navigateTo('home'), 1500));
 }
 
@@ -1015,54 +1280,140 @@ function checkWr() {
 }
 
 // ===== PAGE: AI TEACHER =====
-const AI_SYSTEM_PROMPT = `You are Ziman AI, a friendly and expert Kurdish language teacher. You specialize in Sorani Kurdish (Central Kurdish) and Badini Kurdish (Northern Kurdish). Your role is to help learners understand Kurdish vocabulary, grammar, pronunciation, idioms, proverbs, and culture.
+const AI_SYSTEM_PROMPT = `You are Ziman AI, a warm, expert Kurdish language tutor embedded in the Ziman language-learning app. You specialise in Sorani Kurdish (Central Kurdish, Arabic script) and Badini/Kurmanji (Northern Kurdish, Latin script).
 
-Guidelines:
-- Default to Sorani Kurdish (written in Arabic script) unless the user asks for Badini
-- Keep responses concise and clear — 2-4 sentences max unless the user asks for more detail
-- Always explain grammar points with examples
-- When teaching vocabulary, show: Kurdish word + transliteration + meaning
-- Be encouraging and warm — language learning is hard!
-- If the user writes in Kurdish, respond in Kurdish first, then English
-- You can also help with Arabic and other languages Ziman teaches
-- Never mix Sorani and Badini in the same sentence without labeling which is which`;
+## Core teaching guidelines
+- Greet learners encouragingly — language learning is genuinely hard!
+- Keep answers concise (2–4 sentences) unless depth is requested
+- For vocabulary: show the Kurdish word, transliteration, English meaning, and one example sentence
+- For grammar: explain the rule → give two contrasting examples → offer a mnemonic
+- If the user writes in Kurdish, mirror their script and respond in Kurdish first, then English
+- Flag dialect switches explicitly: "[Sorani]" vs "[Badini]" prefixes when both appear
+
+## Script & dialect rules
+- Sorani (Arabic script) glyphs to render correctly: ە ڕ ێ ۆ ی ک گ چ ژ
+- Badini (Latin): use x, q, w, ê, î, û conventions (e.g. "silav" not "silaw")
+- Never silently mix scripts in the same word
+
+## Cultural depth
+- Weave in Kurdish proverbs, geography, and cultural context when natural
+- Mention historical/regional variation (Sulaymaniyah vs Erbil Sorani, Duhok Badini, etc.)`;
+
+// Build the full per-request system prompt (dialect + language context injected at call time)
+function buildSystemPrompt() {
+    const dialect = state.settings.dialect || 'sorani';
+    const lang    = state.settings.currentLanguage || 'en-ku';
+    const langLabel = lessons[lang]?.name || lang;
+    const dialectDesc = dialect === 'sorani'
+        ? 'Sorani (Arabic script ە ڕ ێ ۆ). Use Arabic script for ALL Kurdish text.'
+        : 'Badini/Kurmanji (Latin script: ê î û x q w). Use Latin for ALL Kurdish text.';
+
+    return AI_SYSTEM_PROMPT +
+        `\n\n## Session context\n- Language pair the learner is studying: ${langLabel}\n- Kurdish dialect preference: **${dialectDesc}**\n- Tailor vocabulary examples to this language pair where natural.`;
+}
+
+// Build conversation history array from rendered chat bubbles (for multi-turn context)
+function buildChatHistory(chatEl) {
+    const msgs = [];
+    chatEl.querySelectorAll('[data-role]').forEach(el => {
+        msgs.push({ role: el.dataset.role, content: el.dataset.text || el.textContent });
+    });
+    // Keep last 10 turns to stay within token budget
+    return msgs.slice(-10);
+}
 
 function renderAITeacher(c) {
-    const hasKey = !!lsGet('zm_ai_key');
+    const hasKey  = !!lsGet('zm_ai_key');
+    const ttsOn   = lsGet('zm_tts', 'false') === 'true';
+    const th      = getLangTheme();
+    const dialect = state.settings.dialect || 'sorani';
+    const hasMic  = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+
     c.innerHTML = `
-        <h2 style="margin-bottom:12px">🤖 مامۆستای AI</h2>
+        <!-- Header row -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px;flex-wrap:wrap">
+            <h2 style="margin:0;font-size:20px">🤖 مامۆستای AI</h2>
+            <div style="display:flex;gap:6px;align-items:center">
+                <span class="ai-dialect-tag" style="background:${th.accent}18;color:${th.accent}">
+                    ${dialect === 'sorani' ? '📜 سۆرانی' : '🔤 بادینی'}
+                </span>
+                <button id="aiTTSBtn"
+                        class="ai-icon-btn${ttsOn ? ' active' : ''}"
+                        onclick="toggleTTS()"
+                        title="${ttsOn ? 'دەنگ کوژاندنەوە' : 'دەنگی مامۆستا چالاک کە'}"
+                        style="${ttsOn ? `background:${th.accent};color:#fff` : ''}">
+                    ${ttsOn ? '🔊' : '🔇'}
+                </button>
+            </div>
+        </div>
+
+        <!-- API key card -->
         ${!hasKey ? `
-        <div class="card" style="background:linear-gradient(135deg,var(--primary-light,#EEF2FF),var(--surface));border:1.5px solid var(--primary);margin-bottom:12px">
-            <p style="font-weight:600;margin-bottom:6px">🔑 OpenAI API کی پێویستە</p>
-            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:10px">بۆ بەکارهێنانی مامۆستای AI ی ڕاستەقینە، کلیلی API ی OpenAI دابنێ. ئەمە بە پاشگوازییەوە لە <strong>localStorage</strong> خەزن دەکرێت — هیچکەس جگەت ناتوانێت بیبینێت.</p>
-            <div style="display:flex;gap:8px">
-                <input id="aiKeyInput" class="input" type="password" placeholder="sk-..." style="flex:1;font-family:monospace;font-size:13px" aria-label="OpenAI API Key">
-                <button class="btn btn-primary" onclick="saveAIKey()">✅ خەزن</button>
-            </div>
-            <p style="font-size:11px;color:var(--text-muted);margin-top:8px">
-                کلیلت نییە؟ <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" style="color:var(--primary)">openai.com/api-keys</a> سەردان بکە
+        <div class="card ai-key-card" style="border:1.5px solid ${th.accent};margin-bottom:12px">
+            <p style="font-weight:700;margin-bottom:6px">🔑 OpenAI API کی پێویستە</p>
+            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:10px">
+                بۆ ستریم + دەنگ + مامۆستای ڕاستەقینە، کلیلی API ی OpenAI دابنێ.
+                <br><a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener"
+                       style="color:${th.accent}">platform.openai.com/api-keys</a>
             </p>
+            <div style="display:flex;gap:8px">
+                <input id="aiKeyInput" class="input" type="password" placeholder="sk-..."
+                       style="flex:1;font-family:monospace;font-size:13px"
+                       onkeydown="if(event.key==='Enter')saveAIKey()"
+                       aria-label="OpenAI API Key">
+                <button class="btn btn-primary" onclick="saveAIKey()"
+                        style="background:${th.accent}">✅ خەزن</button>
+            </div>
         </div>` : `
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px;color:var(--success)">
-            ✅ <span>کلیلی API دامەزراوە</span>
-            <button class="btn btn-sm" onclick="removeAIKey()" style="margin-right:auto;font-size:11px;padding:2px 8px">لابردن</button>
+        <div class="ai-key-active">
+            <span>✅ API دامەزراوە — <strong>⚡ ستریم چالاکە</strong></span>
+            <button class="btn btn-sm" onclick="removeAIKey()">لابردن</button>
         </div>`}
-        <div id="aiChat" class="card"
-             style="min-height:280px;max-height:400px;overflow-y:auto;padding:16px;margin-bottom:12px"
-             aria-live="polite" aria-label="چاتی AI">
-            <div style="text-align:center;color:var(--text-secondary);padding:40px 0">
-                <p style="font-size:48px;margin-bottom:8px">🤖</p>
-                <p style="font-weight:600;margin-bottom:4px">سڵاو! من مامۆستای AI ی زمانم.</p>
-                <p style="font-size:13px">${hasKey ? 'پرسیارێک بکە — ڕاستەقینە وەڵامت دەدەمەوە!' : 'کلیلی API دابنێ بۆ وەڵامی ڕاستەقینە، یان بەبێ کلیل پرسیار بکە.'}</p>
+
+        <!-- Quick prompt chips -->
+        <div class="ai-prompts-row" id="aiPrompts">
+            <button class="ai-chip" onclick="useAIPrompt(this,'${dialect === 'sorani' ? 'چۆن دەگووترێت: خۆشم دەوێت؟' : 'Ev bi Kurdî çawa tê gotin: ez ji te hez dikim?'}')">
+                ${dialect === 'sorani' ? 'خۆشم دەوێت — چۆن؟' : 'ez ji te hez dikim'}
+            </button>
+            <button class="ai-chip" onclick="useAIPrompt(this,'explain Kurdish verb conjugation with examples')">Kurdish verbs</button>
+            <button class="ai-chip" onclick="useAIPrompt(this,'teach me 5 Kurdish proverbs with meanings')">Kurdish proverbs 📖</button>
+            <button class="ai-chip" onclick="useAIPrompt(this,'${dialect === 'sorani' ? 'جیاوازی سۆرانی و بادینی چییە؟' : 'Ferqa Soranî û Badînî çi ye?'}')">
+                ${dialect === 'sorani' ? 'سۆرانی vs بادینی' : 'Soranî vs Badînî'}
+            </button>
+            <button class="ai-chip" onclick="useAIPrompt(this,'give me a 5-sentence Kurdish story for beginners')">کچکە چیرۆک 📚</button>
+        </div>
+
+        <!-- Chat window -->
+        <div id="aiChat" class="ai-chat-area" aria-live="polite" aria-label="چاتی AI">
+            <div class="ai-chat-empty" id="aiChatEmpty">
+                <div class="ai-robot-anim">🤖</div>
+                <p style="font-weight:700;font-size:16px;margin-bottom:6px">سڵاو! من Ziman AI ی زمانم.</p>
+                <p style="font-size:13px;color:var(--text-secondary)">
+                    ${hasKey
+                        ? '⚡ وەڵامم وشە بە وشە دێت — پرسیارت بکە!'
+                        : '🔑 کلیلی API دابنێ بۆ وەڵامی ڕاستەقینە'}
+                </p>
             </div>
         </div>
-        <div style="display:flex;gap:8px">
-            <input id="aiInput" class="input" placeholder="پرسیارت بکە... (کوردی یان ئینگلیزی)"
-                   onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();askAI();}" aria-label="پیامت بنووسە">
-            <button class="btn btn-primary" onclick="askAI()" aria-label="بنێرە" style="min-width:44px">📤</button>
+
+        <!-- Input bar -->
+        <div class="ai-input-bar">
+            ${hasMic ? `
+            <button id="aiMicBtn" class="ai-mic-btn"
+                    onclick="startVoiceInput()"
+                    data-listening="false"
+                    title="قسەکردن — دەنگت تۆمار بکە"
+                    aria-label="دەستپێکردنی قسەکردن">🎙️</button>` : ''}
+            <input id="aiInput" class="input ai-text-input"
+                   placeholder="پرسیارت بکە… (کوردی یان ئینگلیزی)"
+                   onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();askAI();}"
+                   aria-label="پیامت بنووسە">
+            <button class="ai-send-btn" onclick="askAI()"
+                    aria-label="بنێرە"
+                    style="background:${th.accent}">📤</button>
         </div>
-        <p style="font-size:11px;color:var(--text-muted);margin-top:8px;text-align:center">
-            نموونە: "سڵاو چۆن دەگووترێت؟" · "explain Kurdish verb tenses" · "what does گوڵ mean?"
+        <p style="font-size:11px;color:var(--text-muted);margin-top:6px;text-align:center">
+            Enter بنووسە بۆ ناردن${hasMic ? ' · 🎙️ بۆ قسەکردن' : ''}${ttsOn ? ' · 🔊 دەنگ چالاکە' : ''}
         </p>`;
 
     _trackTimeout(setTimeout(() => document.getElementById('aiInput')?.focus(), 100));
@@ -1086,11 +1437,25 @@ function removeAIKey() {
     navigateTo('ai-teacher');
 }
 
+function useAIPrompt(btn, text) {
+    const inp = document.getElementById('aiInput');
+    if (inp) { inp.value = text; inp.focus(); }
+    // Fade out prompt row after one is chosen
+    btn?.closest('.ai-prompts-row')?.classList.add('hidden');
+}
+
+// ===== CHAT BUBBLE HELPERS =====
+
 function _appendBubble(chat, html, isUser) {
+    document.getElementById('aiChatEmpty')?.remove();
+    const th = getLangTheme();
     const wrap = document.createElement('div');
-    wrap.style.cssText = `text-align:${isUser ? 'right' : 'left'};margin:8px 0`;
+    wrap.className = isUser ? 'ai-msg-user' : 'ai-msg-bot';
+    wrap.dataset.role = isUser ? 'user' : 'assistant';
     const bubble = document.createElement('span');
-    bubble.style.cssText = `background:${isUser ? 'var(--primary)' : 'var(--surface-hover)'};${isUser ? 'color:#fff;' : ''}padding:10px 14px;border-radius:${isUser ? '18px 4px 18px 18px' : '4px 18px 18px 18px'};display:inline-block;max-width:82%;word-break:break-word;white-space:pre-wrap;text-align:right;direction:auto;line-height:1.55`;
+    bubble.className = 'ai-bubble-inner';
+    if (isUser) bubble.style.background = th.accent;
+    bubble.dataset.text = html.replace(/<[^>]*>/g, ''); // plain text for history
     bubble.innerHTML = html;
     wrap.appendChild(bubble);
     chat.appendChild(wrap);
@@ -1098,99 +1463,248 @@ function _appendBubble(chat, html, isUser) {
     return bubble;
 }
 
+/** Creates a streaming bubble that can receive token deltas in real-time */
+function _createStreamingBubble(chat) {
+    document.getElementById('aiChatEmpty')?.remove();
+    const wrap = document.createElement('div');
+    wrap.className = 'ai-msg-bot';
+    wrap.dataset.role = 'assistant';
+    const bubble = document.createElement('span');
+    bubble.className = 'ai-bubble-inner streaming';
+    bubble.innerHTML = '<span class="stream-cursor"></span>';
+    wrap.appendChild(bubble);
+    chat.appendChild(wrap);
+    chat.scrollTop = chat.scrollHeight;
+
+    let accumulated = '';
+
+    return {
+        append(delta) {
+            accumulated += delta;
+            bubble.dataset.text = accumulated;
+            // Render with preserved line-breaks; cursor stays at end
+            bubble.innerHTML = escHtml(accumulated).replace(/\n/g, '<br>') +
+                               '<span class="stream-cursor"></span>';
+            chat.scrollTop = chat.scrollHeight;
+        },
+        finish(override) {
+            if (override !== undefined) accumulated = override;
+            bubble.dataset.text = accumulated;
+            bubble.classList.remove('streaming');
+            bubble.innerHTML = escHtml(accumulated).replace(/\n/g, '<br>');
+            chat.scrollTop = chat.scrollHeight;
+        },
+        get text() { return accumulated; },
+    };
+}
+
+// ===== STREAMING ASK =====
+
 async function askAI() {
     const inp  = document.getElementById('aiInput');
     const chat = document.getElementById('aiChat');
-    if (!inp || !chat || !inp.value.trim()) return;
+    if (!inp || !chat) return;
 
     const q = inp.value.trim();
-    inp.value = '';
+    if (!q) { inp.focus(); return; }
+
+    inp.value   = '';
     inp.disabled = true;
 
-    // Remove placeholder if first message
-    const placeholder = chat.querySelector('div[style*="text-align:center"]');
-    if (placeholder) placeholder.remove();
+    // Stop any ongoing TTS before new response
+    window.speechSynthesis?.cancel();
 
-    // User bubble
+    // Dismiss prompt chips
+    document.getElementById('aiPrompts')?.classList.add('hidden');
+
+    // User bubble — store plain text in dataset for history
     _appendBubble(chat, escHtml(q), true);
 
     const apiKey = lsGet('zm_ai_key');
 
+    // ── Fallback (no API key) ──────────────────────────────────────────────
     if (!apiKey) {
-        // Simulated responses (fallback — no key)
-        const responses = [
-            'بەڵێ، دەتوانم یارمەتیت بدەم! بۆ وەڵامی ڕاستەقینە کلیلی OpenAI API دابنێ لە سەرەوە.',
-            'زمانی کوردی زۆر جوانە! بۆ فێربوونی باشتر، کلیلی API دابنێ تا وەڵامی تەواوتر بدەمەوە.',
-            'ئەمە نموونەیە. مامۆستای ڕاستەقینە کلیلی API پێویستە. لە ڕێکخستن دابنێ.',
+        const demos = [
+            'بۆ وەڵامی ڕاستەقینە کلیلی OpenAI API دابنێ. بۆ نموونە: "سڵاو چۆن دەگووترێت؟" وەڵامی دەدەمەوە.',
+            'زمانی کوردی زۆر شیرینە! گرووپی سۆرانی و بادینی هەردووک پشتگیری دەکرێن. کلیلی API دابنێ.',
+            'ئەمە نموونەیەکە بەبێ کلیل. لە ڕێکخستن → کلیلی API دابنێ بۆ مامۆستای ڕاستەقینە.',
         ];
-        const reply = responses[Math.floor(Math.random() * responses.length)];
+        const reply = demos[Math.floor(Math.random() * demos.length)];
         _trackTimeout(setTimeout(() => {
             inp.disabled = false;
             const chatNow = document.getElementById('aiChat');
-            if (!chatNow) return;
-            _appendBubble(chatNow, '🤖 ' + escHtml(reply), false);
-            state.user.xp += 2;
-            save();
-        }, 600));
+            if (chatNow) _appendBubble(chatNow, '🤖 ' + escHtml(reply), false);
+        }, 700));
         return;
     }
 
-    // Real AI — show typing indicator
-    const typingWrap = document.createElement('div');
-    typingWrap.style.cssText = 'text-align:left;margin:8px 0';
-    typingWrap.innerHTML = `<span style="background:var(--surface-hover);padding:10px 14px;border-radius:4px 18px 18px 18px;display:inline-block;color:var(--text-muted);font-size:13px">🤖 &#8230;</span>`;
-    chat.appendChild(typingWrap);
-    chat.scrollTop = chat.scrollHeight;
-
-    // Build conversation history from existing bubbles for context
-    const lang = state.settings.currentLanguage || 'en-ku';
-    const langLabel = lang.split('-').map(l => l.toUpperCase()).join(' → ');
+    // ── Real AI — streaming ────────────────────────────────────────────────
+    const streamBubble = _createStreamingBubble(chat);
 
     try {
         const res = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
+            method:  'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type':  'application/json',
                 'Authorization': `Bearer ${apiKey}`,
             },
             body: JSON.stringify({
-                model: 'gpt-4o-mini',
-                max_tokens: 400,
-                temperature: 0.7,
+                model:       'gpt-4o-mini',
+                max_tokens:  700,
+                temperature: 0.72,
+                stream:      true,
                 messages: [
-                    {
-                        role: 'system',
-                        content: AI_SYSTEM_PROMPT + `\n\nThe user is currently studying: ${langLabel}. Tailor examples to this language pair when relevant.`,
-                    },
+                    { role: 'system', content: buildSystemPrompt() },
+                    ...buildChatHistory(chat),
                     { role: 'user', content: q },
                 ],
             }),
         });
 
-        typingWrap.remove();
-
         if (!res.ok) {
-            const err = await res.json().catch(() => ({}));
-            const msg = err?.error?.message || `کێشەیەک هەبوو (${res.status})`;
-            _appendBubble(chat, `❌ ${escHtml(msg)}`, false);
+            const errData = await res.json().catch(() => ({}));
+            const msg = errData?.error?.message || `کێشەیەک هەبوو (${res.status})`;
+            streamBubble.finish(`❌ ${msg}`);
             inp.disabled = false;
             return;
         }
 
-        const data = await res.json();
-        const reply = data.choices?.[0]?.message?.content?.trim() || '…';
-        _appendBubble(chat, escHtml(reply), false);
-        state.user.xp += 10;
-        save();
-        updateUI();
+        // Read SSE stream chunk-by-chunk
+        const reader  = res.body.getReader();
+        const decoder = new TextDecoder();
+
+        outer: while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const text = decoder.decode(value, { stream: true });
+
+            for (const line of text.split('\n')) {
+                if (!line.startsWith('data: ')) continue;
+                const payload = line.slice(6).trim();
+                if (payload === '[DONE]') break outer;
+
+                try {
+                    const json  = JSON.parse(payload);
+                    const delta = json.choices?.[0]?.delta?.content;
+                    if (delta) streamBubble.append(delta);
+                } catch { /* skip malformed SSE chunk */ }
+            }
+        }
+
+        streamBubble.finish();
+
+        // TTS playback if enabled
+        if (lsGet('zm_tts', 'false') === 'true' && streamBubble.text) {
+            speakAIResponse(streamBubble.text);
+        }
+
+        addXP(10);
 
     } catch (err) {
-        typingWrap.remove();
-        _appendBubble(chat, `❌ ${escHtml(err.message || 'کێشەیەک هەبوو. دووبارە هەوڵ بدەرەوە.')}`, false);
+        streamBubble.finish(`❌ ${err.message || 'کێشەیەک هەبوو. دووبارە هەوڵ بدەرەوە.'}`);
     }
 
     inp.disabled = false;
     inp.focus();
+}
+
+// ===== VOICE INPUT (Web Speech API) =====
+
+function startVoiceInput() {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) { toast('❌ براوزەرەکەت بیستنی دەنگ پشتگیری ناکات'); return; }
+
+    const micBtn = document.getElementById('aiMicBtn');
+
+    // Toggle off if already listening
+    if (micBtn?.dataset.listening === 'true') {
+        window._aiRec?.stop();
+        return;
+    }
+
+    const rec = new SpeechRec();
+    window._aiRec = rec;
+
+    // Use Arabic for Sorani (closest), 'ku' for Badini (Kurmanji)
+    const dialect = state.settings.dialect || 'sorani';
+    rec.lang            = dialect === 'sorani' ? 'ar' : 'ku';
+    rec.continuous      = false;
+    rec.interimResults  = true;
+    rec.maxAlternatives = 1;
+
+    function setMic(listening) {
+        if (!micBtn) return;
+        micBtn.dataset.listening = listening ? 'true' : 'false';
+        micBtn.classList.toggle('listening', listening);
+        micBtn.textContent = listening ? '⏹️' : '🎙️';
+        micBtn.title = listening ? 'وەستان' : 'قسەکردن';
+    }
+
+    setMic(true);
+    toast('🎙️ گوێ دەگرم…');
+
+    rec.onresult = e => {
+        const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
+        const inp = document.getElementById('aiInput');
+        if (inp) inp.value = transcript;
+    };
+
+    rec.onend = () => {
+        setMic(false);
+        const inp = document.getElementById('aiInput');
+        if (inp?.value.trim()) _trackTimeout(setTimeout(askAI, 300));
+    };
+
+    rec.onerror = e => {
+        setMic(false);
+        if (e.error !== 'no-speech') toast(`❌ دەنگ: ${e.error}`);
+    };
+
+    try { rec.start(); } catch { setMic(false); toast('❌ دەستپێکردن شکست'); }
+}
+
+// ===== TTS (Web Speech Synthesis) =====
+
+function speakAIResponse(text) {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+
+    // Strip markdown-ish tokens before speaking
+    const clean = text.replace(/\*\*?|__|`{1,3}|\[([^\]]+)\]\([^)]+\)/g, '$1').trim();
+    const utter = new SpeechSynthesisUtterance(clean.slice(0, 500)); // cap length
+
+    const dialect = state.settings.dialect || 'sorani';
+    // Arabic-Iraq for Sorani; Turkish is phonetically closest available for Badini Latin
+    utter.lang  = dialect === 'sorani' ? 'ar-IQ' : 'tr-TR';
+    utter.rate  = 0.88;
+    utter.pitch = 1.05;
+
+    // Prefer a female voice if available
+    const voices = window.speechSynthesis.getVoices();
+    const match  = voices.find(v => v.lang.startsWith(utter.lang.slice(0, 2)) && /female|woman/i.test(v.name))
+                || voices.find(v => v.lang.startsWith(utter.lang.slice(0, 2)));
+    if (match) utter.voice = match;
+
+    window.speechSynthesis.speak(utter);
+}
+
+function toggleTTS() {
+    const isOn = lsGet('zm_tts', 'false') === 'true';
+    lsSet('zm_tts', isOn ? 'false' : 'true');
+
+    if (isOn) window.speechSynthesis?.cancel();
+
+    const btn = document.getElementById('aiTTSBtn');
+    const th  = getLangTheme();
+    if (btn) {
+        btn.textContent = isOn ? '🔇' : '🔊';
+        btn.title       = isOn ? 'دەنگی مامۆستا چالاک کە' : 'دەنگ کوژاندنەوە';
+        btn.classList.toggle('active', !isOn);
+        btn.style.background = !isOn ? th.accent : '';
+        btn.style.color      = !isOn ? '#fff'    : '';
+    }
+    toast(isOn ? '🔇 دەنگی مامۆستا کوژاندرا' : '🔊 دەنگی مامۆستا چالاک کرا');
 }
 
 // ===== PAGE: PROGRESS =====
@@ -1503,35 +2017,103 @@ function renderContact(c) {
 
 // ===== PAGE: SETTINGS =====
 function renderSettings(c) {
+    const th  = getLangTheme();
+    const isSorani = state.settings.dialect === 'sorani';
+    const isLight  = !state.settings.darkMode && !state.settings.amoledMode;
+    const isDark   = state.settings.darkMode  && !state.settings.amoledMode;
+
     c.innerHTML = `
         <h2 style="margin-bottom:12px">⚙️ ڕێکخستن</h2>
 
+        <!-- THEME -->
         <div class="card">
             <h3 style="margin-bottom:12px">🌗 ڕووکاری ئاپ</h3>
-            <div style="display:flex;gap:8px">
-                <button class="btn ${!state.settings.darkMode && !state.settings.amoledMode ? 'btn-primary' : ''}"
-                        onclick="setTheme('light')" aria-pressed="${!state.settings.darkMode && !state.settings.amoledMode}">☀️ ڕووناک</button>
-                <button class="btn ${state.settings.darkMode && !state.settings.amoledMode ? 'btn-primary' : ''}"
-                        onclick="setTheme('dark')" aria-pressed="${state.settings.darkMode && !state.settings.amoledMode}">🌙 تاریک</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn ${isLight ? 'btn-primary' : ''}"
+                        onclick="setTheme('light')"  aria-pressed="${isLight}">☀️ ڕووناک</button>
+                <button class="btn ${isDark  ? 'btn-primary' : ''}"
+                        onclick="setTheme('dark')"   aria-pressed="${isDark}">🌙 تاریک</button>
                 <button class="btn ${state.settings.amoledMode ? 'btn-primary' : ''}"
                         onclick="setTheme('amoled')" aria-pressed="${state.settings.amoledMode}">🖤 AMOLED</button>
             </div>
         </div>
 
+        <!-- DIALECT TOGGLE -->
+        <div class="card">
+            <h3 style="margin-bottom:4px">🗣️ شێوازی زمان</h3>
+            <p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">
+                سۆرانی — کتێبی کوردی ناوەڕاست · بادینی — کرمانجی بە لاتینی
+            </p>
+            <div class="dialect-toggle" role="group" aria-label="شێوازی زمان">
+                <button class="dialect-btn ${isSorani ? 'active' : ''}"
+                        onclick="setDialect('sorani')"
+                        aria-pressed="${isSorani}"
+                        style="${isSorani ? `background:${th.accent};box-shadow:0 2px 10px ${th.shadow}` : ''}">
+                    📜 سۆرانی
+                </button>
+                <button class="dialect-btn ${!isSorani ? 'active' : ''}"
+                        onclick="setDialect('badini')"
+                        aria-pressed="${!isSorani}"
+                        style="${!isSorani ? `background:${th.accent};box-shadow:0 2px 10px ${th.shadow}` : ''}">
+                    🔤 بادینی (کرمانجی)
+                </button>
+            </div>
+            <p style="margin-top:10px;font-size:11px;color:var(--text-muted)">
+                ${isSorani
+                    ? '📜 وشەکان بە کتێبی کوردی سۆرانی دەردەکەوێن'
+                    : '🔤 وشەکان بە لاتینی کرمانجی (بادینی) دەردەکەوێن'}
+            </p>
+        </div>
+
+        <!-- PROFILE -->
         <div class="card">
             <h3 style="margin-bottom:12px">👤 پروفایل</h3>
             <label for="nameInput" style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:6px">ناوی تۆ</label>
             <div style="display:flex;gap:8px">
-                <input id="nameInput" class="input" value="${escAttr(state.user.name)}" placeholder="ناوت بنووسە" maxlength="30">
+                <input id="nameInput" class="input" value="${escAttr(state.user.name)}"
+                       placeholder="ناوت بنووسە" maxlength="30"
+                       autocorrect="off" autocapitalize="off">
                 <button class="btn btn-primary" onclick="saveName()" aria-label="ناو خەزن بکە">✅</button>
             </div>
         </div>
 
+        <!-- CURRENT LANGUAGE PACKAGE — visual card -->
+        <div class="card lang-pkg-card" style="padding:0;margin-bottom:12px">
+            <div class="lang-pkg-header" style="background:linear-gradient(${th.grad})">
+                <div class="lang-pkg-icon">${lessons[state.settings.currentLanguage]?.icon || '🌍'}</div>
+                <div class="lang-pkg-name">${escHtml(lessons[state.settings.currentLanguage]?.name || '')}</div>
+                <div class="lang-pkg-stats">
+                    ${lessons[state.settings.currentLanguage]?.topics.length || 0} تۆپیک ·
+                    ${(lessons[state.settings.currentLanguage]?.topics.reduce((a,t)=>a+t.words.length,0)) || 0} وشە
+                </div>
+            </div>
+            <div class="lang-pkg-body">
+                <p style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">پاکێجی ئێستا</p>
+                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                    <span class="victory-badge" style="background:${th.accent}18;color:${th.accent}">
+                        ${th.badge} ${th.victory}
+                    </span>
+                </div>
+                <button class="btn btn-sm" style="margin-top:10px;border:1.5px solid ${th.accent};color:${th.accent};background:transparent"
+                        onclick="navigateTo('lessons')">گۆڕینی زمان</button>
+            </div>
+        </div>
+
+        <!-- DATA RESET -->
         <div class="card">
             <h3 style="margin-bottom:8px">🗑️ داتا</h3>
-            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px">ئەگەر داتاکەت دەیەوێت سڕیتەوە، ئەمە کلیک بکە. ئەم کارە گەڕاندنەوەی نییە.</p>
+            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px">
+                ئەگەر داتاکەت دەیەوێت سڕیتەوە، ئەمە کلیک بکە. ئەم کارە گەڕاندنەوەی نییە.
+            </p>
             <button class="btn btn-danger btn-sm" onclick="confirmReset()">🗑️ سڕینەوەی داتا</button>
         </div>`;
+}
+
+function setDialect(d) {
+    state.settings.dialect = d;
+    lsSet('zm_dialect', d);
+    toast(d === 'sorani' ? '📜 سۆرانی چالاک کرا' : '🔤 بادینی چالاک کرا');
+    renderSettings(document.getElementById('mainContent'));
 }
 
 function setTheme(t) {
@@ -1623,6 +2205,175 @@ function escAttr(str) {
         .replace(/"/g, '&quot;');
 }
 
+// ===== ONBOARDING CAROUSEL =====
+// Shows a full-screen multi-step first-launch flow.
+// Returns true if onboarding was shown (caller should NOT navigate home).
+
+const OB_STEPS = [
+    { id: 'welcome',  title: 'بەخێربێیت بۆ Ziman 🌍', sub: 'فێربوونی زمانی جیهان — شێوازی کارلێکەر' },
+    { id: 'language', title: 'کام زمانی تر فێری بیت؟', sub: 'یەکێک هەڵبژێرە — دواتر دەیگۆڕیت' },
+    { id: 'dialect',  title: 'کام شێوازی کوردی؟',       sub: 'ئەمە کاریگەری لەسەر نووسینی وشەکان دەکات' },
+    { id: 'name',     title: 'ناوت چییە؟',              sub: 'مامۆستاکەت پێیت دەوترێت' },
+];
+
+function showOnboarding() {
+    if (lsGet('zm_onboarded') === 'true') return false;
+
+    let step     = 0;
+    let selLang  = lsGet('zm_lang', 'en-ku');
+    let selDial  = lsGet('zm_dialect', 'sorani');
+    let userName = lsGet('zm_name', '');
+    if (userName === 'فێرخواز') userName = ''; // treat default as blank
+
+    const overlay = document.createElement('div');
+    overlay.id = 'onboardingOverlay';
+    overlay.className = 'ob-overlay';
+    document.body.appendChild(overlay);
+
+    // Small delay so CSS transition fires
+    requestAnimationFrame(() => overlay.classList.add('ob-visible'));
+
+    function render(s) {
+        const info = OB_STEPS[s];
+        const isLast = s === OB_STEPS.length - 1;
+        const dots = OB_STEPS.map((_, i) =>
+            `<span class="ob-dot${i === s ? ' active' : i < s ? ' done' : ''}"></span>`
+        ).join('');
+
+        let body = '';
+        if (s === 0) {
+            body = `
+            <div class="ob-welcome-wrap">
+                <div class="ob-globe">🌍</div>
+                <p class="ob-brand">Ziman</p>
+                <div class="ob-features">
+                    <div class="ob-feat"><span>🤖</span><span>مامۆستای AI — ستریم + دەنگ</span></div>
+                    <div class="ob-feat"><span>🃏</span><span>فلاشکارت · کویز · قسەکردن</span></div>
+                    <div class="ob-feat"><span>📜</span><span>سۆرانی و بادینی هەردووک</span></div>
+                    <div class="ob-feat"><span>🏆</span><span>دەستکەوتەکان و پێشبرکێی جیهانی</span></div>
+                </div>
+            </div>`;
+        } else if (s === 1) {
+            const keys = Object.keys(lessons);
+            body = `<div class="ob-lang-grid">
+                ${keys.map(k => `
+                <button class="ob-lang-btn${k === selLang ? ' sel' : ''}"
+                        onclick="window._obSelLang('${escAttr(k)}')"
+                        aria-pressed="${k === selLang}">
+                    <span class="ob-lang-flag">${lessons[k].icon}</span>
+                    <span class="ob-lang-nm" dir="auto">${escHtml(lessons[k].name)}</span>
+                </button>`).join('')}
+            </div>`;
+        } else if (s === 2) {
+            const th = LANG_THEMES[selLang] || LANG_THEMES['en-ku'];
+            body = `<div class="ob-dialect-row">
+                <button class="ob-dial-card${selDial === 'sorani' ? ' sel' : ''}"
+                        onclick="window._obSelDial('sorani')"
+                        style="${selDial === 'sorani' ? `border-color:${th.accent};box-shadow:0 0 0 3px ${th.shadow}` : ''}">
+                    <div class="ob-dial-icon">📜</div>
+                    <div class="ob-dial-name">سۆرانی</div>
+                    <div class="ob-dial-en">Central Kurdish</div>
+                    <div class="ob-dial-sample ku-text">کوردستان · خۆشویستی · سڵاو</div>
+                    <div class="ob-dial-note">کتێبی عەرەبی · ناوەڕاست و باشووری کوردستان</div>
+                </button>
+                <button class="ob-dial-card${selDial === 'badini' ? ' sel' : ''}"
+                        onclick="window._obSelDial('badini')"
+                        style="${selDial === 'badini' ? `border-color:${th.accent};box-shadow:0 0 0 3px ${th.shadow}` : ''}">
+                    <div class="ob-dial-icon">🔤</div>
+                    <div class="ob-dial-name">بادینی</div>
+                    <div class="ob-dial-en">Northern Kurdish (Kurmanji)</div>
+                    <div class="ob-dial-sample">Kurdistan · Silav · Xweşî</div>
+                    <div class="ob-dial-note">لاتین · باکووری کوردستان</div>
+                </button>
+            </div>
+            <p class="ob-note">دواتر لە ڕێکخستن دەتوانیت بیگۆڕیت</p>`;
+        } else if (s === 3) {
+            const th = LANG_THEMES[selLang] || LANG_THEMES['en-ku'];
+            body = `
+            <div class="ob-name-wrap">
+                <div class="ob-avatar" style="background:linear-gradient(${th.grad})">
+                    ${userName ? userName.charAt(0).toUpperCase() : '😊'}
+                </div>
+                <input id="obNameInp" class="input ob-name-input"
+                       type="text" placeholder="ناوت بنووسە…" maxlength="30"
+                       value="${escAttr(userName)}"
+                       autocorrect="off" autocapitalize="off"
+                       oninput="window._obName(this.value)"
+                       aria-label="ناوت">
+            </div>
+            <div class="ob-summary">
+                <div class="ob-sum-row">
+                    <span>🌍 زمان</span>
+                    <strong>${lessons[selLang].icon} ${escHtml(lessons[selLang].name)}</strong>
+                </div>
+                <div class="ob-sum-row">
+                    <span>🗣️ شێواز</span>
+                    <strong>${selDial === 'sorani' ? '📜 سۆرانی' : '🔤 بادینی'}</strong>
+                </div>
+            </div>`;
+        }
+
+        overlay.innerHTML = `
+        <div class="ob-card ob-card-enter">
+            <div class="ob-dots" role="progressbar" aria-valuenow="${s+1}" aria-valuemax="${OB_STEPS.length}">
+                ${dots}
+            </div>
+            <h2 class="ob-title">${escHtml(info.title)}</h2>
+            <p class="ob-sub">${escHtml(info.sub)}</p>
+            <div class="ob-body">${body}</div>
+            <div class="ob-actions">
+                ${s > 0
+                    ? `<button class="btn ob-back-btn" onclick="window._obBack()">← گەڕانەوە</button>`
+                    : `<button class="btn ob-skip-btn" onclick="window._obFinish()">تێپەڕکردن</button>`}
+                <button class="btn btn-primary ob-next-btn" onclick="window._obNext()">
+                    ${isLast ? '🚀 دەستپێبکە!' : 'دواتر →'}
+                </button>
+            </div>
+        </div>`;
+
+        // Auto-focus name input on step 3
+        if (s === 3) _trackTimeout(setTimeout(() => document.getElementById('obNameInp')?.focus(), 180));
+    }
+
+    // Expose handlers — closures keep selLang/selDial/userName in scope
+    window._obSelLang = k => { selLang = k; render(step); };
+    window._obSelDial = d => { selDial = d; render(step); };
+    window._obName    = v => { userName = v; };
+    window._obBack    = ()  => { step = Math.max(0, step - 1); render(step); };
+    window._obNext    = ()  => {
+        if (step < OB_STEPS.length - 1) { step++; render(step); }
+        else window._obFinish();
+    };
+    window._obFinish  = ()  => {
+        const finalName = (userName.trim() || 'فێرخواز');
+        // Commit all choices
+        state.user.name              = finalName;
+        state.settings.currentLanguage = selLang;
+        state.settings.dialect         = selDial;
+        lsSet('zm_name',       finalName);
+        lsSet('zm_lang',       selLang);
+        lsSet('zm_dialect',    selDial);
+        lsSet('zm_onboarded',  'true');
+        save();
+
+        // Animate out then boot the app
+        overlay.classList.add('ob-exit');
+        _trackTimeout(setTimeout(() => {
+            overlay.remove();
+            // Clean up global handlers
+            delete window._obSelLang; delete window._obSelDial;
+            delete window._obName;    delete window._obBack;
+            delete window._obNext;    delete window._obFinish;
+            updateUI();
+            applyLangAccent();
+            navigateTo('home');
+        }, 420));
+    };
+
+    render(step);
+    return true;
+}
+
 // ===== MOUSE vs. KEYBOARD FOCUS DETECTION =====
 // Hides focus ring for mouse users; restores it for keyboard users.
 (function initFocusMode() {
@@ -1651,8 +2402,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Boot sequence
+    // Boot sequence — show onboarding on first launch; otherwise go straight home
     checkStreak();
     updateUI();
-    navigateTo('home');
+    if (!showOnboarding()) {
+        applyLangAccent();
+        navigateTo('home');
+    }
 });
