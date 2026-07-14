@@ -82,10 +82,12 @@ async function ensureSchema() {
 
         CREATE TABLE IF NOT EXISTS vocabulary (
           id SERIAL PRIMARY KEY,
+          lang_pair VARCHAR(8) NOT NULL DEFAULT 'en-ku',
           word_source TEXT NOT NULL,
           word_target TEXT NOT NULL,
           badini TEXT DEFAULT '',
           level VARCHAR(8) DEFAULT 'A1',
+          tier VARCHAR(16) DEFAULT 'beginner',
           category VARCHAR(64) NOT NULL,
           pos VARCHAR(16) DEFAULT '',
           example_source TEXT DEFAULT '',
@@ -95,8 +97,17 @@ async function ensureSchema() {
           updated_at TIMESTAMP DEFAULT NOW()
         );
 
-        CREATE UNIQUE INDEX IF NOT EXISTS idx_vocab_source_category ON vocabulary(word_source, category);
+        -- self-heal: add new scaling columns for installs created before this migration
+        ALTER TABLE vocabulary ADD COLUMN IF NOT EXISTS lang_pair VARCHAR(8) NOT NULL DEFAULT 'en-ku';
+        ALTER TABLE vocabulary ADD COLUMN IF NOT EXISTS tier VARCHAR(16) DEFAULT 'beginner';
+
+        -- old single-language unique index must go before the new composite one can be created
+        DROP INDEX IF EXISTS idx_vocab_source_category;
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_vocab_lang_source_category ON vocabulary(lang_pair, word_source, category);
         CREATE INDEX IF NOT EXISTS idx_vocab_category ON vocabulary(category);
+        CREATE INDEX IF NOT EXISTS idx_vocab_lang_pair ON vocabulary(lang_pair);
+        CREATE INDEX IF NOT EXISTS idx_vocab_tier ON vocabulary(tier);
+        CREATE INDEX IF NOT EXISTS idx_vocab_lang_tier_category ON vocabulary(lang_pair, tier, category);
 
         CREATE TABLE IF NOT EXISTS lessons (
           id SERIAL PRIMARY KEY,
@@ -153,6 +164,10 @@ function requireUser(req, res, next) {
 }
 
 const ALLOWED_LEVELS = new Set(['A1', 'A2', 'B1', 'B2', 'C1', 'C2']);
+const ALLOWED_TIERS = new Set(['beginner', 'intermediate', 'advanced', 'master']);
+const ALLOWED_LANG_PAIRS = new Set(['en-ku', 'ar-ku', 'tr-ku', 'fr-ku', 'de-ku', 'es-ku', 'fa-ku', 'ru-ku', 'zh-ku', 'ja-ku', 'ko-ku']);
+// CEFR level -> one of the 4 learner-facing tiers shown in the UI
+const LEVEL_TO_TIER = { A1: 'beginner', A2: 'beginner', B1: 'intermediate', B2: 'intermediate', C1: 'advanced', C2: 'master' };
 
 // ============================================================
 // ADMIN AUTH
@@ -192,7 +207,7 @@ app.get('/api/admin/session', (req, res) => {
 // ADMIN — VOCABULARY CRUD
 // ============================================================
 app.get('/api/admin/vocabulary', requireAdmin, async (req, res) => {
-    const { category, search, page = '1', pageSize = '50' } = req.query;
+    const { category, search, lang, tier, page = '1', pageSize = '50' } = req.query;
     const p = Math.max(1, parseInt(page) || 1);
     const ps = Math.min(200, Math.max(1, parseInt(pageSize) || 50));
     const offset = (p - 1) * ps;
@@ -200,6 +215,8 @@ app.get('/api/admin/vocabulary', requireAdmin, async (req, res) => {
     const clauses = [];
     const params = [];
     if (category) { params.push(category); clauses.push(`category = $${params.length}`); }
+    if (lang)     { params.push(lang);     clauses.push(`lang_pair = $${params.length}`); }
+    if (tier)     { params.push(tier);     clauses.push(`tier = $${params.length}`); }
     if (search) { params.push(`%${search}%`); clauses.push(`(word_source ILIKE $${params.length} OR word_target ILIKE $${params.length} OR badini ILIKE $${params.length})`); }
     const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
 
@@ -213,13 +230,15 @@ app.get('/api/admin/vocabulary', requireAdmin, async (req, res) => {
 });
 
 app.post('/api/admin/vocabulary', requireAdmin, async (req, res) => {
-    const { word_source, word_target, badini = '', level = 'A1', category, pos = '', example_source = '', example_target = '', tags = [] } = req.body || {};
+    const { lang_pair = 'en-ku', word_source, word_target, badini = '', level = 'A1', tier, category, pos = '', example_source = '', example_target = '', tags = [] } = req.body || {};
     if (!word_source || !word_target || !category) return res.status(400).json({ error: 'وشەی سەرچاوە، وەرگێڕان و پۆل پێویستن' });
     if (!ALLOWED_LEVELS.has(level)) return res.status(400).json({ error: 'ئاستی نادروست' });
+    if (!ALLOWED_LANG_PAIRS.has(lang_pair)) return res.status(400).json({ error: 'جووتی زمان نادروست' });
+    const finalTier = ALLOWED_TIERS.has(tier) ? tier : (LEVEL_TO_TIER[level] || 'beginner');
     const { rows } = await pool.query(
-        `INSERT INTO vocabulary (word_source, word_target, badini, level, category, pos, example_source, example_target, tags)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
-        [word_source, word_target, badini, level, category, pos, example_source, example_target, JSON.stringify(tags)]
+        `INSERT INTO vocabulary (lang_pair, word_source, word_target, badini, level, tier, category, pos, example_source, example_target, tags)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
+        [lang_pair, word_source, word_target, badini, level, finalTier, category, pos, example_source, example_target, JSON.stringify(tags)]
     );
     res.status(201).json(rows[0]);
 });
@@ -227,13 +246,15 @@ app.post('/api/admin/vocabulary', requireAdmin, async (req, res) => {
 app.put('/api/admin/vocabulary/:id', requireAdmin, async (req, res) => {
     const id = parseInt(req.params.id);
     if (!id) return res.status(400).json({ error: 'id نادروست' });
-    const { word_source, word_target, badini = '', level = 'A1', category, pos = '', example_source = '', example_target = '', tags = [] } = req.body || {};
+    const { lang_pair = 'en-ku', word_source, word_target, badini = '', level = 'A1', tier, category, pos = '', example_source = '', example_target = '', tags = [] } = req.body || {};
     if (!word_source || !word_target || !category) return res.status(400).json({ error: 'وشەی سەرچاوە، وەرگێڕان و پۆل پێویستن' });
     if (!ALLOWED_LEVELS.has(level)) return res.status(400).json({ error: 'ئاستی نادروست' });
+    if (!ALLOWED_LANG_PAIRS.has(lang_pair)) return res.status(400).json({ error: 'جووتی زمان نادروست' });
+    const finalTier = ALLOWED_TIERS.has(tier) ? tier : (LEVEL_TO_TIER[level] || 'beginner');
     const { rows } = await pool.query(
-        `UPDATE vocabulary SET word_source=$1, word_target=$2, badini=$3, level=$4, category=$5, pos=$6,
-         example_source=$7, example_target=$8, tags=$9, updated_at=NOW() WHERE id=$10 RETURNING *`,
-        [word_source, word_target, badini, level, category, pos, example_source, example_target, JSON.stringify(tags), id]
+        `UPDATE vocabulary SET lang_pair=$1, word_source=$2, word_target=$3, badini=$4, level=$5, tier=$6, category=$7, pos=$8,
+         example_source=$9, example_target=$10, tags=$11, updated_at=NOW() WHERE id=$12 RETURNING *`,
+        [lang_pair, word_source, word_target, badini, level, finalTier, category, pos, example_source, example_target, JSON.stringify(tags), id]
     );
     if (!rows[0]) return res.status(404).json({ error: 'نەدۆزرایەوە' });
     res.json(rows[0]);
@@ -342,12 +363,48 @@ app.post('/api/teacher-applications', async (req, res) => {
 // ============================================================
 // PUBLIC — READ-ONLY VOCAB / LESSONS (consumed by app.js)
 // ============================================================
+// Scalable, paginated vocabulary read API.
+// Designed for millions of rows: filters use indexed columns (lang_pair, tier, category),
+// and pagination is keyset-based (WHERE id > :after ORDER BY id LIMIT :limit) so performance
+// does not degrade on deep pages the way OFFSET pagination would at scale.
 app.get('/api/vocabulary', async (req, res) => {
-    const { category } = req.query;
+    const { lang, category, tier, level, after, limit = '30' } = req.query;
+    const lim = Math.min(100, Math.max(1, parseInt(limit) || 30));
+
+    const clauses = [];
     const params = [];
-    let where = '';
-    if (category) { params.push(category); where = 'WHERE category = $1'; }
-    const { rows } = await pool.query(`SELECT * FROM vocabulary ${where} ORDER BY id ASC`, params);
+    if (lang)     { params.push(lang);     clauses.push(`lang_pair = $${params.length}`); }
+    if (category) { params.push(category); clauses.push(`category = $${params.length}`); }
+    if (tier)     { params.push(tier);     clauses.push(`tier = $${params.length}`); }
+    if (level)    { params.push(level);    clauses.push(`level = $${params.length}`); }
+    if (after)    { params.push(parseInt(after) || 0); clauses.push(`id > $${params.length}`); }
+    const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
+
+    params.push(lim);
+    const { rows } = await pool.query(
+        `SELECT * FROM vocabulary ${where} ORDER BY id ASC LIMIT $${params.length}`,
+        params
+    );
+    const nextCursor = rows.length === lim ? rows[rows.length - 1].id : null;
+    res.json({ items: rows, nextCursor });
+});
+
+// Lightweight summary so the frontend can render a topic/category list (with counts)
+// without ever loading the underlying words — those load lazily per-category via /api/vocabulary.
+app.get('/api/vocabulary/topics', async (req, res) => {
+    const { lang, tier } = req.query;
+    const clauses = [];
+    const params = [];
+    if (lang) { params.push(lang); clauses.push(`lang_pair = $${params.length}`); }
+    if (tier) { params.push(tier); clauses.push(`tier = $${params.length}`); }
+    const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
+    const { rows } = await pool.query(
+        `SELECT lang_pair, category, tier, COUNT(*)::int AS word_count
+         FROM vocabulary ${where}
+         GROUP BY lang_pair, category, tier
+         ORDER BY lang_pair, tier, category`,
+        params
+    );
     res.json(rows);
 });
 

@@ -952,7 +952,7 @@ function renderLessons(c) {
     for (const k in lessons) {
         html += `<option value="${k}" ${state.settings.currentLanguage === k ? 'selected' : ''}>${lessons[k].icon} ${lessons[k].name}</option>`;
     }
-    html += '</select><div id="lessonsList"></div>';
+    html += '</select><div id="lessonsList"></div><div id="extLibrary"></div>';
     c.innerHTML = html;
 
     // Use change event — not inline onchange — so the select is re-rendered cleanly
@@ -960,9 +960,11 @@ function renderLessons(c) {
         state.settings.currentLanguage = this.value;
         lsSet('zm_lang', this.value);
         renderLessonsList();
+        renderExtendedLibrary();
     });
 
     renderLessonsList();
+    renderExtendedLibrary();
 }
 
 function renderLessonsList() {
@@ -984,6 +986,76 @@ function renderLessonsList() {
             </div>`;
     });
     list.innerHTML = html;
+}
+
+// ===== EXTENDED LIBRARY (DB-backed, paginated, scales to huge word counts) =====
+// Purely additive to the hardcoded `lessons` above: it never touches existing
+// quiz/flashcard/lesson flows, so growing the database can never break them.
+// Category counts come from a lightweight GROUP BY endpoint; the actual words
+// for a category are only fetched 30 at a time, on demand ("لینکی زیاتر").
+const EXT_LIB_CATEGORY_LABELS = {
+    greetings: '👋 سڵاوکردنی بنەڕەتی', numbers_time: '🔢 ژمارە و کات', family_relationships: '👨‍👩‍👧‍👦 خێزان و پەیوەندی',
+    shopping_food: '🛒 بازاڕکردن و خواردن', travel_directions: '✈️ گەشت و ئاراستە', daily_life: '🏠 ژیانی ڕۆژانە',
+    work_business: '💼 کار و بازرگانی', emergency: '🚨 پەلاماری کارین', general: '📖 زیاتر',
+};
+
+async function renderExtendedLibrary() {
+    const box = document.getElementById('extLibrary');
+    if (!box) return;
+    const lang = state.settings.currentLanguage;
+    box.innerHTML = '<h3 style="margin:20px 0 8px">📚 کتێبخانەی گەورەکراو</h3><p style="color:var(--text-secondary);font-size:13px">بارکردن...</p>';
+    try {
+        const res = await fetch(`/api/vocabulary/topics?lang=${encodeURIComponent(lang)}`);
+        if (!res.ok) throw new Error('bad response');
+        const rows = await res.json();
+        if (!rows.length) { box.innerHTML = ''; return; }
+        let html = '<h3 style="margin:20px 0 8px">📚 کتێبخانەی گەورەکراو</h3><div style="display:flex;flex-wrap:wrap;gap:8px" id="extLibCats">';
+        rows.forEach(r => {
+            const label = EXT_LIB_CATEGORY_LABELS[r.category] || r.category;
+            html += `<button class="btn btn-sm" style="background:var(--bg);border:1px solid var(--border)" onclick="openExtLibCategory('${escAttr(r.category)}')">${escHtml(label)} · ${r.word_count}</button>`;
+        });
+        html += '</div><div id="extLibWords"></div>';
+        box.innerHTML = html;
+    } catch (e) {
+        box.innerHTML = '';
+        console.warn('[extLibrary] failed to load', e);
+    }
+}
+
+window._extLib = { category: null, cursor: null, words: [] };
+
+async function openExtLibCategory(category) {
+    window._extLib = { category, cursor: null, words: [] };
+    const box = document.getElementById('extLibWords');
+    if (box) box.innerHTML = '';
+    await loadMoreExtLibWords();
+}
+
+async function loadMoreExtLibWords() {
+    const state_ = window._extLib;
+    const box = document.getElementById('extLibWords');
+    if (!box || !state_.category) return;
+    const lang = state.settings.currentLanguage;
+    const params = new URLSearchParams({ lang, category: state_.category, limit: '30' });
+    if (state_.cursor) params.set('after', state_.cursor);
+    const res = await fetch(`/api/vocabulary?${params.toString()}`);
+    const data = await res.json();
+    state_.words.push(...data.items);
+    state_.cursor = data.nextCursor;
+
+    let html = `<div style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0">`;
+    state_.words.forEach(w => {
+        const dialect = state.settings.dialect === 'badini' && w.badini ? w.badini : w.word_target;
+        html += `<div class="card" style="padding:8px 12px;min-width:120px">
+            <div style="font-size:13px;color:var(--text-secondary)">${escHtml(w.word_source)}</div>
+            <div style="font-weight:600">${escHtml(dialect)}</div>
+        </div>`;
+    });
+    html += '</div>';
+    if (data.nextCursor) {
+        html += `<button class="btn btn-sm btn-primary" onclick="loadMoreExtLibWords()">زیاتر ببینە ▼</button>`;
+    }
+    box.innerHTML = html;
 }
 
 function startLesson(lang, idx) {
