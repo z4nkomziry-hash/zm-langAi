@@ -28,14 +28,32 @@ const PgStore = new pgSession({
 if (!process.env.SESSION_SECRET) {
     // Fail closed: a predictable/shared session secret would let an attacker
     // forge admin/user session cookies. Never fall back to a hardcoded value.
-    console.error('[fatal] SESSION_SECRET is not set. Refusing to start with an insecure session secret.');
-    process.exit(1);
+    // On Replit `node server.js` is a long-running process, so killing it
+    // outright (below, guarded by require.main) is the right call. On Vercel
+    // this file is require()'d per cold start by the serverless runtime —
+    // calling process.exit() there would kill the whole function invocation
+    // before Express even gets to send a response, which surfaces as an
+    // opaque platform-level crash instead of a clear error. So here we only
+    // log and let a middleware (registered right after this block) turn
+    // every request into an explicit 500 instead of serving with a broken
+    // session store.
+    console.error('[fatal] SESSION_SECRET is not set. Refusing to serve requests with an insecure session secret.');
+    if (require.main === module) {
+        process.exit(1);
+    }
 }
+
+app.use((req, res, next) => {
+    if (!process.env.SESSION_SECRET) {
+        return res.status(500).json({ error: 'SESSION_SECRET ل ژینگەهێ ڤێرسێل دانەهاتیە دانان' });
+    }
+    next();
+});
 
 app.use(session({
     store: PgStore,
     name: 'ziman.sid',
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'placeholder-unused-because-request-gate-above-blocks-all-traffic',
     resave: false,
     saveUninitialized: false,
     cookie: {
