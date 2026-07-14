@@ -21,6 +21,12 @@ node server.js
 
 The Replit workflow (`Start application`) runs this automatically on port 5000.
 
+### Environment (Replit)
+
+- `DATABASE_URL` — provided automatically by the Replit PostgreSQL database.
+- `SESSION_SECRET` — required secret; server refuses to start without it.
+- `ADMIN_EMAIL` / `ADMIN_PASSWORD` — secrets used to seed/update the super-admin account (`/admin`) on every server start.
+
 ## File Structure
 
 ```
