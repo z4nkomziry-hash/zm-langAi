@@ -5,3 +5,5 @@
 - [AI streaming + voice](ai-streaming.md) — askAI() uses fetch SSE stream (stream:true); _createStreamingBubble() returns {append,finish,text}; voice via SpeechRecognition; TTS via SpeechSynthesis; dialect aware system prompt via buildSystemPrompt().
 - [Font stack](font-stack.md) — Estedad (Kurdish/Persian-native) leads, then Noto Naskh Arabic, then Noto Kufi Arabic; all three loaded via Google Fonts link in index.html; --font CSS var drives everything.
 - [Dialect system](dialect-system.md) — zm_dialect key ('sorani'|'badini'); BADINI_MAP maps Kurdish target side; getDialectWord(wordStr) returns {src,target}; setDialect() persists + re-renders; quiz/flashcard/lesson all dialect-aware.
+- [Backend and cloud sync](backend-and-cloud-sync.md) — Express+Postgres bolted onto static app; admin seeded from secrets; progress sync takes max(local,server), never regresses.
+- [Badini script requirement](backend-and-cloud-sync.md) — Badini must always be Perso-Arabic script, never Latin; user explicitly requires this.

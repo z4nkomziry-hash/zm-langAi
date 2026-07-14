@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Admin — Ziman</title>
+    <title>پانێلی سوپەر ئەدمین — Ziman</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #4F46E5; --primary-dark: #3730A3;
-            --success: #10B981; --danger: #EF4444;
+            --success: #10B981; --danger: #EF4444; --warn:#F59E0B;
             --bg: #F8FAFC; --surface: #FFFFFF;
             --text: #1E293B; --text-secondary: #475569;
             --border: #E2E8F0; --radius: 14px; --radius-sm: 8px;
@@ -18,126 +18,443 @@
             --font: 'Noto Kufi Arabic', system-ui, sans-serif;
         }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:var(--font); background:var(--bg); color:var(--text); padding:24px 16px; min-height:100vh; }
-        h1 { font-size:22px; font-weight:800; margin-bottom:24px; }
-        .card { background:var(--surface); border-radius:var(--radius); padding:20px; border:1px solid var(--border); box-shadow:var(--shadow-sm); margin-bottom:12px; }
-        .input { width:100%; padding:10px 14px; border:2px solid var(--border); border-radius:var(--radius-sm); font-family:var(--font); font-size:14px; background:var(--bg); color:var(--text); margin-bottom:12px; }
-        .input:focus { outline:none; border-color:var(--primary); }
-        .btn { display:inline-flex; align-items:center; gap:6px; padding:9px 18px; border:none; border-radius:var(--radius-sm); font-weight:600; font-size:13px; font-family:var(--font); cursor:pointer; min-height:40px; }
+        body { font-family:var(--font); background:var(--bg); color:var(--text); padding:20px 14px 60px; min-height:100vh; }
+        h1 { font-size:20px; font-weight:800; margin-bottom:16px; }
+        h2 { font-size:16px; font-weight:700; margin-bottom:10px; }
+        .card { background:var(--surface); border-radius:var(--radius); padding:18px; border:1px solid var(--border); box-shadow:var(--shadow-sm); margin-bottom:12px; }
+        .input, select, textarea { width:100%; padding:10px 14px; border:2px solid var(--border); border-radius:var(--radius-sm); font-family:var(--font); font-size:14px; background:var(--bg); color:var(--text); margin-bottom:10px; }
+        .input:focus, select:focus, textarea:focus { outline:none; border-color:var(--primary); }
+        .btn { display:inline-flex; align-items:center; gap:6px; padding:9px 16px; border:none; border-radius:var(--radius-sm); font-weight:600; font-size:13px; font-family:var(--font); cursor:pointer; min-height:38px; }
         .btn-primary { background:var(--primary); color:#fff; }
         .btn-approve { background:var(--success); color:#fff; }
         .btn-reject  { background:var(--danger);  color:#fff; }
-        .btn + .btn  { margin-right:6px; }
+        .btn-ghost   { background:var(--border); color:var(--text); }
+        .btn + .btn  { margin-inline-start:6px; }
         #loginBox { max-width:400px; margin:80px auto 0; }
-        #panel     { max-width:700px; margin:0 auto; }
-        .badge-pending  { background:#FEF3C7; color:#92400E; padding:3px 10px; border-radius:99px; font-size:12px; font-weight:700; }
-        .badge-approved { background:#D1FAE5; color:#065F46; padding:3px 10px; border-radius:99px; font-size:12px; font-weight:700; }
-        .badge-rejected { background:#FEE2E2; color:#991B1B; padding:3px 10px; border-radius:99px; font-size:12px; font-weight:700; }
-        .payment-row { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
-        .payment-meta { font-size:13px; color:var(--text-secondary); }
+        #panel     { max-width:960px; margin:0 auto; display:none; }
+        .badge  { padding:3px 10px; border-radius:99px; font-size:12px; font-weight:700; display:inline-block; }
+        .badge-pending  { background:#FEF3C7; color:#92400E; }
+        .badge-approved { background:#D1FAE5; color:#065F46; }
+        .badge-rejected { background:#FEE2E2; color:#991B1B; }
+        .meta { font-size:13px; color:var(--text-secondary); }
         .empty { text-align:center; padding:40px 0; color:var(--text-secondary); }
+        .tabs { display:flex; gap:6px; overflow-x:auto; margin-bottom:16px; padding-bottom:4px; }
+        .tab { padding:9px 16px; border-radius:99px; background:var(--surface); border:1px solid var(--border); font-size:13px; font-weight:700; white-space:nowrap; cursor:pointer; }
+        .tab.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+        .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        @media (max-width:560px){ .grid2{ grid-template-columns:1fr; } }
+        table { width:100%; border-collapse:collapse; font-size:13px; }
+        th, td { padding:8px 6px; border-bottom:1px solid var(--border); text-align:right; }
+        th { color:var(--text-secondary); font-weight:700; }
+        .row-actions { white-space:nowrap; }
+        .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+        .err { color:var(--danger); font-size:13px; margin-top:8px; min-height:18px; }
+        .pager { display:flex; gap:8px; align-items:center; justify-content:center; margin-top:10px; }
     </style>
 </head>
 <body>
 
-    <!-- Login -->
     <div id="loginBox">
-        <h1>🔐 پانێلی بەڕێوەبردن</h1>
+        <h1>🔐 پانێلی سوپەر ئەدمین</h1>
         <div class="card">
-            <label for="passInput" style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:6px">پاسوردی بەڕێوەبردن</label>
-            <input type="password" id="passInput" class="input" placeholder="پاسورد بنووسە"
-                   onkeydown="if(event.key==='Enter')login()">
+            <label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:6px">ئیمەیل</label>
+            <input type="email" id="emailInput" class="input" placeholder="admin@example.com">
+            <label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:6px">پاسورد</label>
+            <input type="password" id="passInput" class="input" placeholder="پاسورد بنووسە" onkeydown="if(event.key==='Enter')login()">
             <button class="btn btn-primary" onclick="login()">🔓 چوونەژوورەوە</button>
-            <p id="loginErr" style="color:#EF4444;font-size:13px;margin-top:8px;min-height:18px"></p>
+            <p id="loginErr" class="err"></p>
         </div>
     </div>
 
-    <!-- Admin Panel -->
-    <div id="panel" style="display:none">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-            <h1>📋 پارەدانەکان</h1>
-            <button class="btn" onclick="logout()" style="background:var(--border)">🔒 دەرچوون</button>
+    <div id="panel">
+        <div class="topbar">
+            <h1>📋 پانێلی بەڕێوەبردن</h1>
+            <button class="btn btn-ghost" onclick="logout()">🔒 دەرچوون</button>
         </div>
-        <div id="list"></div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="vocab" onclick="switchTab('vocab')">📚 وشەکان</div>
+            <div class="tab" data-tab="lessons" onclick="switchTab('lessons')">🧩 وانەکان</div>
+            <div class="tab" data-tab="users" onclick="switchTab('users')">👤 بەکارهێنەران</div>
+            <div class="tab" data-tab="teachers" onclick="switchTab('teachers')">🎓 داواکاری مامۆستایی</div>
+            <div class="tab" data-tab="payments" onclick="switchTab('payments')">💳 پارەدانەکان</div>
+        </div>
+
+        <!-- VOCABULARY -->
+        <div id="tab-vocab" class="tabpane">
+            <div class="card">
+                <h2 id="vocabFormTitle">➕ زیادکردنی وشەی نوێ</h2>
+                <input type="hidden" id="vocabId">
+                <div class="grid2">
+                    <input class="input" id="vWordSource" placeholder="وشە بە زمانی سەرچاوە (وەک English)">
+                    <input class="input" id="vWordTarget" placeholder="وەرگێڕان بە کوردیی سۆرانی">
+                </div>
+                <div class="grid2">
+                    <input class="input" id="vBadini" placeholder="بادینی (بە تیپی عەرەبی)">
+                    <input class="input" id="vCategory" placeholder="پۆل (وەک greetings)">
+                </div>
+                <div class="grid2">
+                    <select id="vLevel">
+                        <option value="A1">A1</option><option value="A2">A2</option>
+                        <option value="B1">B1</option><option value="B2">B2</option>
+                        <option value="C1">C1</option><option value="C2">C2</option>
+                    </select>
+                    <input class="input" id="vPos" placeholder="جۆری وشە (n/v/adj...)">
+                </div>
+                <input class="input" id="vExSource" placeholder="نموونە ڕستە (سەرچاوە) — ئارەزوومەندانە">
+                <input class="input" id="vExTarget" placeholder="نموونە ڕستە (کوردی) — ئارەزوومەندانە">
+                <button class="btn btn-primary" onclick="saveVocab()">💾 پاشەکەوتکردن</button>
+                <button class="btn btn-ghost" onclick="resetVocabForm()">✖ پاککردنەوە</button>
+                <p id="vocabErr" class="err"></p>
+            </div>
+            <div class="card">
+                <div class="grid2">
+                    <input class="input" id="vocabSearch" placeholder="گەڕان بۆ وشە..." oninput="debounceLoadVocab()">
+                    <input class="input" id="vocabCatFilter" placeholder="پاڵاوتن بە پۆل..." oninput="debounceLoadVocab()">
+                </div>
+            </div>
+            <div class="card" style="overflow-x:auto">
+                <table id="vocabTable"><thead><tr>
+                    <th>سەرچاوە</th><th>سۆرانی</th><th>بادینی</th><th>پۆل</th><th>ئاست</th><th></th>
+                </tr></thead><tbody></tbody></table>
+                <div class="pager">
+                    <button class="btn btn-ghost" onclick="vocabPage=Math.max(1,vocabPage-1);loadVocab()">◀ پێشوو</button>
+                    <span id="vocabPageInfo" class="meta"></span>
+                    <button class="btn btn-ghost" onclick="vocabPage=vocabPage+1;loadVocab()">دواتر ▶</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LESSONS -->
+        <div id="tab-lessons" class="tabpane" style="display:none">
+            <div class="card">
+                <h2 id="lessonFormTitle">➕ زیادکردنی وانەی نوێ</h2>
+                <input type="hidden" id="lessonId">
+                <input class="input" id="lTitle" placeholder="ناونیشانی وانە">
+                <div class="grid2">
+                    <input class="input" id="lCategory" placeholder="پۆل">
+                    <select id="lLevel">
+                        <option value="A1">A1</option><option value="A2">A2</option>
+                        <option value="B1">B1</option><option value="B2">B2</option>
+                        <option value="C1">C1</option><option value="C2">C2</option>
+                    </select>
+                </div>
+                <textarea class="input" id="lDescription" placeholder="وەسف" rows="2"></textarea>
+                <input class="input" id="lOrder" type="number" placeholder="ڕیزبەندی (ژمارە)" value="0">
+                <button class="btn btn-primary" onclick="saveLesson()">💾 پاشەکەوتکردن</button>
+                <button class="btn btn-ghost" onclick="resetLessonForm()">✖ پاککردنەوە</button>
+                <p id="lessonErr" class="err"></p>
+            </div>
+            <div id="lessonsList"></div>
+        </div>
+
+        <!-- USERS -->
+        <div id="tab-users" class="tabpane" style="display:none">
+            <div class="card" style="overflow-x:auto">
+                <table id="usersTable"><thead><tr>
+                    <th>ناو</th><th>ئیمەیل</th><th>XP</th><th>ئاست</th><th>ستریک</th><th></th>
+                </tr></thead><tbody></tbody></table>
+            </div>
+        </div>
+
+        <!-- TEACHER APPLICATIONS -->
+        <div id="tab-teachers" class="tabpane" style="display:none">
+            <div id="teachersList"></div>
+        </div>
+
+        <!-- PAYMENTS (existing localStorage-based feature, unchanged) -->
+        <div id="tab-payments" class="tabpane" style="display:none">
+            <div id="list"></div>
+        </div>
     </div>
 
-    <script src="config.js"></script>
     <script>
-        function login() {
-            const pass = document.getElementById('passInput').value;
-            const err  = document.getElementById('loginErr');
-            if (pass === AppConfig.adminPassword) {
-                document.getElementById('loginBox').style.display = 'none';
-                document.getElementById('panel').style.display    = 'block';
-                loadPayments();
-            } else {
-                err.textContent = '❌ پاسوردەکە هەڵەیە';
-                document.getElementById('passInput').value = '';
-                document.getElementById('passInput').focus();
+        // ===== helpers =====
+        function escH(s) {
+            if (s == null) return '';
+            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+        async function api(url, opts = {}) {
+            const res = await fetch(url, {
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json' },
+                ...opts,
+            });
+            let data = null;
+            try { data = await res.json(); } catch (e) {}
+            if (!res.ok) throw new Error((data && data.error) || 'هەڵەیەکی سێرڤەر ڕوویدا');
+            return data;
+        }
+
+        // ===== auth =====
+        async function checkSession() {
+            const s = await api('/api/admin/session');
+            if (s.isAdmin) { showPanel(); } else { showLogin(); }
+        }
+        function showLogin() {
+            document.getElementById('loginBox').style.display = 'block';
+            document.getElementById('panel').style.display = 'none';
+        }
+        function showPanel() {
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('panel').style.display = 'block';
+            loadVocab(); loadLessons(); loadUsers(); loadTeachers(); loadPayments();
+        }
+        async function login() {
+            const email = document.getElementById('emailInput').value.trim();
+            const password = document.getElementById('passInput').value;
+            const err = document.getElementById('loginErr');
+            err.textContent = '';
+            try {
+                await api('/api/admin/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+                showPanel();
+            } catch (e) {
+                err.textContent = '❌ ' + e.message;
             }
         }
-
-        function logout() {
-            document.getElementById('loginBox').style.display = 'block';
-            document.getElementById('panel').style.display    = 'none';
-            document.getElementById('passInput').value = '';
+        async function logout() {
+            await api('/api/admin/logout', { method: 'POST' });
+            showLogin();
         }
 
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+            document.querySelectorAll('.tabpane').forEach(p => p.style.display = (p.id === 'tab-' + tab) ? 'block' : 'none');
+        }
+
+        // ===== vocabulary =====
+        let vocabPage = 1;
+        let vocabDebounce;
+        let vocabById = new Map(); // id -> row, populated on each load; never interpolated into HTML attributes
+        function debounceLoadVocab() { clearTimeout(vocabDebounce); vocabDebounce = setTimeout(() => { vocabPage = 1; loadVocab(); }, 300); }
+
+        async function loadVocab() {
+            const search = document.getElementById('vocabSearch').value.trim();
+            const category = document.getElementById('vocabCatFilter').value.trim();
+            const params = new URLSearchParams({ page: vocabPage, pageSize: 30 });
+            if (search) params.set('search', search);
+            if (category) params.set('category', category);
+            const data = await api('/api/admin/vocabulary?' + params.toString());
+            vocabById = new Map(data.items.map(v => [v.id, v]));
+            const tbody = document.querySelector('#vocabTable tbody');
+            tbody.innerHTML = data.items.map(v => `
+                <tr>
+                    <td>${escH(v.word_source)}</td>
+                    <td>${escH(v.word_target)}</td>
+                    <td>${escH(v.badini)}</td>
+                    <td>${escH(v.category)}</td>
+                    <td>${escH(v.level)}</td>
+                    <td class="row-actions">
+                        <button class="btn btn-ghost" data-vocab-edit="${v.id}">✏️</button>
+                        <button class="btn btn-reject" data-vocab-delete="${v.id}">🗑️</button>
+                    </td>
+                </tr>`).join('') || '<tr><td colspan="6" class="empty">هیچ وشەیەک نییە</td></tr>';
+            const totalPages = Math.max(1, Math.ceil(data.total / data.pageSize));
+            document.getElementById('vocabPageInfo').textContent = `لاپەڕە ${data.page} لە ${totalPages} (کۆی گشتی ${data.total})`;
+        }
+
+        // Delegated click handling — row ids (plain numbers) are the only thing that
+        // ever reaches an HTML attribute here; the actual row data is looked up from
+        // vocabById, so untrusted DB content never gets interpolated into markup/attributes.
+        document.querySelector('#vocabTable tbody')?.addEventListener('click', (e) => {
+            const editBtn = e.target.closest('[data-vocab-edit]');
+            if (editBtn) { const v = vocabById.get(Number(editBtn.dataset.vocabEdit)); if (v) editVocab(v); return; }
+            const delBtn = e.target.closest('[data-vocab-delete]');
+            if (delBtn) deleteVocab(Number(delBtn.dataset.vocabDelete));
+        });
+
+        function editVocab(v) {
+            document.getElementById('vocabFormTitle').textContent = '✏️ دەستکاریکردنی وشە #' + v.id;
+            document.getElementById('vocabId').value = v.id;
+            document.getElementById('vWordSource').value = v.word_source;
+            document.getElementById('vWordTarget').value = v.word_target;
+            document.getElementById('vBadini').value = v.badini || '';
+            document.getElementById('vCategory').value = v.category;
+            document.getElementById('vLevel').value = v.level;
+            document.getElementById('vPos').value = v.pos || '';
+            document.getElementById('vExSource').value = v.example_source || '';
+            document.getElementById('vExTarget').value = v.example_target || '';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        function resetVocabForm() {
+            document.getElementById('vocabFormTitle').textContent = '➕ زیادکردنی وشەی نوێ';
+            ['vocabId','vWordSource','vWordTarget','vBadini','vCategory','vPos','vExSource','vExTarget'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('vLevel').value = 'A1';
+        }
+        async function saveVocab() {
+            const err = document.getElementById('vocabErr'); err.textContent = '';
+            const id = document.getElementById('vocabId').value;
+            const payload = {
+                word_source: document.getElementById('vWordSource').value.trim(),
+                word_target: document.getElementById('vWordTarget').value.trim(),
+                badini: document.getElementById('vBadini').value.trim(),
+                category: document.getElementById('vCategory').value.trim(),
+                level: document.getElementById('vLevel').value,
+                pos: document.getElementById('vPos').value.trim(),
+                example_source: document.getElementById('vExSource').value.trim(),
+                example_target: document.getElementById('vExTarget').value.trim(),
+            };
+            try {
+                if (id) await api('/api/admin/vocabulary/' + id, { method: 'PUT', body: JSON.stringify(payload) });
+                else await api('/api/admin/vocabulary', { method: 'POST', body: JSON.stringify(payload) });
+                resetVocabForm();
+                loadVocab();
+            } catch (e) { err.textContent = '❌ ' + e.message; }
+        }
+        async function deleteVocab(id) {
+            if (!confirm('دڵنیایت لە سڕینەوەی ئەم وشەیە؟')) return;
+            await api('/api/admin/vocabulary/' + id, { method: 'DELETE' });
+            loadVocab();
+        }
+
+        // ===== lessons =====
+        let lessonsById = new Map(); // id -> row; never interpolated into HTML attributes
+        async function loadLessons() {
+            const lessons = await api('/api/admin/lessons');
+            lessonsById = new Map(lessons.map(l => [l.id, l]));
+            const el = document.getElementById('lessonsList');
+            if (!lessons.length) { el.innerHTML = '<div class="card empty">هیچ وانەیەک نییە</div>'; return; }
+            el.innerHTML = lessons.map(l => `
+                <div class="card">
+                    <div class="topbar" style="margin-bottom:6px">
+                        <strong>${escH(l.title)}</strong>
+                        <span class="meta">${escH(l.category)} · ${escH(l.level)}</span>
+                    </div>
+                    <p class="meta" style="margin-bottom:10px">${escH(l.description || '')}</p>
+                    <button class="btn btn-ghost" data-lesson-edit="${l.id}">✏️ دەستکاری</button>
+                    <button class="btn btn-reject" data-lesson-delete="${l.id}">🗑️ سڕینەوە</button>
+                </div>`).join('');
+        }
+        // Delegated click handling — see the vocabulary table listener above for why
+        // row data is looked up from lessonsById instead of ever touching an attribute.
+        document.getElementById('lessonsList')?.addEventListener('click', (e) => {
+            const editBtn = e.target.closest('[data-lesson-edit]');
+            if (editBtn) { const l = lessonsById.get(Number(editBtn.dataset.lessonEdit)); if (l) editLesson(l); return; }
+            const delBtn = e.target.closest('[data-lesson-delete]');
+            if (delBtn) deleteLesson(Number(delBtn.dataset.lessonDelete));
+        });
+        function editLesson(l) {
+            document.getElementById('lessonFormTitle').textContent = '✏️ دەستکاریکردنی وانە #' + l.id;
+            document.getElementById('lessonId').value = l.id;
+            document.getElementById('lTitle').value = l.title;
+            document.getElementById('lCategory').value = l.category;
+            document.getElementById('lLevel').value = l.level;
+            document.getElementById('lDescription').value = l.description || '';
+            document.getElementById('lOrder').value = l.order_index || 0;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        function resetLessonForm() {
+            document.getElementById('lessonFormTitle').textContent = '➕ زیادکردنی وانەی نوێ';
+            ['lessonId','lTitle','lCategory','lDescription'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('lLevel').value = 'A1';
+            document.getElementById('lOrder').value = 0;
+        }
+        async function saveLesson() {
+            const err = document.getElementById('lessonErr'); err.textContent = '';
+            const id = document.getElementById('lessonId').value;
+            const payload = {
+                title: document.getElementById('lTitle').value.trim(),
+                category: document.getElementById('lCategory').value.trim(),
+                level: document.getElementById('lLevel').value,
+                description: document.getElementById('lDescription').value.trim(),
+                order_index: parseInt(document.getElementById('lOrder').value) || 0,
+            };
+            try {
+                if (id) await api('/api/admin/lessons/' + id, { method: 'PUT', body: JSON.stringify(payload) });
+                else await api('/api/admin/lessons', { method: 'POST', body: JSON.stringify(payload) });
+                resetLessonForm();
+                loadLessons();
+            } catch (e) { err.textContent = '❌ ' + e.message; }
+        }
+        async function deleteLesson(id) {
+            if (!confirm('دڵنیایت لە سڕینەوەی ئەم وانەیە؟')) return;
+            await api('/api/admin/lessons/' + id, { method: 'DELETE' });
+            loadLessons();
+        }
+
+        // ===== users =====
+        async function loadUsers() {
+            const users = await api('/api/admin/users');
+            const tbody = document.querySelector('#usersTable tbody');
+            tbody.innerHTML = users.map(u => `
+                <tr>
+                    <td>${escH(u.name)}</td>
+                    <td>${escH(u.email)}</td>
+                    <td>${u.xp ?? 0}</td>
+                    <td>${u.level ?? 1}</td>
+                    <td>${u.streak ?? 0}</td>
+                    <td><button class="btn btn-reject" onclick="deleteUser(${u.id})">🗑️</button></td>
+                </tr>`).join('') || '<tr><td colspan="6" class="empty">هیچ بەکارهێنەرێک تۆمار نەکراوە</td></tr>';
+        }
+        async function deleteUser(id) {
+            if (!confirm('دڵنیایت لە سڕینەوەی ئەم بەکارهێنەرە؟')) return;
+            await api('/api/admin/users/' + id, { method: 'DELETE' });
+            loadUsers();
+        }
+
+        // ===== teacher applications =====
+        async function loadTeachers() {
+            const apps = await api('/api/admin/teacher-applications');
+            const el = document.getElementById('teachersList');
+            if (!apps.length) { el.innerHTML = '<div class="card empty">هیچ داواکارییەک نییە</div>'; return; }
+            el.innerHTML = apps.map(a => {
+                const badge = a.status === 'approved' ? '<span class="badge badge-approved">✅ پەسندکراو</span>'
+                    : a.status === 'rejected' ? '<span class="badge badge-rejected">❌ ڕەتکراوە</span>'
+                    : '<span class="badge badge-pending">⏳ چاوەڕوان</span>';
+                return `
+                <div class="card">
+                    <div class="topbar" style="margin-bottom:6px"><strong>${escH(a.name)}</strong>${badge}</div>
+                    <p class="meta">📧 ${escH(a.email)} ${a.phone ? '· 📱 ' + escH(a.phone) : ''}</p>
+                    <p class="meta" style="margin:8px 0">${escH(a.message || '')}</p>
+                    ${a.status === 'pending' ? `
+                        <button class="btn btn-approve" onclick="setTeacherStatus(${a.id},'approved')">✅ پەسندکردن</button>
+                        <button class="btn btn-reject" onclick="setTeacherStatus(${a.id},'rejected')">❌ ڕەتکردنەوە</button>
+                    ` : ''}
+                </div>`;
+            }).join('');
+        }
+        async function setTeacherStatus(id, status) {
+            await api('/api/admin/teacher-applications/' + id, { method: 'PUT', body: JSON.stringify({ status }) });
+            loadTeachers();
+        }
+
+        // ===== payments (unchanged, localStorage-based) =====
         function loadPayments() {
             let payments;
             try { payments = JSON.parse(localStorage.getItem('zm_payments') || '[]'); }
             catch(e) { payments = []; }
-
             const list = document.getElementById('list');
             if (payments.length === 0) {
-                list.innerHTML = '<div class="empty"><p style="font-size:48px">📭</p><p>هیچ داواکاریەک نییە</p></div>';
+                list.innerHTML = '<div class="card empty"><p style="font-size:48px">📭</p><p>هیچ داواکاریەک نییە</p></div>';
                 return;
             }
-
             list.innerHTML = [...payments].reverse().map((x, ri) => {
-                const i = payments.length - 1 - ri; // original index
-                const badge = x.status === 'approved'
-                    ? '<span class="badge-approved">✅ چالاک</span>'
-                    : x.status === 'rejected'
-                    ? '<span class="badge-rejected">❌ ڕەتکرایەوە</span>'
-                    : '<span class="badge-pending">⏳ چاوەڕوان</span>';
+                const i = payments.length - 1 - ri;
+                const badge = x.status === 'approved' ? '<span class="badge badge-approved">✅ چالاک</span>'
+                    : x.status === 'rejected' ? '<span class="badge badge-rejected">❌ ڕەتکرایەوە</span>'
+                    : '<span class="badge badge-pending">⏳ چاوەڕوان</span>';
                 return `
                     <div class="card">
-                        <div class="payment-row" style="margin-bottom:8px">
-                            <strong>${escH(x.name)}</strong>
-                            ${badge}
-                        </div>
-                        <p class="payment-meta">📦 ${escH(x.package)} &nbsp;|&nbsp; 💳 ${escH(x.method)}</p>
-                        <p class="payment-meta">📧 ${escH(x.email)}</p>
-                        <p class="payment-meta" style="margin-bottom:${x.status==='pending'?'12':'0'}px">
-                            📅 ${new Date(x.date).toLocaleDateString('en-GB')}
-                        </p>
+                        <div class="topbar" style="margin-bottom:8px"><strong>${escH(x.name)}</strong>${badge}</div>
+                        <p class="meta">📦 ${escH(x.package)} &nbsp;|&nbsp; 💳 ${escH(x.method)}</p>
+                        <p class="meta">📧 ${escH(x.email)}</p>
+                        <p class="meta" style="margin-bottom:${x.status==='pending'?'12':'0'}px">📅 ${new Date(x.date).toLocaleDateString('en-GB')}</p>
                         ${x.status === 'pending' ? `
-                            <button class="btn btn-approve" onclick="updateStatus(${i},'approved')">✅ چالاک کردن</button>
-                            <button class="btn btn-reject"  onclick="updateStatus(${i},'rejected')">❌ ڕەتکردنەوە</button>
+                            <button class="btn btn-approve" onclick="updatePaymentStatus(${i},'approved')">✅ چالاک کردن</button>
+                            <button class="btn btn-reject" onclick="updatePaymentStatus(${i},'rejected')">❌ ڕەتکردنەوە</button>
                         ` : ''}
                     </div>`;
             }).join('');
         }
-
-        function updateStatus(i, status) {
+        function updatePaymentStatus(i, status) {
             let payments;
-            try { payments = JSON.parse(localStorage.getItem('zm_payments') || '[]'); }
-            catch(e) { return; }
+            try { payments = JSON.parse(localStorage.getItem('zm_payments') || '[]'); } catch(e) { return; }
             payments[i].status = status;
             localStorage.setItem('zm_payments', JSON.stringify(payments));
             loadPayments();
         }
 
-        function escH(s) {
-            if (s == null) return '';
-            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-        }
-
-        // Allow Enter key on password field
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('passInput').focus();
-        });
+        checkSession();
     </script>
 </body>
 </html>

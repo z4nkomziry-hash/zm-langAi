@@ -25,10 +25,17 @@ const PgStore = new pgSession({
     createTableIfMissing: true,
 });
 
+if (!process.env.SESSION_SECRET) {
+    // Fail closed: a predictable/shared session secret would let an attacker
+    // forge admin/user session cookies. Never fall back to a hardcoded value.
+    console.error('[fatal] SESSION_SECRET is not set. Refusing to start with an insecure session secret.');
+    process.exit(1);
+}
+
 app.use(session({
     store: PgStore,
     name: 'ziman.sid',
-    secret: process.env.SESSION_SECRET || 'dev-fallback-secret-change-me',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -38,6 +45,83 @@ app.use(session({
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     },
 }));
+
+// ---------- bootstrap: idempotent schema so a fresh environment self-heals ----------
+async function ensureSchema() {
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS admins (
+          id SERIAL PRIMARY KEY,
+          email VARCHAR(255) UNIQUE NOT NULL,
+          password_hash TEXT NOT NULL,
+          created_at TIMESTAMP DEFAULT NOW()
+        );
+
+        CREATE TABLE IF NOT EXISTS users (
+          id SERIAL PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          email VARCHAR(255) UNIQUE NOT NULL,
+          password_hash TEXT NOT NULL,
+          created_at TIMESTAMP DEFAULT NOW()
+        );
+
+        CREATE TABLE IF NOT EXISTS user_progress (
+          user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+          xp INTEGER DEFAULT 0,
+          level INTEGER DEFAULT 1,
+          coins INTEGER DEFAULT 100,
+          gems INTEGER DEFAULT 50,
+          hearts INTEGER DEFAULT 5,
+          streak INTEGER DEFAULT 0,
+          total_words INTEGER DEFAULT 0,
+          last_login VARCHAR(32),
+          history JSONB DEFAULT '[]',
+          bookmarks JSONB DEFAULT '[]',
+          notes JSONB DEFAULT '{}',
+          updated_at TIMESTAMP DEFAULT NOW()
+        );
+
+        CREATE TABLE IF NOT EXISTS vocabulary (
+          id SERIAL PRIMARY KEY,
+          word_source TEXT NOT NULL,
+          word_target TEXT NOT NULL,
+          badini TEXT DEFAULT '',
+          level VARCHAR(8) DEFAULT 'A1',
+          category VARCHAR(64) NOT NULL,
+          pos VARCHAR(16) DEFAULT '',
+          example_source TEXT DEFAULT '',
+          example_target TEXT DEFAULT '',
+          tags JSONB DEFAULT '[]',
+          created_at TIMESTAMP DEFAULT NOW(),
+          updated_at TIMESTAMP DEFAULT NOW()
+        );
+
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_vocab_source_category ON vocabulary(word_source, category);
+        CREATE INDEX IF NOT EXISTS idx_vocab_category ON vocabulary(category);
+
+        CREATE TABLE IF NOT EXISTS lessons (
+          id SERIAL PRIMARY KEY,
+          title TEXT NOT NULL,
+          category VARCHAR(64) NOT NULL,
+          level VARCHAR(8) DEFAULT 'A1',
+          description TEXT DEFAULT '',
+          word_ids JSONB DEFAULT '[]',
+          order_index INTEGER DEFAULT 0,
+          created_at TIMESTAMP DEFAULT NOW(),
+          updated_at TIMESTAMP DEFAULT NOW()
+        );
+
+        CREATE TABLE IF NOT EXISTS teacher_applications (
+          id SERIAL PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          email VARCHAR(255) NOT NULL,
+          phone VARCHAR(64) DEFAULT '',
+          message TEXT DEFAULT '',
+          status VARCHAR(16) DEFAULT 'pending',
+          created_at TIMESTAMP DEFAULT NOW()
+        );
+    `);
+    console.log('[db] schema ready');
+}
 
 // ---------- bootstrap: ensure the super admin account exists ----------
 async function ensureAdminSeed() {
@@ -371,8 +455,9 @@ app.get('/admin', (req, res) => {
 // ============================================================
 const PORT = process.env.PORT || 5000;
 
-ensureAdminSeed()
-    .catch((e) => console.error('[admin] seed failed', e))
+ensureSchema()
+    .then(() => ensureAdminSeed())
+    .catch((e) => console.error('[boot] schema/admin bootstrap failed', e))
     .finally(() => {
         app.listen(PORT, '0.0.0.0', () => {
             console.log(`[ziman] server listening on port ${PORT}`);

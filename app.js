@@ -326,6 +326,114 @@ function applyLangAccent() {
     document.documentElement.style.setProperty('--lang-shadow',  t.shadow);
 }
 
+// ===== CLOUD SYNC (real account, server-backed progress) =====
+const cloudSync = { user: null, mode: 'login', lastSync: false, pushTimer: null };
+
+async function cloudApi(url, opts = {}) {
+    const res = await fetch(url, {
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        ...opts,
+    });
+    let data = null;
+    try { data = await res.json(); } catch (e) {}
+    if (!res.ok) throw new Error((data && data.error) || 'هەڵەیەکی سێرڤەر ڕوویدا');
+    return data;
+}
+
+function cloudSetMode(mode) {
+    cloudSync.mode = mode;
+    const card = document.getElementById('cloudAccountCard');
+    if (card) card.innerHTML = renderCloudAccountSection();
+}
+
+async function cloudRegister() {
+    const err = document.getElementById('cloudAuthErr');
+    const name = document.getElementById('cloudName')?.value.trim();
+    const email = document.getElementById('cloudEmail')?.value.trim();
+    const password = document.getElementById('cloudPassword')?.value;
+    try {
+        const r = await cloudApi('/api/auth/register', { method: 'POST', body: JSON.stringify({ name, email, password }) });
+        cloudSync.user = r.user;
+        await pushProgress(true);
+        toast('☁️ هەژمارەکەت دروستکرا و پەیوەست کرا');
+        renderSettings(document.getElementById('mainContent'));
+    } catch (e) { if (err) err.textContent = '❌ ' + e.message; }
+}
+
+async function cloudLogin() {
+    const err = document.getElementById('cloudAuthErr');
+    const email = document.getElementById('cloudEmail')?.value.trim();
+    const password = document.getElementById('cloudPassword')?.value;
+    try {
+        const r = await cloudApi('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+        cloudSync.user = r.user;
+        await pullProgress();
+        toast('☁️ چوویتە ژوورەوە');
+        renderSettings(document.getElementById('mainContent'));
+    } catch (e) { if (err) err.textContent = '❌ ' + e.message; }
+}
+
+async function cloudLogout() {
+    try { await cloudApi('/api/auth/logout', { method: 'POST' }); } catch (e) {}
+    cloudSync.user = null;
+    cloudSync.lastSync = false;
+    renderSettings(document.getElementById('mainContent'));
+}
+
+/** Pull server progress and merge (take the higher value) into local state, then persist locally. */
+async function pullProgress() {
+    try {
+        const p = await cloudApi('/api/progress');
+        if (p) {
+            state.user.xp         = Math.max(state.user.xp, p.xp || 0);
+            state.user.level      = Math.max(state.user.level, p.level || 1);
+            state.user.streak     = Math.max(state.user.streak, p.streak || 0);
+            state.user.totalWords = Math.max(state.user.totalWords, p.total_words || 0);
+            state.user.coins      = p.coins ?? state.user.coins;
+            state.user.gems       = p.gems ?? state.user.gems;
+            state.user.hearts     = p.hearts ?? state.user.hearts;
+            if (Array.isArray(p.history) && p.history.length > state.learning.history.length) state.learning.history = p.history;
+            if (Array.isArray(p.bookmarks) && p.bookmarks.length > state.learning.bookmarks.length) state.learning.bookmarks = p.bookmarks;
+            save();
+        }
+        cloudSync.lastSync = true;
+    } catch (e) { /* offline or not logged in — stay on local data */ }
+}
+
+/** Push local progress up to the server (debounced from save(), or immediate=true right after login/register). */
+function pushProgress(immediate) {
+    if (!cloudSync.user) return;
+    if (cloudSync.pushTimer) clearTimeout(cloudSync.pushTimer);
+    const doPush = async () => {
+        try {
+            await cloudApi('/api/progress', {
+                method: 'PUT',
+                body: JSON.stringify({
+                    xp: state.user.xp, level: state.user.level, coins: state.user.coins,
+                    gems: state.user.gems, hearts: state.user.hearts, streak: state.user.streak,
+                    total_words: state.user.totalWords, last_login: state.user.lastLogin,
+                    history: state.learning.history, bookmarks: state.learning.bookmarks, notes: state.learning.notes,
+                }),
+            });
+            cloudSync.lastSync = true;
+        } catch (e) { /* will retry on next save() */ }
+    };
+    if (immediate) return doPush();
+    cloudSync.pushTimer = _trackTimeout(setTimeout(doPush, 2500));
+}
+
+/** Called once on boot: check for an existing server session and pull progress if logged in. */
+async function initCloudSync() {
+    try {
+        const s = await cloudApi('/api/auth/session');
+        if (s.user) {
+            cloudSync.user = s.user;
+            await pullProgress();
+        }
+    } catch (e) { /* backend unreachable — app still works fully offline */ }
+}
+
 // ===== ACTIVE TIMER REGISTRY =====
 // All interval/timeout IDs are stored here so navigateTo() can clean them up.
 const _timers = { intervals: [], timeouts: [] };
@@ -358,6 +466,7 @@ function save() {
     try { lsSet('zm_notes',     JSON.stringify(state.learning.notes));     } catch(e) {}
 
     updateUI();
+    if (typeof pushProgress === 'function') pushProgress(false);
 }
 
 // ===== UPDATE HEADER UI =====
@@ -2761,6 +2870,11 @@ function renderSettings(c) {
             </div>
         </div>
 
+        <!-- CLOUD ACCOUNT / SYNC -->
+        <div class="card" id="cloudAccountCard">
+            ${renderCloudAccountSection()}
+        </div>
+
         <!-- DATA RESET -->
         <div class="card">
             <h3 style="margin-bottom:8px">🗑️ داتا</h3>
@@ -2769,6 +2883,40 @@ function renderSettings(c) {
             </p>
             <button class="btn btn-danger btn-sm" onclick="confirmReset()">🗑️ سڕینەوەی داتا</button>
         </div>`;
+}
+
+/** Renders the login/register form, or account info + sync status, for the settings page. */
+function renderCloudAccountSection() {
+    if (cloudSync.user) {
+        return `
+            <h3 style="margin-bottom:8px">☁️ هەژماری تۆ</h3>
+            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:4px">👤 ${escHtml(cloudSync.user.name)}</p>
+            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px">📧 ${escHtml(cloudSync.user.email)}</p>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+                ${cloudSync.lastSync ? '✅ داتاکەت هاوکاتە لەگەڵ هەژمارەکەت (XP، ستریک، گەوهەر)' : '⏳ چاوەڕوانی هاوکاتکردن...'}
+            </p>
+            <button class="btn btn-ghost btn-sm" onclick="cloudLogout()">🔒 دەرچوون لە هەژمار</button>
+        `;
+    }
+    return `
+        <h3 style="margin-bottom:4px">☁️ هەژماری کلاود</h3>
+        <p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">
+            بچۆرە ژوورەوە بۆ ئەوەی XP، ستریک و پێشکەوتنت لەسەر هەموو ئامێرەکانت پارێزراو بمێنێت.
+        </p>
+        <div id="cloudAuthTabs" style="display:flex;gap:6px;margin-bottom:10px">
+            <button class="btn btn-sm ${cloudSync.mode==='login'?'btn-primary':''}" onclick="cloudSetMode('login')">چوونەژوورەوە</button>
+            <button class="btn btn-sm ${cloudSync.mode==='register'?'btn-primary':''}" onclick="cloudSetMode('register')">هەژماری نوێ</button>
+        </div>
+        ${cloudSync.mode === 'register' ? `
+            <input id="cloudName" class="input" placeholder="ناوی تۆ" style="margin-bottom:8px">
+        ` : ''}
+        <input id="cloudEmail" type="email" class="input" placeholder="ئیمەیل" style="margin-bottom:8px">
+        <input id="cloudPassword" type="password" class="input" placeholder="پاسورد" style="margin-bottom:8px">
+        <button class="btn btn-primary btn-sm" onclick="${cloudSync.mode==='register' ? 'cloudRegister()' : 'cloudLogin()'}">
+            ${cloudSync.mode==='register' ? '✅ دروستکردنی هەژمار' : '🔓 چوونەژوورەوە'}
+        </button>
+        <p id="cloudAuthErr" style="color:#EF4444;font-size:12px;margin-top:8px;min-height:16px"></p>
+    `;
 }
 
 function setDialect(d) {
@@ -3071,4 +3219,5 @@ document.addEventListener('DOMContentLoaded', () => {
         applyLangAccent();
         navigateTo('home');
     }
+    initCloudSync();
 });
