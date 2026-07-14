@@ -272,30 +272,30 @@ const LANG_THEMES = {
 };
 
 // ===== BADINI (KURMANJI) MAP =====
-// Maps Sorani Kurdish target words → Badini/Kurmanji Latin equivalents.
+// Maps Sorani Kurdish target words → Badini/Kurmanji equivalents (Perso-Arabic script — never Latin).
 // Used when state.settings.dialect === 'badini'.
 const BADINI_MAP = {
-    'سڵاو':'Silav',         'بەیانیت باش':'Sibatî xweş',  'ئێوارت باش':'Êvarî xweş',
-    'سوپاس':'Spas',          'تکایە':'Ji kerema xwe',        'چۆنی':'Çawa yî',
-    'باشم':'Baş im',          'خواحافیزی':"Xatirê te",        'تا دیکەوە':'Heta carê din',
-    'بەخێربێی':'Bi xêr bêyî','خۆش بێی':'Spas',
-    'یەک':'Yek',   'دوو':'Du',   'سێ':'Sê',      'چوار':'Çar',
-    'پێنج':'Pênc', 'شەش':'Şeş', 'حەوت':'Heft',  'هەشت':'Heşt',
-    'نۆ':'Neh',    'دە':'Deh',
-    'سوور':'Sor',     'شین':'Şîn',       'سەوز':'Kesk',      'زەرد':'Zer',
-    'ڕەش':'Reş',     'سپی':'Spî',       'نارەنجی':'Porteqalî','مۆر':'Mor',
-    'پەمبە':'Pembe',  'قاوەیی':'Qehweyî',
-    'دایک':'Dayik',   'باوک':'Bav',      'خوشک':'Xwişk',    'برا':'Bira',
-    'باپیر':'Bapîr',  'دایبابا':'Dapîr', 'کوڕ':'Kur',        'کچ':'Keç',
-    'هاوسەر':'Hevjîn','خێزان':'Malbat',
-    'ئاو':'Av',        'نان':'Nan',       'برنج':'Birinc',    'گۆشت':'Goşt',
-    'چا':'Çay',        'شیر':'Şîr',      'هێلکە':'Hêk',      'مێوە':'Fêkî',
-    'سەوزە':'Sebze',   'شەکر':'Şekir',
-    'فڕۆکەخانە':'Balafirge','هوتێل':'Hotel','پاسپۆرت':'Pasaport',
-    'بلیت':'Bîlet',    'جانتا':'Çante',  'نەخشە':'Nexşe',
-    'تاکسی':'Taksî',   'شەمەندەفەر':'Trên',
-    'بەیانی':'Sibê',   'شەو':'Şev',      'ڕۆژ':'Roj',        'هەفتە':'Hefte',
-    'مانگ':'Meh',      'ساڵ':'Sal',      'ئێستا':'Niha',     'سبەینێ':'Sibe',
+    'سڵاو':'سلاڤ',         'بەیانیت باش':'سباتی خوەش',  'ئێوارت باش':'ئێڤاری خوەش',
+    'سوپاس':'سپاس',          'تکایە':'ژ کەرەما خوە',        'چۆنی':'چاوا ئیی',
+    'باشم':'باش م',          'خواحافیزی':'خاترێ تە',        'تا دیکەوە':'هەتا جارێ دن',
+    'بەخێربێی':'ب خێر بێیی','خۆش بێی':'سپاس',
+    'یەک':'ئیەک',   'دوو':'دو',   'سێ':'سێ',      'چوار':'چار',
+    'پێنج':'پێنج', 'شەش':'شەش', 'حەوت':'هەفت',  'هەشت':'هەشت',
+    'نۆ':'نەه',    'دە':'دەه',
+    'سوور':'سۆر',     'شین':'شین',       'سەوز':'کەسک',      'زەرد':'زەر',
+    'ڕەش':'ڕەش',     'سپی':'سپی',       'نارەنجی':'پۆرتەقالی','مۆر':'مۆر',
+    'پەمبە':'پەمبە',  'قاوەیی':'قەهوەیی',
+    'دایک':'دایک',   'باوک':'باڤ',      'خوشک':'خوشک',    'برا':'برا',
+    'باپیر':'باپیر',  'دایبابا':'داپیر', 'کوڕ':'کور',        'کچ':'کەچ',
+    'هاوسەر':'هەڤژین','خێزان':'مالبات',
+    'ئاو':'ئاڤ',        'نان':'نان',       'برنج':'برنج',    'گۆشت':'گۆشت',
+    'چا':'چای',        'شیر':'شیر',      'هێلکە':'هێک',      'مێوە':'فێکی',
+    'سەوزە':'سەبزە',   'شەکر':'شەکر',
+    'فڕۆکەخانە':'بالافرگە','هوتێل':'هۆتەل','پاسپۆرت':'پاساپۆرت',
+    'بلیت':'بیلەت',    'جانتا':'چانتە',  'نەخشە':'نەخشە',
+    'تاکسی':'تاکسی',   'شەمەندەفەر':'ترێن',
+    'بەیانی':'سبێ',   'شەو':'شەڤ',      'ڕۆژ':'ڕۆژ',        'هەفتە':'هەفتە',
+    'مانگ':'مەه',      'ساڵ':'سال',      'ئێستا':'نها',     'سبەینێ':'سبە',
 };
 
 // ===== LANGUAGE & DIALECT HELPERS =====
@@ -1480,7 +1480,7 @@ function checkWr() {
 }
 
 // ===== PAGE: AI TEACHER =====
-const AI_SYSTEM_PROMPT = `You are Ziman AI, a warm, expert Kurdish language tutor embedded in the Ziman language-learning app. You specialise in Sorani Kurdish (Central Kurdish, Arabic script) and Badini/Kurmanji (Northern Kurdish, Latin script).
+const AI_SYSTEM_PROMPT = `You are Ziman AI, a warm, expert Kurdish language tutor embedded in the Ziman language-learning app. You specialise in Sorani Kurdish (Central Kurdish, Arabic script) and Badini/Kurmanji (Northern Kurdish, ALWAYS Perso-Arabic script — never Latin).
 
 ## Core teaching guidelines
 - Greet learners encouragingly — language learning is genuinely hard!
@@ -1492,7 +1492,7 @@ const AI_SYSTEM_PROMPT = `You are Ziman AI, a warm, expert Kurdish language tuto
 
 ## Script & dialect rules
 - Sorani (Arabic script) glyphs to render correctly: ە ڕ ێ ۆ ی ک گ چ ژ
-- Badini (Latin): use x, q, w, ê, î, û conventions (e.g. "silav" not "silaw")
+- Badini/Kurmanji must ALSO be written in Perso-Arabic script — never Latin letters, even though Badini is often written in Latin elsewhere. This app strictly enforces Arabic script for both dialects.
 - Never silently mix scripts in the same word
 
 ## Cultural depth
@@ -1506,7 +1506,7 @@ function buildSystemPrompt() {
     const langLabel = lessons[lang]?.name || lang;
     const dialectDesc = dialect === 'sorani'
         ? 'Sorani (Arabic script ە ڕ ێ ۆ). Use Arabic script for ALL Kurdish text.'
-        : 'Badini/Kurmanji (Latin script: ê î û x q w). Use Latin for ALL Kurdish text.';
+        : 'Badini/Kurmanji — use Perso-Arabic script for ALL Kurdish text. NEVER use Latin letters for Badini.';
 
     return AI_SYSTEM_PROMPT +
         `\n\n## Session context\n- Language pair the learner is studying: ${langLabel}\n- Kurdish dialect preference: **${dialectDesc}**\n- Tailor vocabulary examples to this language pair where natural.`;
@@ -1899,7 +1899,7 @@ function speakAIResponse(text) {
     const utter = new SpeechSynthesisUtterance(clean.slice(0, 500)); // cap length
 
     const dialect = state.settings.dialect || 'sorani';
-    // Arabic-Iraq for Sorani; Turkish is phonetically closest available for Badini Latin
+    // Arabic-Iraq voice for Sorani; Turkish voice is the closest phonetic match available for Badini (text itself stays Perso-Arabic script)
     utter.lang  = dialect === 'sorani' ? 'ar-IQ' : 'tr-TR';
     utter.rate  = 0.88;
     utter.pitch = 1.05;
