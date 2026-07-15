@@ -170,28 +170,6 @@ async function ensureAdminSeed() {
     console.log(`[admin] super admin ready: ${email}`);
 }
 
-// ---------- lazy bootstrap gate (required for the Vercel serverless runtime) ----------
-// `node server.js` on Replit bootstraps once before listening (see BOOT section below).
-// On Vercel there is no such startup hook, so every cold start must self-heal on the
-// first incoming request instead. The promise is cached so warm invocations pay no cost.
-let bootstrapPromise = null;
-function ensureBootstrapped() {
-    if (!bootstrapPromise) {
-        bootstrapPromise = ensureSchema().then(() => ensureAdminSeed()).catch((e) => {
-            bootstrapPromise = null; // allow the next request to retry instead of wedging forever
-            throw e;
-        });
-    }
-    return bootstrapPromise;
-}
-
-app.use((req, res, next) => {
-    ensureBootstrapped().then(() => next()).catch((e) => {
-        console.error('[boot] schema/admin bootstrap failed', e);
-        res.status(500).json({ error: 'هەڵەیەکی سێرڤەر ڕوویدا لە دەستپێکردنی سیستەمدا' });
-    });
-});
-
 // ---------- helpers ----------
 function requireAdmin(req, res, next) {
     if (req.session && req.session.isAdmin) return next();
@@ -550,25 +528,30 @@ app.get('/admin', (req, res) => {
 // ============================================================
 // BOOT
 // ============================================================
-// Two runtimes read this same file:
-//  - Replit: `node server.js` is executed directly -> start a normal
-//    long-running HTTP server and bootstrap the schema once up front.
-//  - Vercel: this module is `require()`d by their Node serverless
-//    runtime (there is no persistent process to "listen" on), so we
-//    just export the Express app and let it lazily self-heal the
-//    schema/admin seed on first request (see ensureBootstrapped()
-//    middleware registered near the top of the file).
+// Start listening immediately so Replit's autoscale startup probe
+// (GET / with a short timeout) always gets a fast 200 — it must not
+// wait on any database round-trip first.
+//
+// Schema is intentionally NOT created here for the production
+// deployment. Replit's Publish flow introspects the development
+// database and diffs/applies that schema to production automatically;
+// an app is not supposed to run its own startup-time DDL against
+// production (REPLIT_DEPLOYMENT=1), since that can race the publish
+// flow's own migration and has no permission guarantees there. In
+// development we keep the old self-healing behavior so a fresh dev
+// database (or a teammate's fork) still works immediately.
 const PORT = process.env.PORT || 5000;
+const IS_PRODUCTION = process.env.REPLIT_DEPLOYMENT === '1';
 
 if (require.main === module) {
-    ensureSchema()
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`[ziman] server listening on port ${PORT}`);
+    });
+
+    const schemaStep = IS_PRODUCTION ? Promise.resolve() : ensureSchema();
+    schemaStep
         .then(() => ensureAdminSeed())
-        .catch((e) => console.error('[boot] schema/admin bootstrap failed', e))
-        .finally(() => {
-            app.listen(PORT, '0.0.0.0', () => {
-                console.log(`[ziman] server listening on port ${PORT}`);
-            });
-        });
+        .catch((e) => console.error('[boot] schema/admin bootstrap failed', e));
 }
 
 module.exports = app;
