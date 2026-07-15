@@ -5,6 +5,6 @@ const AppConfig = {
         usdt: 'TKUfVwnjyT2KUa9xnBreT32YLLJEwACHpc',
         korek: '', zain: '', asia: '', qi: '', apple: '', itunes: ''
     },
-    contact: { whatsapp: '9647506045491', telegram: 'z_14x', email: 'support@ziman.app' },
+    contact: { whatsapp: '9647506045491', telegram: 'z_14x', email: 'z.14x@outlook.com' },
     adminPassword: 'Zm@Adm!n#2025$XK'
 };
