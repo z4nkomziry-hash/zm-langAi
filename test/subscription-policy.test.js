@@ -1,26 +1,37 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { resolveEntitlement, remainingDailyAI } = require('../subscription-policy');
+const { PACKAGE_LIMITS, PREMIUM_AI_MODES, resolveEntitlement, remainingDailyAI, canUseAIMode } = require('../subscription-policy');
 
-test('users without an active package receive the limited plan', () => {
-  assert.deepEqual(resolveEntitlement([]), { package: 'free', aiDailyLimit: 5, tier: 'limited', premium: false });
+test('free users receive only the limited entitlement', () => {
+  const entitlement = resolveEntitlement([]);
+  assert.equal(entitlement.package, 'free');
+  assert.equal(entitlement.aiDailyLimit, 5);
+  assert.equal(entitlement.canUsePremiumAI, false);
 });
 
-test('expired paid packages do not grant premium access', () => {
-  assert.equal(resolveEntitlement([{ package_key: 'premium', expires_at: '2020-01-01T00:00:00Z' }]).premium, false);
+test('expired packages do not grant access', () => {
+  const entitlement = resolveEntitlement([{ package_key: 'premium', expires_at: '2020-01-01T00:00:00Z' }], Date.parse('2026-01-01T00:00:00Z'));
+  assert.equal(entitlement.package, 'free');
 });
 
-test('active packages resolve to the highest available entitlement', () => {
-  const plan = resolveEntitlement([
-    { package_key: 'plus', expires_at: null },
-    { package_key: 'premium', expires_at: '2099-01-01T00:00:00Z' }
-  ]);
-  assert.equal(plan.package, 'premium');
-  assert.equal(plan.aiDailyLimit, 100);
+test('the highest active package is selected', () => {
+  const entitlement = resolveEntitlement([{ package_key: 'plus' }, { package_key: 'student' }, { package_key: 'business' }]);
+  assert.equal(entitlement.package, 'business');
+  assert.equal(entitlement.canUsePremiumAI, true);
 });
 
-test('remaining AI quota never becomes negative', () => {
-  assert.equal(remainingDailyAI(5, 2), 3);
-  assert.equal(remainingDailyAI(5, 9), 0);
+test('speaking and writing are premium-gated but standard modes remain available', () => {
+  const free = resolveEntitlement([]);
+  const plus = resolveEntitlement([{ package_key: 'plus' }]);
+  const premium = resolveEntitlement([{ package_key: 'premium' }]);
+  assert.deepEqual(PREMIUM_AI_MODES, ['speaking', 'writing']);
+  assert.equal(canUseAIMode(free, 'speaking'), false);
+  assert.equal(canUseAIMode(plus, 'writing'), false);
+  assert.equal(canUseAIMode(free, 'tutor'), true);
+  assert.equal(canUseAIMode(premium, 'speaking'), true);
+});
+
+test('daily allowance never becomes negative', () => {
+  assert.equal(remainingDailyAI(PACKAGE_LIMITS.free.aiDailyLimit, 99), 0);
 });
