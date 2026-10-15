@@ -327,7 +327,7 @@ function applyLangAccent() {
 }
 
 // ===== CLOUD SYNC (real account, server-backed progress) =====
-const cloudSync = { user: null, mode: 'login', lastSync: false, pushTimer: null };
+const cloudSync = { user: null, mode: 'login', lastSync: false, pushTimer: null, leaderboard: null, leaderboardLoading: false };
 
 async function cloudApi(url, opts = {}) {
     const res = await fetch(url, {
@@ -355,6 +355,7 @@ async function cloudRegister() {
     try {
         const r = await cloudApi('/api/auth/register', { method: 'POST', body: JSON.stringify({ name, email, password }) });
         cloudSync.user = r.user;
+        cloudSync.leaderboard = null; cloudSync.myRank = null; cloudSync.leaderboardError = false;
         await pushProgress(true);
         toast('☁️ هەژمارەکەت دروستکرا و پەیوەست کرا');
         renderSettings(document.getElementById('mainContent'));
@@ -368,6 +369,7 @@ async function cloudLogin() {
     try {
         const r = await cloudApi('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
         cloudSync.user = r.user;
+        cloudSync.leaderboard = null; cloudSync.myRank = null; cloudSync.leaderboardError = false;
         await pullProgress();
         toast('☁️ چوویتە ژوورەوە');
         renderSettings(document.getElementById('mainContent'));
@@ -377,6 +379,7 @@ async function cloudLogin() {
 async function cloudLogout() {
     try { await cloudApi('/api/auth/logout', { method: 'POST' }); } catch (e) {}
     cloudSync.user = null;
+    cloudSync.leaderboard = null; cloudSync.myRank = null; cloudSync.leaderboardError = false;
     cloudSync.lastSync = false;
     renderSettings(document.getElementById('mainContent'));
 }
@@ -386,8 +389,8 @@ async function pullProgress() {
     try {
         const p = await cloudApi('/api/progress');
         if (p) {
-            state.user.xp         = Math.max(state.user.xp, p.xp || 0);
-            state.user.level      = Math.max(state.user.level, p.level || 1);
+            state.user.xp         = Number(p.xp) || 0;
+            state.user.level      = Number(p.level) || 1;
             state.user.streak     = Math.max(state.user.streak, p.streak || 0);
             state.user.totalWords = Math.max(state.user.totalWords, p.total_words || 0);
             state.user.coins      = p.coins ?? state.user.coins;
@@ -603,14 +606,62 @@ function spawnXPLabel(amount, sourceEl) {
     setTimeout(() => label.remove(), 1100);
 }
 
+// ===== DAILY CHALLENGE + PERSONALIZED STUDY PLAN (offline-first) =====
+const dailyChallengeKey = 'zm_daily_challenge_v1';
+function getDailyChallenge() {
+    const today = ZimanDailyLearning.dayKey();
+    const saved = lsGetJSON(dailyChallengeKey, {});
+    const challenge = ZimanDailyLearning.normalize(saved, today);
+    if (challenge !== saved) lsSet(dailyChallengeKey, JSON.stringify(challenge));
+    return challenge;
+}
+function markDailyChallengeActivity(page) {
+    const current = getDailyChallenge();
+    const updated = ZimanDailyLearning.markActivity(current, page);
+    lsSet(dailyChallengeKey, JSON.stringify(updated));
+}
+function renderDailyLearningPlan() {
+    const plan = ZimanDailyLearning.buildPlan(getDailyChallenge(), state.user);
+    return `
+      <section class="card" aria-labelledby="dailyPlanTitle" style="padding:18px;margin:18px 0;border:1px solid ${plan.finished ? '#10B98155' : 'var(--border)'};background:linear-gradient(135deg,var(--surface),var(--bg))">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div><p style="font-size:12px;color:var(--text-secondary);margin:0 0 4px">SMART LEARNING • ئەمڕۆ</p><h3 id="dailyPlanTitle" style="margin:0 0 6px">🎯 ئەرکێن ڕۆژانە</h3><p style="font-size:13px;color:var(--text-secondary);margin:0">${escHtml(plan.tip)}</p></div>
+          <span class="hero-level-badge" style="background:${plan.finished ? '#10B98120' : 'var(--bg)'};color:${plan.finished ? '#10B981' : 'var(--text)'}">${plan.finished ? '✓ تەواو بوو' : `${plan.completed}/${plan.total} تەواو`}</span>
+        </div>
+        <div style="height:6px;background:var(--border);border-radius:99px;overflow:hidden;margin:14px 0 12px"><div style="height:100%;width:${Math.round(plan.completed / plan.total * 100)}%;background:${plan.finished ? '#10B981' : 'var(--accent)'};border-radius:99px;transition:width .25s"></div></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px">
+          ${plan.tasks.map(task => `<div style="display:flex;align-items:center;gap:10px;padding:11px;border:1px solid var(--border);border-radius:12px;background:var(--bg)"><span style="font-size:22px">${task.complete ? '✅' : task.icon}</span><div style="flex:1;min-width:0"><strong style="display:block;font-size:13px">${escHtml(task.title)}</strong><small style="display:block;color:var(--text-secondary);font-size:11px">${task.complete ? 'ئەمڕۆ تەواو کرا' : escHtml(task.detail)}</small></div>${task.complete ? '' : `<button class="btn btn-primary btn-sm" onclick="navigateTo('${task.page}')" aria-label="دەستپێکردنی ${escAttr(task.title)}">بڕۆ</button>`}</div>`).join('')}
+        </div>
+        <p style="font-size:11px;color:var(--text-secondary);margin:12px 0 0">ئەرکەکان ڕۆژانە نوێ دەبنەوە. ئەم پلانه‌ ڕێنماییەکی بنەڕەتییە و هێشتا AI ـی ڕاستەقینە نییە.</p>
+      </section>`;
+}
+
 /**
  * Add XP to the user, pulse the header XP chip, show floating label,
  * check for level-up, persist.  Returns the new XP total.
  */
 function addXP(amount, sourceEl) {
+    markDailyChallengeActivity(state.currentPage);
     const prevLevel = state.user.level;
-    state.user.xp  += amount;
+    state.user.xp += amount;
     state.user.level = Math.floor(state.user.xp / 1000) + 1;
+    // When signed in, ask the server to award XP. Local/offline play still works;
+    // the server's leaderboard score is updated only by validated, idempotent awards.
+    if (cloudSync && cloudSync.user && typeof cloudApi === 'function') {
+        const eventId = (typeof crypto !== 'undefined' && crypto.randomUUID)
+            ? crypto.randomUUID().replace(/-/g, '')
+            : `xp_${Date.now()}_${Math.random().toString(36).slice(2, 12)}`;
+        const pageSources = { lessons: 'lesson', quiz: 'quiz', 'speed-quiz': 'quiz', listening: 'listening', speaking: 'speaking', writing: 'writing', 'ai-teacher': 'ai', 'match-pairs': 'matching', review: 'practice' };
+        const source = /listen/i.test(String(sourceEl?.id || '')) ? 'listening' : (pageSources[state.currentPage] || 'practice');
+        cloudApi('/api/learning/xp', {
+            method: 'POST',
+            body: JSON.stringify({ eventId, amount: Math.max(1, Math.min(50, Math.floor(amount))), source }),
+        }).then(result => {
+            state.user.xp = Number(result.xp) || 0;
+            state.user.level = Number(result.level) || 1;
+            save();
+        }).catch(() => { /* keep local progress if offline; never push it as server XP */ });
+    }
     save();
     spawnXPLabel(amount, sourceEl);
 
@@ -757,6 +808,7 @@ const pageRenderers = {
     home:        renderHome,
     lessons:     renderLessons,
     flashcards:  renderFlashcards,
+    review:      renderReview,
     quiz:        renderQuiz,
     'speed-quiz':renderSpeedQuiz,
     listening:   renderListening,
@@ -851,6 +903,7 @@ function renderHome(c) {
         { page:'lessons',        icon:'📚', label:'وانەکان',      color: th.accent },
         { page:'quiz',           icon:'📝', label:'کویز',         color:'#0EA5E9' },
         { page:'flashcards',     icon:'🃏', label:'فلاشکارت',    color:'#10B981' },
+        { page:'review',         icon:'🧠', label:'پێداچوونەوەی زیرەک', color:'#8B5CF6' },
         { page:'speed-quiz',     icon:'⚡', label:'کویزی خێرا',   color:'#F59E0B' },
         { page:'fill-blank',     icon:'✏️', label:'شوێنی بەتاڵ', color:'#6366F1' },
         { page:'match-pairs',    icon:'🔗', label:'جوت کردن',     color:'#EC4899' },
@@ -934,6 +987,9 @@ function renderHome(c) {
             </div>
             <div class="continue-arrow" style="color:${th.accent}">▶</div>
         </button>
+
+        <!-- DAILY CHALLENGE + PERSONALIZED STUDY PLAN -->
+        ${renderDailyLearningPlan()}
 
         <!-- QUICK ACTIONS GRID -->
         <p class="section-label">چالاکییەکان</p>
@@ -1068,6 +1124,128 @@ function startLesson(lang, idx) {
     spawnConfetti();
     toast(`🎉 وانەی "${escHtml(data.title)}" تەواو بوو! +15 XP | +5 💎`);
     addXP(15);
+}
+
+// ===== SMART SPACED REPETITION =====
+const reviewSession = { items: [], index: 0, revealed: false, finished: false, loading: false };
+const reviewStoreKey = 'zm_spaced_reviews_v1';
+
+function reviewStore() { return lsGetJSON(reviewStoreKey, {}); }
+function saveReviewStore(data) { try { lsSet(reviewStoreKey, JSON.stringify(data)); } catch (e) {} }
+
+function reviewHash(value) {
+    let a = 2166136261, b = 0x9e3779b9;
+    for (let i = 0; i < value.length; i++) {
+        a = Math.imul(a ^ value.charCodeAt(i), 16777619);
+        b = Math.imul(b ^ (value.charCodeAt(i) + i), 2246822519);
+    }
+    return `w_${(a >>> 0).toString(36)}_${(b >>> 0).toString(36)}`;
+}
+
+function localReviewSchedule(previous, rating) {
+    const now = Date.now();
+    const repetitions = Math.max(0, Number(previous?.repetitions) || 0);
+    const interval = Math.max(0, Number(previous?.intervalDays) || 0);
+    const ease = Math.max(1.3, Math.min(2.8, Number(previous?.easeFactor) || 2.5));
+    let nextRep = repetitions, nextInterval = interval, nextEase = ease, lapses = Math.max(0, Number(previous?.lapses) || 0), due;
+    if (rating === 'again') {
+        nextRep = 0; nextInterval = 0; nextEase = Math.max(1.3, ease - 0.2); lapses++;
+        due = now + 10 * 60 * 1000;
+    } else {
+        if (rating === 'hard') { nextInterval = Math.max(1, Math.round((interval || 1) * 1.2)); nextEase = Math.max(1.3, ease - 0.15); }
+        if (rating === 'good') nextInterval = repetitions === 0 ? 1 : repetitions === 1 ? 3 : Math.max(1, Math.round((interval || 3) * ease));
+        if (rating === 'easy') { nextInterval = repetitions === 0 ? 4 : Math.max(2, Math.round((interval || 3) * ease * 1.3)); nextEase = Math.min(2.8, ease + 0.1); }
+        nextRep++; due = now + nextInterval * 86400000;
+    }
+    return { repetitions: nextRep, intervalDays: nextInterval, easeFactor: Number(nextEase.toFixed(2)), lapses, lastRating: rating, dueAt: new Date(due).toISOString() };
+}
+
+function localReviewItem(word) {
+    const pair = getDialectWord(word);
+    const langPair = state.settings.currentLanguage;
+    return { wordKey: reviewHash(`${langPair}|${pair.src}|${pair.target}`), langPair, sourceText: pair.src, targetText: pair.target, repetitions: 0, intervalDays: 0, easeFactor: 2.5, lapses: 0, dueAt: new Date().toISOString(), server: false };
+}
+
+async function renderReview(c) {
+    c.innerHTML = '<div class="card" style="padding:28px;text-align:center"><div style="font-size:32px">🧠</div><p>پێداچوونەوەی زیرەک ئامادە دەکرێت...</p></div>';
+    reviewSession.items = []; reviewSession.index = 0; reviewSession.revealed = false; reviewSession.finished = false;
+    const store = reviewStore();
+    const now = Date.now();
+    const lang = state.settings.currentLanguage;
+    const localDue = Object.values(store).filter(x => x.langPair === lang && Date.parse(x.dueAt || 0) <= now);
+    let serverDue = [];
+    if (cloudSync.user) {
+        try {
+            const response = await cloudApi('/api/reviews/due?limit=30');
+            serverDue = (response.items || []).map(x => ({
+                wordKey: x.word_key, langPair: x.lang_pair, sourceText: x.source_text, targetText: x.target_text,
+                repetitions: x.repetitions, intervalDays: x.interval_days, easeFactor: Number(x.ease_factor),
+                lapses: x.lapses, lastRating: x.last_rating, dueAt: x.due_at, server: true,
+            }));
+        } catch (e) { /* continue with the offline review queue */ }
+    }
+    if (state.currentPage !== 'review') return;
+    const seen = new Set(Object.keys(store));
+    const freshWords = getAllWords().filter(raw => {
+        const pair = getDialectWord(raw);
+        return !seen.has(reviewHash(`${lang}|${pair.src}|${pair.target}`));
+    }).sort(() => Math.random() - 0.5).slice(0, 12).map(localReviewItem);
+    const combined = [...serverDue, ...localDue.filter(local => !serverDue.some(server => server.wordKey === local.wordKey)), ...freshWords];
+    const unique = new Map();
+    combined.forEach(item => { if (!unique.has(item.wordKey)) unique.set(item.wordKey, item); });
+    reviewSession.items = [...unique.values()].slice(0, 20);
+    if (!reviewSession.items.length) {
+        c.innerHTML = `<h2 style="margin-bottom:12px">🧠 پێداچوونەوەی زیرەک</h2><div class="card" style="padding:28px;text-align:center"><div style="font-size:42px">✨</div><h3>هەموو وشەکانت لە کاتی خۆیاندا پێداچوونەوەیان بۆ کراوە</h3><p style="color:var(--text-secondary)">دواتر بگەڕێوە یان وانەیەکی نوێ فێربە.</p><button class="btn btn-primary" onclick="navigateTo('lessons')">📚 چوون بۆ وانەکان</button></div>`;
+        return;
+    }
+    renderReviewCard(c);
+}
+
+function renderReviewCard(container = document.getElementById('mainContent')) {
+    if (!container) return;
+    const item = reviewSession.items[reviewSession.index];
+    if (!item) {
+        reviewSession.finished = true;
+        container.innerHTML = `<h2 style="margin-bottom:12px">🧠 پێداچوونەوەی زیرەک</h2><div class="card" style="padding:30px;text-align:center"><div style="font-size:48px">🎉</div><h3>ئەرک تەواو بوو!</h3><p>ئەمڕۆ ${reviewSession.items.length} وشەت پێداچوونەوەیان بۆ کرایەوە.</p><p style="color:var(--text-secondary)">پێداچوونەوەی بەردەوام یارمەتیت دەدات وشەکان لە بیرت نەچن.</p><button class="btn btn-primary" onclick="navigateTo('home')">گەڕانەوە بۆ سەرەکی</button></div>`;
+        addXP(10, document.getElementById('reviewCard'));
+        playChime('complete'); spawnConfetti();
+        return;
+    }
+    const revealed = reviewSession.revealed;
+    const pct = Math.round((reviewSession.index / reviewSession.items.length) * 100);
+    container.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px"><h2 style="margin:0">🧠 پێداچوونەوەی زیرەک</h2><span class="hero-level-badge">${reviewSession.index + 1} / ${reviewSession.items.length}</span></div>
+      <div style="height:6px;background:var(--border-color,rgba(128,128,128,.18));border-radius:99px;overflow:hidden;margin-bottom:18px"><div style="width:${pct}%;height:100%;background:var(--lang-accent,var(--primary));transition:width .25s"></div></div>
+      <div class="card" id="reviewCard" style="padding:clamp(24px,5vw,44px);text-align:center;min-height:260px;display:flex;flex-direction:column;justify-content:center;gap:16px">
+        <div style="font-size:12px;color:var(--text-secondary);letter-spacing:.08em">${escHtml(item.langPair.toUpperCase())} · SMART REVIEW</div>
+        <div style="font-size:clamp(26px,5vw,40px);font-weight:800;line-height:1.35;overflow-wrap:anywhere" dir="auto">${escHtml(item.sourceText)}</div>
+        ${revealed ? `<div style="height:1px;background:var(--border-color,rgba(128,128,128,.18))"></div><div style="font-size:clamp(22px,4vw,32px);font-weight:700;color:var(--lang-accent,var(--primary))" dir="auto">${escHtml(item.targetText)}</div>` : '<p style="color:var(--text-secondary);margin:0">وەرگێڕانەکە لەبیر بهێنەوە، پاشان پیشانی بدە.</p>'}
+        ${!revealed ? '<button class="btn btn-primary" style="align-self:center;min-width:180px" onclick="revealReviewAnswer()">پیشاندانی وەرگێڕان 👁️</button>' : `<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:8px"><button class="btn btn-danger" onclick="answerReview('again')">🔁 دووبارە</button><button class="btn" style="background:rgba(245,158,11,.14);color:#D97706" onclick="answerReview('hard')">😓 سەخت</button><button class="btn btn-success" onclick="answerReview('good')">✅ باش</button><button class="btn" style="background:rgba(16,185,129,.14);color:#059669" onclick="answerReview('easy')">⚡ ئاسان</button></div>`}
+      </div>
+      <p style="text-align:center;color:var(--text-secondary);font-size:12px;margin-top:12px">وشەکان بە پێی وەڵامەکەت لە کاتی گونجاودا دووبارە دەردەکەونەوە.</p>`;
+}
+
+function revealReviewAnswer() { reviewSession.revealed = true; renderReviewCard(); }
+
+async function answerReview(rating) {
+    const item = reviewSession.items[reviewSession.index];
+    if (!item) return;
+    const store = reviewStore();
+    const previous = store[item.wordKey] || item;
+    const next = { ...item, ...localReviewSchedule(previous, rating), server: false };
+    store[item.wordKey] = next;
+    saveReviewStore(store);
+    if (cloudSync.user) {
+        try {
+            await cloudApi('/api/reviews/answer', { method: 'POST', body: JSON.stringify({
+                wordKey: item.wordKey, langPair: item.langPair, sourceText: item.sourceText,
+                targetText: item.targetText, rating,
+            }) });
+        } catch (e) { /* local queue remains usable; sync is retried next time due */ }
+    }
+    reviewSession.index++;
+    reviewSession.revealed = false;
+    renderReviewCard();
 }
 
 // ===== PAGE: FLASHCARDS =====
@@ -1367,7 +1545,7 @@ function checkListen(s, correct, btn) {
         d.score++;
         const sc = document.getElementById('listenScore');
         if (sc) sc.textContent = d.score;
-        state.user.xp += 12;
+        addXP(12);
         playBeep(800, 0.1);
     } else {
         btn.classList.add('wrong');
@@ -1382,9 +1560,8 @@ function checkListen(s, correct, btn) {
 function finishListen() {
     const d  = window._listen;
     if (!d) return;
-    const xp = d.score * 12;
-    state.user.xp += xp;
-    save();
+    const xp = Math.min(50, d.score * 12);
+    addXP(xp);
     spawnConfetti();
     toast(`🎧 بیستن تەواو بوو! +${xp} XP`);
     _trackTimeout(setTimeout(() => navigateTo('home'), 1500));
@@ -1420,8 +1597,7 @@ function startRec() {
     r.onresult = e => {
         const transcript = e.results[0][0].transcript;
         if (statusEl) statusEl.textContent = `تۆ وتت: "${transcript}"`;
-        state.user.xp += 15;
-        save();
+        addXP(15);
         toast('+15 XP!');
         if (btn) btn.disabled = false;
     };
@@ -1470,7 +1646,7 @@ function checkRd(s, correct, btn) {
     if (s === correct) {
         btn.style.background = 'var(--success)';
         btn.style.color      = '#fff';
-        state.user.xp       += 10;
+        addXP(10, btn);
         toast('✅ ڕاستە! +10 XP');
     } else {
         btn.style.background = 'var(--danger)';
@@ -1523,7 +1699,7 @@ function checkWr() {
         d.score++;
         const sc = document.getElementById('wrScore');
         if (sc) sc.textContent = d.score;
-        state.user.xp += 10;
+        addXP(10);
         playBeep(800, 0.1);
     } else {
         fb.textContent = `❌ ڕاستەکە: "${correct}"`;
@@ -1534,9 +1710,8 @@ function checkWr() {
     save();
 
     if (d.idx >= d.words.length) {
-        const bonus = d.score * 10;
-        state.user.xp += bonus;
-        save();
+        const bonus = Math.min(50, d.score * 10);
+        addXP(bonus);
         spawnConfetti();
         toast(`✍️ نووسین تەواو بوو! +${bonus} XP`);
         _trackTimeout(setTimeout(() => navigateTo('home'), 1500));
@@ -1552,6 +1727,22 @@ function checkWr() {
 }
 
 // ===== PAGE: AI TEACHER =====
+let currentAIMode = 'tutor';
+
+function setAIMode(mode) {
+    const allowed = ['tutor', 'conversation', 'speaking', 'grammar', 'vocabulary', 'writing'];
+    if (!allowed.includes(mode)) return;
+    currentAIMode = mode;
+    const labels = { tutor: 'مامۆستا', conversation: 'گفتوگۆ', speaking: 'قسەکردن', grammar: 'ڕێزمان', vocabulary: 'وشەسازی', writing: 'نووسین' };
+    const badge = document.getElementById('aiModeBadge');
+    if (badge) badge.textContent = `دۆخ: ${labels[mode]}`;
+    document.querySelectorAll('[data-ai-mode]').forEach(button => {
+        const active = button.dataset.aiMode === mode;
+        button.style.opacity = active ? '1' : '.72';
+        button.style.outline = active ? '2px solid var(--primary)' : 'none';
+    });
+}
+
 const AI_SYSTEM_PROMPT = `You are Ziman AI, a warm, expert Kurdish language tutor embedded in the Ziman language-learning app. You specialise in Sorani Kurdish (Central Kurdish, Arabic script) and Badini/Kurmanji (Northern Kurdish, ALWAYS Perso-Arabic script — never Latin).
 
 ## Core teaching guidelines
@@ -1595,7 +1786,7 @@ function buildChatHistory(chatEl) {
 }
 
 function renderAITeacher(c) {
-    const hasKey  = !!lsGet('zm_ai_key');
+    const hasKey  = true;
     const ttsOn   = lsGet('zm_tts', 'false') === 'true';
     const th      = getLangTheme();
     const dialect = state.settings.dialect || 'sorani';
@@ -1643,28 +1834,22 @@ function renderAITeacher(c) {
             </button>
         </div>
 
-        <!-- API key card -->
-        ${!hasKey ? `
-        <div class="card ai-key-card" style="border:1.5px solid ${th.accent};margin-bottom:12px">
-            <p style="font-weight:700;margin-bottom:6px">🔑 OpenAI API کی پێویستە</p>
-            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:10px">
-                بۆ ستریم + دەنگ + مامۆستای ڕاستەقینە، کلیلی API ی OpenAI دابنێ.
-                <br><a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener"
-                       style="color:${th.accent}">platform.openai.com/api-keys</a>
-            </p>
-            <div style="display:flex;gap:8px">
-                <input id="aiKeyInput" class="input" type="password" placeholder="sk-..."
-                       style="flex:1;font-family:monospace;font-size:13px"
-                       onkeydown="if(event.key==='Enter')saveAIKey()"
-                       aria-label="OpenAI API Key">
-                <button class="btn btn-primary" onclick="saveAIKey()"
-                        style="background:${th.accent}">✅ خەزن</button>
+        <!-- AI Learning Modes -->
+        <div class="card" style="margin-bottom:12px;padding:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+                <strong style="font-size:13px">🧠 شێوازی فێربوون</strong>
+                <span id="aiModeBadge" style="font-size:11px;color:var(--text-secondary)">دۆخ: مامۆستا</span>
             </div>
-        </div>` : `
-        <div class="ai-key-active">
-            <span>✅ API دامەزراوە — <strong>⚡ ستریم چالاکە</strong></span>
-            <button class="btn btn-sm" onclick="removeAIKey()">لابردن</button>
-        </div>`}
+            <div style="display:flex;gap:7px;flex-wrap:wrap">
+                <button data-ai-mode="tutor" onclick="setAIMode('tutor')" class="ai-chip">🤖 مامۆستا</button>
+                <button data-ai-mode="conversation" onclick="setAIMode('conversation')" class="ai-chip">💬 گفتوگۆ</button>
+                <button data-ai-mode="speaking" onclick="setAIMode('speaking')" class="ai-chip">🎙️ قسەکردن</button>
+                <button data-ai-mode="grammar" onclick="setAIMode('grammar')" class="ai-chip">📖 ڕێزمان</button>
+                <button data-ai-mode="vocabulary" onclick="setAIMode('vocabulary')" class="ai-chip">🧩 وشەسازی</button>
+                <button data-ai-mode="writing" onclick="setAIMode('writing')" class="ai-chip">✍️ نووسین</button>
+            </div>
+            <p style="font-size:11px;color:var(--text-secondary);margin:9px 0 0">پەیوەندی AI لە ڕێگەی سێرڤەرەوەیە؛ کلیلی API لە مۆبایل یان وێبسایت دانەمەزرێنە.</p>
+        </div>
 
         <!-- Quick prompt chips -->
         <div class="ai-prompts-row" id="aiPrompts">
@@ -1685,9 +1870,7 @@ function renderAITeacher(c) {
                 <div class="ai-robot-anim">🤖</div>
                 <p style="font-weight:700;font-size:16px;margin-bottom:6px">سڵاو! من Ziman AI ی زمانم.</p>
                 <p style="font-size:13px;color:var(--text-secondary)">
-                    ${hasKey
-                        ? '⚡ وەڵامم وشە بە وشە دێت — پرسیارت بکە!'
-                        : '🔑 کلیلی API دابنێ بۆ وەڵامی ڕاستەقینە'}
+                    پرسیارت بنووسە؛ ئەگەر سێرڤەر و Gemini چالاک بن، مامۆستا وەڵام دەدات.
                 </p>
             </div>
         </div>
@@ -1712,25 +1895,8 @@ function renderAITeacher(c) {
             Enter بنووسە بۆ ناردن${hasMic ? ' · 🎙️ بۆ قسەکردن' : ''}${ttsOn ? ' · 🔊 دەنگ چالاکە' : ''}
         </p>`;
 
+    setAIMode(currentAIMode);
     _trackTimeout(setTimeout(() => document.getElementById('aiInput')?.focus(), 100));
-}
-
-function saveAIKey() {
-    const inp = document.getElementById('aiKeyInput');
-    const key = inp?.value.trim();
-    if (!key || !key.startsWith('sk-')) {
-        toast('❌ کلیلی دروست نییە. دەبێت بە sk- دەست پێبکات');
-        return;
-    }
-    lsSet('zm_ai_key', key);
-    toast('✅ کلیلی API خەزن کرا!');
-    navigateTo('ai-teacher');
-}
-
-function removeAIKey() {
-    try { localStorage.removeItem('zm_ai_key'); } catch(e) {}
-    toast('✅ کلیل لابرا');
-    navigateTo('ai-teacher');
 }
 
 function useAIPrompt(btn, text) {
@@ -1816,52 +1982,30 @@ async function askAI() {
     // User bubble — store plain text in dataset for history
     _appendBubble(chat, escHtml(q), true);
 
-    const apiKey = lsGet('zm_ai_key');
-
-    // ── Fallback (no API key) ──────────────────────────────────────────────
-    if (!apiKey) {
-        const demos = [
-            'بۆ وەڵامی ڕاستەقینە کلیلی OpenAI API دابنێ. بۆ نموونە: "سڵاو چۆن دەگووترێت؟" وەڵامی دەدەمەوە.',
-            'زمانی کوردی زۆر شیرینە! گرووپی سۆرانی و بادینی هەردووک پشتگیری دەکرێن. کلیلی API دابنێ.',
-            'ئەمە نموونەیەکە بەبێ کلیل. لە ڕێکخستن → کلیلی API دابنێ بۆ مامۆستای ڕاستەقینە.',
-        ];
-        const reply = demos[Math.floor(Math.random() * demos.length)];
-        _trackTimeout(setTimeout(() => {
-            inp.disabled = false;
-            const chatNow = document.getElementById('aiChat');
-            if (chatNow) _appendBubble(chatNow, '🤖 ' + escHtml(reply), false);
-        }, 700));
-        return;
-    }
-
-    // ── Real AI — streaming ────────────────────────────────────────────────
     const streamBubble = _createStreamingBubble(chat);
+    const history = buildChatHistory(chat).slice(-10).map(m => ({ role: m.role, content: String(m.content || '').slice(0, 3000) }));
+    const tutorPayload = {
+        dialect: state.settings.dialect === 'badini' ? 'badini' : 'sorani',
+        langPair: state.settings.currentLanguage || 'en-ku',
+        mode: currentAIMode || 'tutor',
+        messages: history
+    };
 
     try {
-        const res = await fetch('https://api.openai.com/v1/chat/completions', {
-            method:  'POST',
-            headers: {
-                'Content-Type':  'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-                model:       'gpt-4o-mini',
-                max_tokens:  700,
-                temperature: 0.72,
-                stream:      true,
-                messages: [
-                    { role: 'system', content: buildSystemPrompt() },
-                    ...buildChatHistory(chat),
-                    { role: 'user', content: q },
-                ],
-            }),
+        // Prefer the secure server proxy. The provider key remains on the server.
+        let res = await fetch('/api/ai/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify(tutorPayload)
         });
 
         if (!res.ok) {
             const errData = await res.json().catch(() => ({}));
-            const msg = errData?.error?.message || `کێشەیەک هەبوو (${res.status})`;
-            streamBubble.finish(`❌ ${msg}`);
+            const msg = (typeof errData?.error === 'string' ? errData.error : errData?.error?.message) || `کێشەیەک هەبوو (${res.status})`;
+            streamBubble.finish(`❌ ${typeof msg === 'string' ? msg : 'پەیوەندی مامۆستای AI سەرکەفتوو نەبوو. بچۆ ژوورەوە یان ڕێکخستنەکانی سێرڤەر بپشکنە.'}`);
             inp.disabled = false;
+            inp.focus();
             return;
         }
 
@@ -1898,7 +2042,7 @@ async function askAI() {
         addXP(10);
 
     } catch (err) {
-        streamBubble.finish(`❌ ${err.message || 'کێشەیەک هەبوو. دووبارە هەوڵ بدەرەوە.'}`);
+        streamBubble.finish(`❌ ${err.message || 'کێشەیەک هەبوو. دڵنیابە لە چوونەژوورەوە و ڕێکخستنەکانی AI.'}`);
     }
 
     inp.disabled = false;
@@ -2034,6 +2178,10 @@ function renderProgress(c) {
                 </div>
             </div>
         </div>
+        <div class="card" id="learningAnalyticsCard" style="margin-bottom:12px">
+            <h3 style="margin-bottom:8px">📈 شیکردنەوەی ٧ ڕۆژی ڕابردوو</h3>
+            <p style="font-size:13px;color:var(--text-secondary)">بارکردنی ئاماری کەسی...</p>
+        </div>
         <div class="card">
             <h3 style="margin-bottom:12px">مێژووی چالاکی</h3>
             ${history.length === 0
@@ -2045,6 +2193,24 @@ function renderProgress(c) {
                     </div>`).join('')
             }
         </div>`;
+
+    const analyticsBox = document.getElementById('learningAnalyticsCard');
+    if (analyticsBox) fetch('/api/learning/analytics', { credentials: 'same-origin' })
+        .then(async response => { if (!response.ok) throw new Error('signin'); return response.json(); })
+        .then(data => {
+            const days = Array.isArray(data.days) ? data.days : [];
+            const totalXP = days.reduce((sum, day) => sum + (Number(day.xp) || 0), 0);
+            const activeDays = days.filter(day => Number(day.activities) > 0).length;
+            analyticsBox.innerHTML = `<h3 style="margin-bottom:12px">📈 شیکردنەوەی ٧ ڕۆژی ڕابردوو</h3>
+                <div class="grid-2" style="gap:10px">
+                    <div style="background:var(--bg);padding:12px;border-radius:var(--radius-sm);text-align:center"><strong style="font-size:20px">${totalXP}</strong><p style="font-size:12px;color:var(--text-secondary)">XP لە ٧ ڕۆژدا</p></div>
+                    <div style="background:var(--bg);padding:12px;border-radius:var(--radius-sm);text-align:center"><strong style="font-size:20px">${activeDays}/7</strong><p style="font-size:12px;color:var(--text-secondary)">ڕۆژی چالاک</p></div>
+                    <div style="background:var(--bg);padding:12px;border-radius:var(--radius-sm);text-align:center"><strong style="font-size:20px">${Number(data.reviewedThisWeek) || 0}</strong><p style="font-size:12px;color:var(--text-secondary)">پێداچوونەوە</p></div>
+                    <div style="background:var(--bg);padding:12px;border-radius:var(--radius-sm);text-align:center"><strong style="font-size:20px">${Number(data.dueReviews) || 0}</strong><p style="font-size:12px;color:var(--text-secondary)">وشەی چاوەڕێ</p></div>
+                </div>
+                <div style="display:flex;align-items:flex-end;gap:6px;height:64px;margin-top:14px">${days.map(day => { const height = totalXP ? Math.max(5, Math.round((Number(day.xp) || 0) / Math.max(...days.map(d => Number(d.xp) || 0), 1) * 48)) : 5; return `<div title="${escHtml(day.day || '')}: ${Number(day.xp) || 0} XP" style="flex:1;height:${height}px;border-radius:5px 5px 2px 2px;background:var(--primary);opacity:${Number(day.xp) ? 1 : .22}"></div>`; }).join('')}</div>`;
+        })
+        .catch(() => { if (analyticsBox) analyticsBox.innerHTML = '<h3 style="margin-bottom:8px">📈 شیکردنەوەی ٧ ڕۆژی ڕابردوو</h3><p style="font-size:13px;color:var(--text-secondary)">بۆ بینینی ئاماری کەسی، بچۆ ژوورەوە بە هەژمارەکەت.</p>'; });
 }
 
 // ===== PAGE: ACHIEVEMENTS =====
@@ -2093,45 +2259,57 @@ function renderAchievements(c) {
 
 // ===== PAGE: COMMUNITY =====
 function renderCommunity(c) {
-    const users = [
-        { n:'دلشاد', l:15, xp:6200, streak:14, a:'🧔', isMe:false },
-        { n:'سارا',   l:12, xp:4500, streak:9,  a:'👩', isMe:false },
-        { n:'ئارام',  l:8,  xp:2800, streak:5,  a:'👨', isMe:false },
-        { n:'تۆ',    l:state.user.level, xp:state.user.xp, streak:state.user.streak, a:'👤', isMe:true },
-    ].sort((a, b) => b.xp - a.xp);
+    // Real leaderboard data is private to signed-in sessions; never fabricate other learners.
+    if (cloudSync.user && cloudSync.leaderboard === null && !cloudSync.leaderboardLoading) {
+        cloudSync.leaderboardLoading = true;
+        cloudApi('/api/leaderboard').then(data => {
+            cloudSync.leaderboard = Array.isArray(data.users) ? data.users : [];
+            cloudSync.myRank = data.myRank;
+        }).catch(() => {
+            cloudSync.leaderboard = [];
+            cloudSync.leaderboardError = true;
+        }).finally(() => {
+            cloudSync.leaderboardLoading = false;
+            if (state.currentPage === 'community') renderCommunity(document.getElementById('mainContent'));
+        });
+    }
 
-    const medals    = ['🥇','🥈','🥉'];
-    const podiumBg  = ['rgba(245,158,11,.12)','rgba(148,163,184,.12)','rgba(205,127,50,.12)'];
-    const podiumBdr = ['#F59E0B','#94A3B8','#CD7F32'];
+    const signedIn = !!cloudSync.user;
+    const rankedUsers = signedIn && Array.isArray(cloudSync.leaderboard) ? cloudSync.leaderboard : [];
+    const users = signedIn && rankedUsers.length
+        ? rankedUsers.map(u => ({ n: u.name || 'فێرخواز', l: Number(u.level) || 1, xp: Number(u.xp) || 0,
+            streak: Number(u.streak) || 0, a: '👤', isMe: !!u.is_me, rank: Number(u.rank) || 0 }))
+        : [{ n: state.user.name || 'تۆ', l: state.user.level, xp: state.user.xp,
+            streak: state.user.streak, a: '👤', isMe: true, rank: 1 }];
 
-    const myRank = users.findIndex(u => u.isMe) + 1;
+    const medals = ['🥇', '🥈', '🥉'];
+    const podiumBg = ['rgba(245,158,11,.12)', 'rgba(148,163,184,.12)', 'rgba(205,127,50,.12)'];
+    const podiumBdr = ['#F59E0B', '#94A3B8', '#CD7F32'];
+    const myRank = signedIn ? (cloudSync.myRank || users.findIndex(u => u.isMe) + 1) : null;
+    const loading = signedIn && cloudSync.leaderboardLoading;
 
     c.innerHTML = `
         <h2 style="margin-bottom:4px">👥 کۆمەڵگا</h2>
-        <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px">جێگەی تۆ: #${myRank} لە هەفتەی ئەمەدا</p>
-
+        <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px">${signedIn && myRank ? `جێگەی تۆ: #${myRank}` : 'لەگەڵ فێرخوازانی تر پێش بکەوە'}</p>
         <div class="card" style="padding:0;overflow:hidden">
             <div style="padding:16px 20px 12px;border-bottom:1px solid var(--border-light)">
-                <h3 style="font-size:15px">🏆 ڕیزبەندی هەفتانە</h3>
+                <h3 style="font-size:15px">🏆 ڕیزبەندی گشتی</h3>
+                <p style="font-size:11px;color:var(--text-muted);margin-top:4px">بەپێی XP ـی هەژمارە تۆمارکراوەکان</p>
             </div>
-            ${users.map((u, i) => `
-                <div class="leaderboard-row ${u.isMe ? 'leaderboard-me' : ''}"
-                     style="${i < 3 ? `background:${podiumBg[i]};` : ''}${u.isMe ? 'background:var(--primary-alpha);' : ''}">
-                    <div class="lb-rank" style="${i < 3 ? `color:${podiumBdr[i]};font-size:22px` : 'color:var(--text-muted);font-size:14px;font-weight:700'}">
-                        ${medals[i] || `#${i + 1}`}
-                    </div>
+            ${loading ? `<div style="padding:24px;text-align:center;color:var(--text-secondary)">⏳ ڕیزبەندی بار دەکرێت...</div>` :
+              !signedIn ? `<div style="padding:24px;text-align:center"><p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px">بچۆ ژوورەوە بۆ بینینی ڕیزبەندی ڕاستەقینە و بەراوردکردنی پێشکەوتنت.</p><button class="btn btn-primary btn-sm" onclick="navigateTo('settings')">چوونەژوورەوە / دروستکردنی هەژمار</button></div>` :
+              cloudSync.leaderboardError ? `<div style="padding:24px;text-align:center;color:var(--text-secondary)">نەتوانرا ڕیزبەندی باربکرێت. <button class="btn btn-sm" onclick="cloudSync.leaderboard=null;cloudSync.leaderboardError=false;renderCommunity(document.getElementById('mainContent'))">دووبارە هەوڵ بدە</button></div>` :
+              users.map((u, i) => {
+                const rank = u.rank || i + 1;
+                const podium = rank <= 3;
+                return `<div class="leaderboard-row ${u.isMe ? 'leaderboard-me' : ''}" style="${podium ? `background:${podiumBg[rank - 1]};` : ''}${u.isMe ? 'background:var(--primary-alpha);' : ''}">
+                    <div class="lb-rank" style="${podium ? `color:${podiumBdr[rank - 1]};font-size:22px` : 'color:var(--text-muted);font-size:14px;font-weight:700'}">${medals[rank - 1] || `#${rank}`}</div>
                     <div class="lb-avatar">${u.a}</div>
-                    <div class="lb-info">
-                        <strong style="${u.isMe ? 'color:var(--primary)' : ''}">${escHtml(u.n)}</strong>
-                        <p>ئاست ${u.l} · 🔥 ${u.streak} ڕۆژ</p>
-                    </div>
-                    <div class="lb-xp">
-                        <strong>${u.xp.toLocaleString()}</strong>
-                        <p>XP</p>
-                    </div>
-                </div>`).join('')}
+                    <div class="lb-info"><strong style="${u.isMe ? 'color:var(--primary)' : ''}">${escHtml(u.n)}</strong><p>ئاست ${u.l} · 🔥 ${u.streak} ڕۆژ</p></div>
+                    <div class="lb-xp"><strong>${u.xp.toLocaleString()}</strong><p>XP</p></div>
+                </div>`;
+              }).join('')}
         </div>
-
         <div class="card" style="margin-top:12px;text-align:center;padding:20px">
             <p style="font-size:32px;margin-bottom:6px">🌍</p>
             <p style="font-weight:600;margin-bottom:4px">دەستەی زمانی تۆ</p>
@@ -2151,7 +2329,8 @@ function renderPackages(c) {
 
     let html = `
         <h2 style="margin-bottom:4px">💳 پاکێجەکان</h2>
-        <p style="color:var(--text-secondary);font-size:13px;margin-bottom:8px">کلیلی مەجازت هەیە؟ یان بە پارەدان چالاک بکە</p>
+        <p style="color:var(--text-secondary);font-size:13px;margin-bottom:8px">پلانی خۆت هەڵبژێرە؛ مافەکان لەلایەن سێرڤەرەوە پشتڕاست دەکرێنەوە</p>
+        <div id="subscriptionStatusPanel" class="card" style="margin:12px 0 16px;padding:14px;border:1px solid var(--border)"><strong>💎 دۆخی پلانی تۆ</strong><p style="margin-top:6px;color:var(--text-secondary);font-size:13px">دۆخ بار دەکرێت...</p></div>
         <button class="btn btn-block" style="background:linear-gradient(135deg,#4F46E5,#6366F1);color:#fff;margin-bottom:18px;font-weight:700;border-radius:var(--radius-sm);padding:13px;font-size:14px;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(79,70,229,.35)"
                 onclick="typeof showActivateModal==='function'?showActivateModal():toast('بارکردن...')">
             🔑 چالاکردنی پاکێج بە کلیلی مەجاز
@@ -2180,6 +2359,23 @@ function renderPackages(c) {
             </div>`;
     }
     c.innerHTML = html;
+    refreshSubscriptionStatus();
+}
+
+async function refreshSubscriptionStatus() {
+    const panel = document.getElementById('subscriptionStatusPanel');
+    if (!panel) return;
+    try {
+        const status = await cloudApi('/api/subscription/status');
+        const names = { free: 'Limited / Free', plus: 'Plus', student: 'Student Premium', premium: 'Premium', family: 'Family Premium', business: 'Business' };
+        const planName = names[status.package] || status.package || 'Limited / Free';
+        const premium = !!status.premium;
+        const expiry = (status.packages || []).find(p => p.package === status.package)?.expiresAt;
+        const expiryText = expiry ? `کۆتایی: ${new Date(expiry).toLocaleDateString()}` : (premium ? 'بە کلیل چالاککراوە' : 'بەخۆڕایی');
+        panel.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><strong style="color:${premium ? '#B89B52' : 'var(--text-primary)'}">${premium ? '👑' : '🌱'} ${escHtml(planName)}</strong><div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${escHtml(expiryText)}</div></div><span style="font-size:12px;padding:5px 9px;border-radius:99px;background:${premium ? 'rgba(184,155,82,.14)' : 'var(--surface-hover)'}">${premium ? 'Premium Access' : 'Limited Access'}</span></div><div style="margin-top:12px;font-size:13px">🤖 بەکارهێنانی AI ئەمڕۆ: <strong>${Number(status.usedToday) || 0} / ${Number(status.aiDailyLimit) || 5}</strong><div style="height:6px;border-radius:99px;background:var(--surface-hover);overflow:hidden;margin-top:7px"><div style="height:100%;width:${Math.min(100,Math.max(0,((Number(status.usedToday)||0)/(Number(status.aiDailyLimit)||5))*100))}%;background:${premium ? '#B89B52' : 'var(--primary)'};border-radius:99px"></div></div></div>`;
+    } catch (error) {
+        panel.innerHTML = `<strong>💎 دۆخی پلانی تۆ</strong><p style="margin-top:6px;color:var(--text-secondary);font-size:13px">${escHtml(error.message || 'بچۆ ژوورەوە بۆ بینینی دۆخی پلانی خۆت.')}</p>`;
+    }
 }
 
 function buyPackage(key) {
@@ -2276,26 +2472,35 @@ function getPaymentInfo(method) {
     return map[method] || 'بەردەست نییە';
 }
 
-function submitPayment() {
-    const nameEl  = document.getElementById('buyerName');
+async function submitPayment() {
+    const nameEl = document.getElementById('buyerName');
     const emailEl = document.getElementById('buyerEmail');
     if (!nameEl?.value.trim() || !emailEl?.value.trim()) {
         toast('❌ تکایە ناو و ئیمەیڵ بنووسە');
         return;
     }
-    const payments = lsGetJSON('zm_payments', []);
-    payments.push({
-        id:      Date.now(),
-        package: state.selectedPackage,
-        method:  state.selectedPayment,
-        name:    nameEl.value.trim(),
-        email:   emailEl.value.trim(),
-        status:  'pending',
-        date:    new Date().toISOString(),
-    });
-    lsSet('zm_payments', JSON.stringify(payments));
-    document.querySelector('.modal.show')?.remove();
-    toast('✅ داواکاری پارەدانت تۆمار کرا!');
+    if (!state.selectedPackage || !state.selectedPayment) {
+        toast('❌ تکایە پاکێج و شێوازی پارەدان هەڵبژێرە');
+        return;
+    }
+    try {
+        const response = await fetch('/api/payments', {
+            method: 'POST', credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                package: state.selectedPackage,
+                method: state.selectedPayment,
+                name: nameEl.value.trim(),
+                email: emailEl.value.trim()
+            })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.error || 'نەتوانرا داواکاری تۆمار بکرێت');
+        document.querySelector('.modal.show')?.remove();
+        toast('✅ داواکاری پارەدانت بە سەرکەوتوویی نێردرا!');
+    } catch (e) {
+        toast('❌ ' + (e.message || 'هەڵەی پەیوەندی بە سێرڤەر'));
+    }
 }
 
 // ===== PAGE: SPONSOR =====
@@ -2473,7 +2678,7 @@ function selectMP(btn, word, side) {
             b.disabled = true;
         });
         d.matched++;
-        state.user.xp += 15;
+        addXP(15);
         playBeep(800, 0.1);
         const sc = document.getElementById('mpMatched');
         if (sc) sc.textContent = d.matched;
@@ -2983,7 +3188,7 @@ function renderCloudAccountSection() {
             <input id="cloudName" class="input" placeholder="ناوی تۆ" style="margin-bottom:8px">
         ` : ''}
         <input id="cloudEmail" type="email" class="input" placeholder="ئیمەیل" style="margin-bottom:8px">
-        <input id="cloudPassword" type="password" class="input" placeholder="پاسورد" style="margin-bottom:8px">
+        <input id="cloudPassword" type="password" class="input" placeholder="پاسورد (لانیکەم ٨ پیت)" style="margin-bottom:8px">
         <button class="btn btn-primary btn-sm" onclick="${cloudSync.mode==='register' ? 'cloudRegister()' : 'cloudLogin()'}">
             ${cloudSync.mode==='register' ? '✅ دروستکردنی هەژمار' : '🔓 چوونەژوورەوە'}
         </button>

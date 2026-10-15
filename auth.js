@@ -1,49 +1,12 @@
 // ============================================================
 // ZIMAN — Student Authentication & License Key Activation
-// v2 — Premium polish: validation · dashboard · debug console
-// 100% client-side simulation · No external APIs needed
+// v3 — Premium UI retained; account authentication uses the server API.
 // ============================================================
 
 'use strict';
 
-// ===== HARDCODED LICENSE KEYS (25 per package) — rotated 2025-07-13 =====
-const LICENSE_KEYS = {
-    plus: [
-        'ZIMAN-PLUS-8JLEWT2J','ZIMAN-PLUS-VS9HYCN2','ZIMAN-PLUS-U6HTT6EL','ZIMAN-PLUS-5E79FP4L','ZIMAN-PLUS-WKLJPWM4',
-        'ZIMAN-PLUS-WXYHW5P6','ZIMAN-PLUS-VQTVR4DN','ZIMAN-PLUS-FYTY2R6B','ZIMAN-PLUS-MLW5T6AS','ZIMAN-PLUS-72W2UX33',
-        'ZIMAN-PLUS-VN9P3LDM','ZIMAN-PLUS-GC2XXGGH','ZIMAN-PLUS-8KQU9W4U','ZIMAN-PLUS-7NHVJLW3','ZIMAN-PLUS-ZXKY2WFP',
-        'ZIMAN-PLUS-K7K28VV3','ZIMAN-PLUS-YVD7HPZY','ZIMAN-PLUS-QJZPL8FF','ZIMAN-PLUS-6JWQ9ESE','ZIMAN-PLUS-SYWE29GH',
-        'ZIMAN-PLUS-PB3NGZQG','ZIMAN-PLUS-2R955LYZ','ZIMAN-PLUS-RHC7K5JH','ZIMAN-PLUS-TDESTM93','ZIMAN-PLUS-MGFJZ6WP'
-    ],
-    premium: [
-        'ZIMAN-PREM-GAPYHALF','ZIMAN-PREM-V6RVMQZY','ZIMAN-PREM-RP2XSPCL','ZIMAN-PREM-66EBBGS2','ZIMAN-PREM-VYLMUEX4',
-        'ZIMAN-PREM-3FCZLKQY','ZIMAN-PREM-A7C7XS5N','ZIMAN-PREM-3R76SHXJ','ZIMAN-PREM-GRNMDVHC','ZIMAN-PREM-UQBZCWW4',
-        'ZIMAN-PREM-DRJRNANY','ZIMAN-PREM-TCZPH4JQ','ZIMAN-PREM-VTCU82HG','ZIMAN-PREM-JAXW8FY3','ZIMAN-PREM-SRRFCSE9',
-        'ZIMAN-PREM-TX4THUWL','ZIMAN-PREM-A39GYZZA','ZIMAN-PREM-ENSDX2WX','ZIMAN-PREM-VH386AU2','ZIMAN-PREM-RGPFVX2J',
-        'ZIMAN-PREM-88EP5ZQJ','ZIMAN-PREM-AKU8LXXB','ZIMAN-PREM-AN2K3Y7N','ZIMAN-PREM-TFSGDGYY','ZIMAN-PREM-3QGL6M8M'
-    ],
-    family: [
-        'ZIMAN-FAM-ZK6WUVZQGC','ZIMAN-FAM-YRZ52H6RMW','ZIMAN-FAM-HZVSEU4RRF','ZIMAN-FAM-NXF8A76J6Q','ZIMAN-FAM-9TBGS5EUMC',
-        'ZIMAN-FAM-JHU979K5LU','ZIMAN-FAM-VJN8RE6DRN','ZIMAN-FAM-BA5LC8RY84','ZIMAN-FAM-HLVNNXNWTV','ZIMAN-FAM-P36C52DPFU',
-        'ZIMAN-FAM-4REFG8GBJ3','ZIMAN-FAM-SQUU8AQZM2','ZIMAN-FAM-FFD3G74BHA','ZIMAN-FAM-39Y677BG4Y','ZIMAN-FAM-JBKDACVNMK',
-        'ZIMAN-FAM-Q74C62VK8Y','ZIMAN-FAM-Z6KTS39949','ZIMAN-FAM-WV2QW24EAW','ZIMAN-FAM-ULTNWRT8U7','ZIMAN-FAM-JBAFD35VS5',
-        'ZIMAN-FAM-G863MDRVQS','ZIMAN-FAM-NCQG53F4GM','ZIMAN-FAM-CNRB68LWGL','ZIMAN-FAM-Q6TQ84FXTN','ZIMAN-FAM-Z2SUR779DU'
-    ],
-    student: [
-        'ZIMAN-STU-XER6D574CT','ZIMAN-STU-KKD86LQ268','ZIMAN-STU-AMYTNLNDMR','ZIMAN-STU-9TNXVX5J8B','ZIMAN-STU-B94GYGA6P5',
-        'ZIMAN-STU-WSJUWLW8Q8','ZIMAN-STU-RZ597J9TFQ','ZIMAN-STU-YNFTNZ2BCA','ZIMAN-STU-NHMUUD7BZJ','ZIMAN-STU-YPWUL47WS5',
-        'ZIMAN-STU-9RM2ACCRBW','ZIMAN-STU-TNURTVLBQV','ZIMAN-STU-KNE3RUTUKE','ZIMAN-STU-6G64M3QS9M','ZIMAN-STU-5V9PDQZREQ',
-        'ZIMAN-STU-43RSGE7CQQ','ZIMAN-STU-VVQEXQZX5E','ZIMAN-STU-GMWA9DT3FC','ZIMAN-STU-LNV3KUUD9F','ZIMAN-STU-TMVTU73AV8',
-        'ZIMAN-STU-BR45DZP9BH','ZIMAN-STU-X5X4AVLYZG','ZIMAN-STU-PGXAA2JK5S','ZIMAN-STU-FPWCBA65DH','ZIMAN-STU-DGERBSPDS4'
-    ],
-    business: [
-        'ZIMAN-BIZ-YWVHN2D95BT2','ZIMAN-BIZ-Y4Z4PW5HJDGJ','ZIMAN-BIZ-DKSBVM7CCRMH','ZIMAN-BIZ-4K8PEPN2TETS','ZIMAN-BIZ-7H8P3KSFVY62',
-        'ZIMAN-BIZ-JLHB7NRETCET','ZIMAN-BIZ-PZMG2SUUAGWY','ZIMAN-BIZ-Z8VF7M25N5GG','ZIMAN-BIZ-667CT8P347H8','ZIMAN-BIZ-EHXNPFFQ5DEF',
-        'ZIMAN-BIZ-JGVC8GGPT9ZR','ZIMAN-BIZ-9NAP32MHJC5W','ZIMAN-BIZ-4MZ2S8CYW2JK','ZIMAN-BIZ-EFADTJBEWKKX','ZIMAN-BIZ-PB6GN4B52LX4',
-        'ZIMAN-BIZ-4TUHAB7F6X4Z','ZIMAN-BIZ-AYSUBFV5PWVY','ZIMAN-BIZ-YKA9QQZB2N46','ZIMAN-BIZ-69246FG5HUTP','ZIMAN-BIZ-BM6TA8K6G4GR',
-        'ZIMAN-BIZ-72H35B3X5Z9F','ZIMAN-BIZ-NRM5HGDBS7QA','ZIMAN-BIZ-6PNNMXPXM5YZ','ZIMAN-BIZ-RGV3DCXMZEAB','ZIMAN-BIZ-G8ED46C6F2P3'
-    ]
-};
+// License keys are generated, hashed, and validated by the server. No usable keys ship in the browser.
+const LICENSE_KEYS = {};
 
 const PACKAGE_NAMES = {
     plus:     'Plus ($5.99/مانگ)',
@@ -71,13 +34,30 @@ function authSet(key, val) {
 }
 
 // ===== CORE DATA ACCESSORS =====
-function getUsers()    { return authGet('zm_auth_users', []); }
-function setUsers(u)   { authSet('zm_auth_users', u); }
-function getSession()  { return authGet('zm_auth_session', null); }
-function setSession(u) { authSet('zm_auth_session', u); }
+// Credentials and account sessions must never be stored in browser localStorage.
+// The authenticated identity lives in memory; the HttpOnly session cookie is server-managed.
+let _serverUser = null;
+function getUsers() { return []; } // legacy debug UI compatibility; no browser credential database
+function setUsers(_users) { /* intentionally disabled */ }
+function getSession() { return _serverUser; }
+function setSession(user) { _serverUser = user ? normalizeServerUser(user) : null; }
+function normalizeServerUser(user) {
+    if (!user) return null;
+    return {
+        ...user,
+        fullName: user.full_name || user.fullName || user.name || 'فێرخواز',
+        fatherName: user.father_name || user.fatherName || '',
+        grandfatherName: user.grandfather_name || user.grandfatherName || '',
+        studentID: user.student_id || user.studentID || String(user.id || ''),
+        id: user.id,
+        activatedPackages: Array.isArray(user.activatedPackages) ? user.activatedPackages : [],
+        createdAt: user.created_at || user.createdAt || new Date().toISOString(),
+        verified: user.verified === true
+    };
+}
 function getUsedKeys() { return authGet('zm_used_keys', []); }
-function setUsedKeys(k){ authSet('zm_used_keys', k); }
-function getDebugLog() { return authGet('zm_debug_log', []); }
+function setUsedKeys(k) { authSet('zm_used_keys', k); }
+function getDebugLog() { return []; }
 
 function addDebugEntry(e) {
     const log = getDebugLog();
@@ -213,177 +193,41 @@ function validateSignUpFields() {
 // AUTH CORE
 // ============================================================
 
-function authRegister({ fullName, fatherName, grandfatherName, mobile, email, password }) {
-    const users = getUsers();
-    const normEmail = email.toLowerCase().trim();
-    const normMobile = mobile.replace(/[\s\-]/g, '');
-
-    if (users.find(u => u.email === normEmail))
-        return { ok: false, field: 'suEmail', msg: '❌ ئەم ئیمەیڵە پێشتر تۆمارکراوە.' };
-    if (users.find(u => u.mobile === normMobile))
-        return { ok: false, field: 'suMobile', msg: '❌ ئەم ژمارەیە پێشتر تۆمارکراوە.' };
-
-    const otp       = generateOTP();
-    const studentID = generateStudentID();
-
-    const newUser = {
-        id: studentID,
-        fullName: fullName.trim(),
-        fatherName: fatherName.trim(),
-        grandfatherName: grandfatherName.trim(),
-        mobile: normMobile,
-        email: normEmail,
-        password,
-        createdAt: new Date().toISOString(),
-        verified: false,
-        pendingOTP: otp,
-        activatedPackages: []
-    };
-
-    users.push(newUser);
-    setUsers(users);
-
-    simulateSMS(normMobile, otp);
-
-    simulateEmail(
-        'z.14x@outlook.com',
-        `🆕 تۆماری فێرخوازی نوێ — ${studentID}`,
-        `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 زانیاری تۆمارکردن
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🆔 ناسنامە   : ${studentID}
-👤 ناوی خۆت : ${fullName}
-👨 باوک      : ${fatherName}
-👴 باپیر     : ${grandfatherName}
-📱 مۆبایل   : ${normMobile}
-📧 ئیمەیڵ   : ${normEmail}
-🔐 پاسوۆرد  : ${password}
-📅 بەرواری  : ${new Date().toLocaleString('en-GB')}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`
-    );
-
-    return { ok: true, otp, studentID, user: newUser };
-}
-
-function authVerifyOTP(email, otp) {
-    const users = getUsers();
-    const idx = users.findIndex(u => u.email === email.toLowerCase().trim());
-    if (idx === -1) return { ok: false, msg: '❌ ئەژمارە نەدۆزرایەوە.' };
-    if (users[idx].pendingOTP !== otp) return { ok: false, msg: '❌ کۆدی نادروست. دووبارە هەوڵ بدەرەوە.' };
-
-    users[idx].verified    = true;
-    users[idx].pendingOTP  = null;
-    setUsers(users);
-    setSession(users[idx]);
-
-    addDebugEntry({
-        type: 'verified', icon: '✅',
-        label: `ئەژمار دڵنیاکرایەوە: ${email}`,
-        body: `فێرخواز ${users[idx].fullName} (${users[idx].id}) بە سەرکەوتوویی تۆمارکرا.`
-    });
-
-    return { ok: true, user: users[idx] };
-}
-
-function authLogin(email, password) {
-    const users = getUsers();
-    const user  = users.find(u => u.email === email.toLowerCase().trim() && u.password === password);
-    if (!user) return { ok: false, msg: '❌ ئیمەیڵ یان پاسوۆرد هەڵەیە.' };
-    
-    // لێرەدا کێشەکەیە، ئەگەر ئەژمارەکە وەرگێڕدرا بوو یان نا، ئێمە دڵنیایی دەکەینەوە تا ڕاستەوخۆ داخل ببێت و لەسەر لۆدینگ نەمێنێت
-    if (!user.verified) {
-        user.verified = true;
-        const uIdx = users.findIndex(u => u.email === user.email);
-        if (uIdx !== -1) users[uIdx].verified = true;
-        setUsers(users);
-    }
-
-    // Sync session with freshest user record
-    setSession(user);
-
-    addDebugEntry({
-        type: 'login', icon: '🔑',
-        label: `چوونەژوورەوە: ${user.email}`,
-        body: `${user.fullName} (${user.id}) — ${new Date().toLocaleString('en-GB')}`
-    });
-
-    return { ok: true, user };
-}
-
-function authForgotPassword(email) {
-    const users = getUsers();
-    const idx   = users.findIndex(u => u.email === email.toLowerCase().trim());
-    if (idx === -1) return { ok: false, msg: '❌ ئەم ئیمەیڵە تۆمارنەکراوە.' };
-
-    const resetCode = generateOTP();
-    users[idx].resetCode = resetCode;
-    setUsers(users);
-
-    simulateSMS(users[idx].mobile, resetCode);
-    simulateEmail(
-        users[idx].email,
-        '🔑 ڕیسێتی پاسوۆردی Ziman',
-        `سڵاو ${users[idx].fullName}،\n\nکۆدی ڕیسێتی پاسوۆردەکەت: ${resetCode}\n\nئەم کۆدە لە ١٠ خولەکدا تەواو دەبێت.\n\n— تیمی Ziman`
-    );
-
-    return { ok: true, msg: '✅ کۆدی ڕیسێت بۆ ژمارەی مۆبایلەکەت نێردرا.' };
-}
-
-function authResetPassword(email, code, newPass) {
-    const users = getUsers();
-    const idx   = users.findIndex(u => u.email === email.toLowerCase().trim());
-    if (idx === -1) return { ok: false, msg: '❌ ئەژمارە نەدۆزرایەوە.' };
-    if (users[idx].resetCode !== code) return { ok: false, msg: '❌ کۆدی نادروست.' };
-
-    users[idx].password  = newPass;
-    users[idx].resetCode = null;
-    setUsers(users);
-
-    return { ok: true, msg: '✅ پاسوۆرد گۆڕدرا. دەتوانیت داخل بیتەوە.' };
-}
+// Authentication is performed only by the server API. Legacy simulated OTP and
+// password-reset helpers are intentionally disabled: there is no real SMS/email provider configured.
+function authRegister() { return { ok: false, msg: 'تکایە پەیوەندی بە سێرڤەر بکە.' }; }
+function authVerifyOTP() { return { ok: false, msg: 'دڵنیاکردنەوەی OTP هێشتا بە خزمەتگوزاری SMS/Email پەیوەست نەکراوە.' }; }
+function authLogin() { return { ok: false, msg: 'چوونەژوورەوەی ئۆنلاین پێویستە.' }; }
+function authForgotPassword() { return { ok: false, msg: 'ڕیسێتی پاسوۆرد تا پەیوەستکردنی خزمەتگوزاری Email/SMS ناچالاکە.' }; }
+function authResetPassword() { return { ok: false, msg: 'ڕیسێتی پاسوۆرد تا پەیوەستکردنی خزمەتگوزاری Email/SMS ناچالاکە.' }; }
 
 function authLogout() {
-    const s = getSession();
-    if (s) addDebugEntry({ type: 'logout', icon: '🚪', label: `چوونەدەرەوە: ${s.email}`, body: '' });
+    const old = getSession();
+    fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }).catch(() => {});
     setSession(null);
     refreshAuthNavUI();
     if (typeof navigateTo === 'function') navigateTo('home');
 }
 
-// ===== LICENSE KEY ACTIVATION =====
-function activateLicenseKey(key) {
-    const session = getSession();
-    if (!session) return { ok: false, msg: '❌ تکایە پێشتر داخل بوو.' };
-
-    const usedKeys = getUsedKeys();
-    if (usedKeys.includes(key)) return { ok: false, msg: '❌ ئەم کلیلە پێشتر بەکارهاتووە و کارانەکات.' };
-
-    let foundPkg = null;
-    for (const [pkg, keys] of Object.entries(LICENSE_KEYS)) {
-        if (keys.includes(key)) { foundPkg = pkg; break; }
+// ===== SERVER-SIDE LICENSE KEY ACTIVATION =====
+async function activateLicenseKey(key) {
+    if (!getSession()) return { ok: false, msg: '❌ تکایە پێشتر داخل بوو.' };
+    try {
+        const response = await fetch('/api/licenses/activate', {
+            method: 'POST', credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) return { ok: false, msg: data.error || '❌ کلیل چالاک نەکرا.' };
+        const current = getSession() || {};
+        const active = Array.isArray(current.activatedPackages) ? current.activatedPackages : [];
+        if (!active.includes(data.package)) active.push(data.package);
+        setSession({ ...current, activatedPackages: active });
+        return { ok: true, pkg: data.package, pkgName: PACKAGE_NAMES[data.package] || data.package };
+    } catch {
+        return { ok: false, msg: '❌ پەیوەندی بە سێرڤەر نەکرا.' };
     }
-    if (!foundPkg) return { ok: false, msg: '❌ کلیلی نادروست. کلیلێکی دروست لە Console کۆپی بکە.' };
-
-    usedKeys.push(key);
-    setUsedKeys(usedKeys);
-
-    const users = getUsers();
-    const idx   = users.findIndex(u => u.id === session.id);
-    if (idx !== -1) {
-        if (!users[idx].activatedPackages) users[idx].activatedPackages = [];
-        if (!users[idx].activatedPackages.includes(foundPkg))
-            users[idx].activatedPackages.push(foundPkg);
-        setUsers(users);
-        setSession(users[idx]); // persist updated session immediately
-    }
-
-    addDebugEntry({
-        type: 'key', icon: '🎫',
-        label: `کلیلی پاکێج چالاک کرا: ${key}`,
-        body: `فێرخواز: ${session.fullName} (${session.id})\nپاکێج: ${PACKAGE_NAMES[foundPkg]}\nکلیل: ${key}\nکات: ${new Date().toLocaleString('en-GB')}`
-    });
-
-    return { ok: true, pkg: foundPkg, pkgName: PACKAGE_NAMES[foundPkg] };
 }
 
 // ============================================================
@@ -685,160 +529,75 @@ function _setBtnLoading(btn, loading) {
 }
 
 // ---- Sign In ----
-function handleSignIn() {
+async function handleSignIn() {
     clearAllFieldErrors();
-    const email = document.getElementById('siEmail')?.value.trim();
-    const pass  = document.getElementById('siPass')?.value || '';
-
+    const email = document.getElementById('siEmail')?.value.trim() || '';
+    const pass = document.getElementById('siPass')?.value || '';
     let ok = true;
     if (!validateField('siEmail', [
-        { test: v => v.length > 0,     msg: '❌ ئیمەیڵ پەیوەندییە' },
+        { test: v => v.length > 0, msg: '❌ ئیمەیڵ پێویستە' },
         { test: v => EMAIL_RE.test(v), msg: '❌ فۆرماتی ئیمەیڵ نادروستە' }
     ])) ok = false;
-    if (!validateField('siPass', [
-        { test: () => pass.length > 0, msg: '❌ پاسوۆرد پەیوەندییە' }
-    ])) ok = false;
+    if (!validateField('siPass', [{ test: () => pass.length > 0, msg: '❌ پاسوۆرد پێویستە' }])) ok = false;
     if (!ok) return;
-
-    const btn = document.getElementById('signInBtn') || document.querySelector('#authOverlay .auth-btn-primary');
-    _setBtnLoading(btn, true);
-    _startProgress();
-
-    setTimeout(() => {
-        const res = authLogin(email, pass);
-        _setBtnLoading(btn, false);
-        _stopProgress();
-        if (!res.ok) { showAuthMsg(res.msg); return; }
-        closeAuthModal();
-        refreshAuthNavUI();
-        if (typeof toast === 'function') toast(`✅ بەخێربێی، ${res.user.fullName}!`);
+    const btn = document.getElementById('signInBtn');
+    _setBtnLoading(btn, true); _startProgress();
+    try {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password: pass })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.user) { showAuthMsg(data.error || '❌ نەتوانرا داخل بیت.'); return; }
+        setSession(data.user);
+        closeAuthModal(); refreshAuthNavUI();
+        if (typeof toast === 'function') toast(`✅ بەخێربێی، ${getSession().fullName}!`);
         if (typeof spawnConfetti === 'function') spawnConfetti();
-        // If user has packages, navigate to dashboard
-        if (res.user.activatedPackages?.length) {
-            setTimeout(() => { if (typeof navigateTo === 'function') navigateTo('account'); }, 600);
-        }
-    }, 950);
+    } catch (_) { showAuthMsg('❌ پەیوەندی بە سێرڤەر نەکرا. دووبارە هەوڵ بدەرەوە.'); }
+    finally { _setBtnLoading(btn, false); _stopProgress(); }
 }
 
 // ---- Sign Up ----
-function handleSignUp() {
+async function handleSignUp() {
     if (!validateSignUpFields()) return;
-
-    const fullName        = document.getElementById('suFull').value.trim();
-    const fatherName      = document.getElementById('suFather').value.trim();
-    const grandfatherName = document.getElementById('suGrand').value.trim();
-    const mobile          = document.getElementById('suMobile').value.trim();
-    const email           = document.getElementById('suEmail').value.trim();
-    const password        = document.getElementById('suPass').value;
-
+    const payload = {
+        fullName: document.getElementById('suFull').value.trim(),
+        fatherName: document.getElementById('suFather').value.trim(),
+        grandfatherName: document.getElementById('suGrand').value.trim(),
+        mobile: document.getElementById('suMobile').value.trim(),
+        email: document.getElementById('suEmail').value.trim(),
+        password: document.getElementById('suPass').value
+    };
     const btn = document.getElementById('signUpBtn') || document.querySelector('#authOverlay .auth-btn-primary');
-    _setBtnLoading(btn, true);
-    _startProgress();
-
-    setTimeout(() => {
-        const res = authRegister({ fullName, fatherName, grandfatherName, mobile, email, password });
-        _setBtnLoading(btn, false);
-        _stopProgress();
-
-        if (!res.ok) {
-            if (res.field) setFieldError(res.field, res.msg);
-            else showAuthMsg(res.msg);
-            return;
-        }
-
-        _authPendingEmail = email;
-        showAuthModal('otp');
-        if (typeof toast === 'function') toast('📲 کۆدی دڵنیاکردنەوە نێردرا!');
-    }, 1400);
+    _setBtnLoading(btn, true); _startProgress();
+    try {
+        const response = await fetch('/api/auth/register', {
+            method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.user) { showAuthMsg(data.error || '❌ تۆمارکردن سەرکەوتوو نەبوو.'); return; }
+        setSession(data.user);
+        closeAuthModal(); refreshAuthNavUI();
+        if (typeof toast === 'function') toast(`🎉 ئەژمارەکەت دروست کرا، بەخێربێی ${getSession().fullName}!`);
+        if (typeof spawnConfetti === 'function') spawnConfetti();
+        if (typeof navigateTo === 'function') navigateTo('account');
+    } catch (_) { showAuthMsg('❌ پەیوەندی بە سێرڤەر نەکرا. دووبارە هەوڵ بدەرەوە.'); }
+    finally { _setBtnLoading(btn, false); _stopProgress(); }
 }
 
 // ---- Forgot Password ----
 function handleForgot() {
-    clearAllFieldErrors();
-    if (!validateField('fpEmail', [
-        { test: v => v.length > 0,     msg: '❌ ئیمەیڵ پەیوەندییە' },
-        { test: v => EMAIL_RE.test(v), msg: '❌ فۆرماتی ئیمەیڵ نادروستە' }
-    ])) return;
-
-    const email = document.getElementById('fpEmail').value.trim();
-    const btn   = document.querySelector('#authOverlay .auth-btn-primary');
-    _setBtnLoading(btn, true);
-    _startProgress();
-
-    setTimeout(() => {
-        const res = authForgotPassword(email);
-        _setBtnLoading(btn, false);
-        _stopProgress();
-        if (!res.ok) { showAuthMsg(res.msg); return; }
-        _authPendingEmail = email;
-        showAuthMsg(res.msg, 'success');
-        setTimeout(() => { showAuthModal('reset'); }, 1800);
-    }, 1100);
+    showAuthMsg('ڕیسێتی پاسوۆرد هێشتا چالاک نییە؛ پێویستە خزمەتگوزاری Email/SMS بە سێرڤەرەوە پەیوەست بکرێت.');
 }
 
 // ---- OTP Verify ----
 function handleOTPVerify() {
-    const otp = _getOTPValue();
-    if (otp.length < 6) { showAuthMsg('❌ کۆدی تەواو داخل بکە (٦ ژمارە).'); return; }
-
-    const btn = document.querySelector('#authOverlay .auth-btn-primary');
-    _setBtnLoading(btn, true);
-    _startProgress();
-
-    // Shake animation on all cells while checking
-    document.querySelectorAll('.auth-otp-cell').forEach(c => c.classList.add('otp-checking'));
-
-    setTimeout(() => {
-        const res = authVerifyOTP(_authPendingEmail, otp);
-        _setBtnLoading(btn, false);
-        _stopProgress();
-        document.querySelectorAll('.auth-otp-cell').forEach(c => c.classList.remove('otp-checking'));
-
-        if (!res.ok) {
-            showAuthMsg(res.msg);
-            document.querySelectorAll('.auth-otp-cell').forEach(c => {
-                c.classList.add('otp-wrong');
-                setTimeout(() => c.classList.remove('otp-wrong'), 600);
-            });
-            return;
-        }
-
-        // Success — green flash
-        document.querySelectorAll('.auth-otp-cell').forEach(c => c.classList.add('otp-correct'));
-        setTimeout(() => {
-            closeAuthModal();
-            refreshAuthNavUI();
-            if (typeof toast === 'function') toast(`🎉 ئەژمارەکەت دڵنیاکرایەوە! بەخێربێی، ${res.user.fullName}!`);
-            if (typeof spawnConfetti === 'function') spawnConfetti();
-            setTimeout(() => { if (typeof navigateTo === 'function') navigateTo('account'); }, 800);
-        }, 600);
-    }, 1000);
+    showAuthMsg('دڵنیاکردنەوەی OTP هێشتا چالاک نییە؛ هیچ کۆدێک بە شێوەی ڕاستەقینە نانێردرێت.');
 }
 
-// ---- Reset Password ----
 function handleReset() {
-    clearAllFieldErrors();
-    let ok = true;
-    const pass = document.getElementById('rpPass')?.value || '';
-    if (!validateField('rpCode', [{ test: v => v.length === 6, msg: '❌ کۆدی ٦ ژمارەیی داخل بکە' }])) ok = false;
-    if (!validateField('rpPass', [
-        { test: () => pass.length >= 6, msg: '❌ پاسوۆرد دەبێت لانیکەم ٦ پیت بێت' }
-    ])) ok = false;
-    if (!ok) return;
-
-    const code  = document.getElementById('rpCode').value.trim();
-    const btn   = document.querySelector('#authOverlay .auth-btn-primary');
-    _setBtnLoading(btn, true);
-    _startProgress();
-
-    setTimeout(() => {
-        const res = authResetPassword(_authPendingEmail, code, pass);
-        _setBtnLoading(btn, false);
-        _stopProgress();
-        if (!res.ok) { showAuthMsg(res.msg); return; }
-        showAuthMsg(res.msg, 'success');
-        setTimeout(() => showAuthModal('signin'), 1800);
-    }, 900);
+    showAuthMsg('گۆڕینی پاسوۆرد لە ڕێگەی OTP تا پەیوەستکردنی خزمەتگوزاری Email/SMS ناچالاکە.');
 }
 
 // ---- OTP input helpers ----
@@ -917,7 +676,7 @@ function clearActivateMsg() {
     if (m) m.style.display = 'none';
 }
 
-function handleActivateKey() {
+async function handleActivateKey() {
     const key = document.getElementById('licKeyInput')?.value.trim().toUpperCase();
     const msg = document.getElementById('activateMsg');
 
@@ -931,8 +690,7 @@ function handleActivateKey() {
     const bar = document.getElementById('activateProgressBar');
     if (bar) bar.classList.add('auth-progress-running');
 
-    setTimeout(() => {
-        const res = activateLicenseKey(key);
+    const res = await activateLicenseKey(key);
         _setBtnLoading(btn, false);
         if (bar) { bar.classList.remove('auth-progress-running'); bar.style.width = '100%'; }
 
@@ -957,8 +715,7 @@ function handleActivateKey() {
             document.querySelector('.activate-overlay')?.remove();
             refreshAuthNavUI();
             if (typeof navigateTo === 'function') navigateTo('account');
-        }, 2000);
-    }, 1200);
+        }, 1200);
 }
 
 // ============================================================
@@ -1067,7 +824,7 @@ function buildDebugConsoleHTML() {
             <div class="dc-user-details">
                 <div class="dc-user-detail-row"><span>📧</span><code>${escHtml(u.email)}</code></div>
                 <div class="dc-user-detail-row"><span>📱</span><code>${escHtml(u.mobile)}</code></div>
-                <div class="dc-user-detail-row"><span>🔐</span><code>${escHtml(u.password)}</code></div>
+                <div class="dc-user-detail-row"><span>🔐</span><code>پاسوۆرد بۆ پاراستنا نهێنی ناهێتە پیشاندان</code></div>
                 <div class="dc-user-detail-row"><span>🎫</span>
                     ${u.activatedPackages?.length
                         ? u.activatedPackages.map(p => `<span class="dc-pkg-pill" style="background:${PACKAGE_COLORS[p]}22;color:${PACKAGE_COLORS[p]};border:1px solid ${PACKAGE_COLORS[p]}44">${PACKAGE_ICONS[p]} ${p}</span>`).join('')
@@ -1204,11 +961,11 @@ function renderAccount(c) {
                 <h2 class="dash-name">${escHtml(session.fullName)}</h2>
                 <div class="dash-student-id">
                     <span>🆔</span>
-                    <code>${escHtml(session.id)}</code>
-                    <button class="dash-copy-id" onclick="navigator.clipboard.writeText('${escHtml(session.id)}').then(()=>toast('✅ ID کۆپی کرا!'))" title="کۆپی">📋</button>
+                    <code>${escHtml(session.studentID || session.id)}</code>
+                    <button class="dash-copy-id" onclick="navigator.clipboard.writeText('${escHtml(session.studentID || session.id)}').then(()=>toast('✅ ID کۆپی کرا!'))" title="کۆپی">📋</button>
                 </div>
                 <div class="dash-status-row">
-                    <span class="dash-badge-verified">✅ دڵنیاکراو</span>
+                    <span class="dash-badge-verified">✅ تۆمارکراو</span>
                     ${hasPackage ? `<span class="dash-badge-premium">${PACKAGE_ICONS[pkgs[0]]} ${pkgs[0].charAt(0).toUpperCase()+pkgs[0].slice(1)}</span>` : ''}
                 </div>
             </div>
@@ -1396,16 +1153,15 @@ document.addEventListener('DOMContentLoaded', () => {
         menuLists[0].insertBefore(li, menuLists[0].firstChild);
     }
 
-    // 5. Restore session — sync freshest user data from users array
-    const session = getSession();
-    if (session) {
-        const users  = getUsers();
-        const latest = users.find(u => u.id === session.id);
-        if (latest) setSession(latest); // keep session in sync with any changes
-    }
+    // Remove old insecure browser-side credential/session caches from earlier builds.
+    try { localStorage.removeItem('zm_auth_users'); localStorage.removeItem('zm_auth_session'); localStorage.removeItem('zm_debug_log'); } catch (_) {}
 
-    // 6. Refresh nav UI to reflect restored session
+    // 5. Restore identity from the server-side HttpOnly session cookie.
     refreshAuthNavUI();
+    fetch('/api/auth/session', { credentials: 'same-origin' })
+        .then(r => r.ok ? r.json() : { user: null })
+        .then(data => { setSession(data.user || null); refreshAuthNavUI(); })
+        .catch(() => { setSession(null); refreshAuthNavUI(); });
 
     // 7. Keyboard shortcuts
     document.addEventListener('keydown', e => {

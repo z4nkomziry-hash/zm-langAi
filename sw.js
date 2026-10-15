@@ -4,12 +4,13 @@
 // bust stale caches automatically.
 // ============================================
 
-const CACHE_NAME  = 'ziman-v8-20260713';
+const CACHE_NAME  = 'ziman-v12-20261015';
 const CACHE_FIRST = [
     '/',
     '/index.html',
     '/style.css',
     '/app.js',
+    '/daily-learning.js',
     '/config.js',
     '/manifest.json',
 ];

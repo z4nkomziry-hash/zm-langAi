@@ -78,6 +78,7 @@
             <div class="tab" data-tab="users" onclick="switchTab('users')">👤 بەکارهێنەران</div>
             <div class="tab" data-tab="teachers" onclick="switchTab('teachers')">🎓 داواکاری مامۆستایی</div>
             <div class="tab" data-tab="payments" onclick="switchTab('payments')">💳 پارەدانەکان</div>
+            <div class="tab" data-tab="keys" onclick="switchTab('keys');loadLicenseKeys()">🔑 کلیلەکان</div>
         </div>
 
         <!-- VOCABULARY -->
@@ -162,9 +163,32 @@
             <div id="teachersList"></div>
         </div>
 
-        <!-- PAYMENTS (existing localStorage-based feature, unchanged) -->
+        <!-- PAYMENTS (server-backed) -->
         <div id="tab-payments" class="tabpane" style="display:none">
             <div id="list"></div>
+        </div>
+
+        <!-- LICENSE KEYS (server-backed; plaintext is shown only once on creation) -->
+        <div id="tab-keys" class="tabpane" style="display:none">
+            <div class="card">
+                <h2>🔑 دروستکردنی License Key</h2>
+                <p class="meta" style="margin-bottom:12px">کلیلەکان لە سێرڤەر دروست دەکرێن؛ تەنها هاشیان پاشەکەوت دەکرێت. کلیلە نوێیەکان یەک جار پیشان دەدرێن، کۆپییان بکە و لە شوێنێکی پارێزراودا بیانهێڵەوە.</p>
+                <div class="grid2">
+                    <select id="licensePackage">
+                        <option value="plus">Plus</option><option value="premium">Premium</option>
+                        <option value="family">Family</option><option value="student">Student</option><option value="business">Business</option>
+                    </select>
+                    <input class="input" id="licenseCount" type="number" min="1" max="100" value="1" aria-label="ژمارەی کلیل">
+                </div>
+                <button class="btn btn-primary" onclick="createLicenseKeys()">✨ دروستکردنی کلیل</button>
+                <p id="licenseErr" class="err"></p>
+                <textarea class="input" id="newLicenseKeys" rows="5" readonly placeholder="کلیلە نوێیەکان لێرە پیشان دەدرێن — دوای داخستنی ئەم لاپەڕەیە ناتوانرێن دووبارە ببینرێن"></textarea>
+                <button class="btn btn-ghost" onclick="copyLicenseKeys()">📋 کۆپی کلیلەکان</button>
+            </div>
+            <div class="card" style="overflow-x:auto">
+                <h2>📊 دۆخی کلیلەکان</h2>
+                <div id="licenseKeysList" class="meta">بارکردن...</div>
+            </div>
         </div>
     </div>
 
@@ -198,7 +222,7 @@
         function showPanel() {
             document.getElementById('loginBox').style.display = 'none';
             document.getElementById('panel').style.display = 'block';
-            loadVocab(); loadLessons(); loadUsers(); loadTeachers(); loadPayments();
+            loadVocab(); loadLessons(); loadUsers(); loadTeachers(); loadPayments(); loadLicenseKeys();
         }
         async function login() {
             const email = document.getElementById('emailInput').value.trim();
@@ -418,40 +442,71 @@
             loadTeachers();
         }
 
-        // ===== payments (unchanged, localStorage-based) =====
-        function loadPayments() {
-            let payments;
-            try { payments = JSON.parse(localStorage.getItem('zm_payments') || '[]'); }
-            catch(e) { payments = []; }
+        // ===== license keys (server-backed) =====
+        async function createLicenseKeys() {
+            const err = document.getElementById('licenseErr');
+            err.textContent = '';
+            document.getElementById('newLicenseKeys').value = '';
+            const packageKey = document.getElementById('licensePackage').value;
+            const count = Math.min(100, Math.max(1, Number.parseInt(document.getElementById('licenseCount').value, 10) || 1));
+            try {
+                const data = await api('/api/admin/license-keys', { method: 'POST', body: JSON.stringify({ package: packageKey, count }) });
+                document.getElementById('newLicenseKeys').value = data.keys.join('\n');
+                await loadLicenseKeys();
+            } catch (e) { err.textContent = '❌ ' + e.message; }
+        }
+        async function loadLicenseKeys() {
+            const target = document.getElementById('licenseKeysList');
+            if (!target) return;
+            try {
+                const rows = await api('/api/admin/license-keys');
+                if (!rows.length) { target.textContent = 'هێشتا هیچ کلیلی مەجازێک دروست نەکراوە.'; return; }
+                target.innerHTML = `<table><thead><tr><th>ID</th><th>پاکێج</th><th>دۆخ</th><th>دروستکراوە</th><th>بەکارهاتووە</th><th>کردار</th></tr></thead><tbody>${rows.map(k => `<tr><td>${Number(k.id)}</td><td>${escH(k.package_key)}</td><td>${k.revoked ? '⛔ ناچالاک' : k.used ? '✅ بەکارهاتوو' : '🟢 بەردەست'}</td><td>${new Date(k.created_at).toLocaleDateString('en-GB')}</td><td>${k.used_at ? new Date(k.used_at).toLocaleDateString('en-GB') : '—'}</td><td>${!k.revoked && !k.used ? `<button class=\"btn btn-reject\" onclick=\"revokeLicenseKey(${Number(k.id)})\">⛔ ناچالاککردن</button>` : '—'}</td></tr>`).join('')}</tbody></table>`;
+            } catch (e) { target.textContent = '❌ ' + e.message; }
+        }
+        async function revokeLicenseKey(id) {
+            if (!confirm('دڵنیایت دەتەوێت ئەم کلیلە ناچالاک بکەیت؟')) return;
+            try {
+                await api('/api/admin/license-keys/' + encodeURIComponent(id) + '/revoke', { method: 'PUT' });
+                await loadLicenseKeys();
+            } catch (e) { alert('❌ ' + e.message); }
+        }
+        async function copyLicenseKeys() {
+            const value = document.getElementById('newLicenseKeys').value;
+            if (!value) { alert('سەرەتا کلیل دروست بکە.'); return; }
+            try { await navigator.clipboard.writeText(value); alert('کلیلەکان کۆپی کران.'); }
+            catch { alert('نەتوانرا کۆپی بکرێت؛ کلیلەکان بە دەستی هەڵبژێرە.'); }
+        }
+
+        // ===== payments (server-backed) =====
+        async function loadPayments() {
             const list = document.getElementById('list');
-            if (payments.length === 0) {
-                list.innerHTML = '<div class="card empty"><p style="font-size:48px">📭</p><p>هیچ داواکاریەک نییە</p></div>';
-                return;
-            }
-            list.innerHTML = [...payments].reverse().map((x, ri) => {
-                const i = payments.length - 1 - ri;
-                const badge = x.status === 'approved' ? '<span class="badge badge-approved">✅ چالاک</span>'
-                    : x.status === 'rejected' ? '<span class="badge badge-rejected">❌ ڕەتکرایەوە</span>'
-                    : '<span class="badge badge-pending">⏳ چاوەڕوان</span>';
-                return `
-                    <div class="card">
-                        <div class="topbar" style="margin-bottom:8px"><strong>${escH(x.name)}</strong>${badge}</div>
+            try {
+                const payments = await api('/api/admin/payments');
+                if (!payments.length) {
+                    list.innerHTML = '<div class="card empty"><p style="font-size:48px">📭</p><p>هیچ داواکاریەک نییە</p></div>';
+                    return;
+                }
+                list.innerHTML = payments.map(x => {
+                    const badge = x.status === 'approved' ? '<span class="badge badge-approved">✅ چالاک</span>'
+                        : x.status === 'rejected' ? '<span class="badge badge-rejected">❌ ڕەتکرایەوە</span>'
+                        : '<span class="badge badge-pending">⏳ چاوەڕوان</span>';
+                    return `<div class="card"><div class="topbar" style="margin-bottom:8px"><strong>${escH(x.name)}</strong>${badge}</div>
                         <p class="meta">📦 ${escH(x.package)} &nbsp;|&nbsp; 💳 ${escH(x.method)}</p>
                         <p class="meta">📧 ${escH(x.email)}</p>
                         <p class="meta" style="margin-bottom:${x.status==='pending'?'12':'0'}px">📅 ${new Date(x.date).toLocaleDateString('en-GB')}</p>
-                        ${x.status === 'pending' ? `
-                            <button class="btn btn-approve" onclick="updatePaymentStatus(${i},'approved')">✅ چالاک کردن</button>
-                            <button class="btn btn-reject" onclick="updatePaymentStatus(${i},'rejected')">❌ ڕەتکردنەوە</button>
-                        ` : ''}
-                    </div>`;
-            }).join('');
+                        ${x.status === 'pending' ? `<button class="btn btn-approve" onclick="updatePaymentStatus(${Number(x.id)},'approved')">✅ چالاک کردن</button>
+                        <button class="btn btn-reject" onclick="updatePaymentStatus(${Number(x.id)},'rejected')">❌ ڕەتکردنەوە</button>` : ''}</div>`;
+                }).join('');
+            } catch (e) {
+                list.innerHTML = `<div class="card empty">❌ ${escH(e.message)}</div>`;
+            }
         }
-        function updatePaymentStatus(i, status) {
-            let payments;
-            try { payments = JSON.parse(localStorage.getItem('zm_payments') || '[]'); } catch(e) { return; }
-            payments[i].status = status;
-            localStorage.setItem('zm_payments', JSON.stringify(payments));
-            loadPayments();
+        async function updatePaymentStatus(id, status) {
+            try {
+                await api('/api/admin/payments/' + encodeURIComponent(id), { method: 'PUT', body: JSON.stringify({ status }) });
+                await loadPayments();
+            } catch (e) { alert('❌ ' + e.message); }
         }
 
         checkSession();

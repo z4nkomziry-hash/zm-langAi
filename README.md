@@ -148,6 +148,15 @@ pnpm install
 
 # Set up environment variables
 cp .env.example .env
+
+### Gemini AI Tutor (server-side)
+
+1. Copy `.env.example` to `.env` for local development, or configure the variables in your host's secret/environment settings.
+2. Set `GEMINI_API_KEY` to a newly created key and optionally `GEMINI_MODEL` (default: `gemini-2.5-flash`). Gemini is preferred if configured.
+3. `OPENAI_API_KEY` and `OPENAI_MODEL` are optional fallback settings.
+4. Never put provider keys in `app.js`, HTML, client storage, or a public ZIP. Rotate any key that has been shared or exposed.
+5. Restart the server after changing environment variables. The `/api/ai/chat` endpoint requires a signed-in user and enforces the server-side daily AI quota.
+
 # Edit .env and set DATABASE_URL=postgres://...
 
 # Push the database schema
