@@ -19,7 +19,7 @@ const { validateProgressPayload, validateRegistrationPayload, createRateLimiter 
 const { scheduleReview } = require('./review-scheduler');
 const { calculateXPAward } = require('./learning-policy');
 const { validateAIChatPayload, getAIModeInstruction, toGeminiContents, extractGeminiText } = require('./ai-utils');
-const { PACKAGE_LIMITS, resolveEntitlement, remainingDailyAI } = require('./subscription-policy');
+const { PACKAGE_LIMITS, PREMIUM_AI_MODES, resolveEntitlement, remainingDailyAI, canUseAIMode } = require('./subscription-policy');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -96,6 +96,16 @@ app.use((req, res, next) => {
         return res.status(500).json({ error: 'SESSION_SECRET ل ژینگەهێ ڤێرسێل دانەهاتیە دانان' });
     }
     next();
+});
+
+// Operational health endpoint: no secrets or internal errors are exposed.
+app.get('/api/health', async (_req, res) => {
+    try {
+        await pool.query('SELECT 1');
+        res.status(200).json({ ok: true, service: 'ziman', database: 'connected' });
+    } catch (_error) {
+        res.status(503).json({ ok: false, service: 'ziman', database: 'unavailable' });
+    }
 });
 
 app.use(session({
@@ -769,7 +779,7 @@ app.get('/api/subscription/status', requireUser, async (req, res) => {
         ]);
         const entitlement = resolveEntitlement(packagesResult.rows);
         const used = Number(usageResult.rows[0]?.used_count || 0);
-        res.json({ ...entitlement, usedToday: used, remainingToday: remainingDailyAI(entitlement.aiDailyLimit, used), packages: packagesResult.rows.map(row => ({ package: row.package_key, activatedAt: row.activated_at, expiresAt: row.expires_at, source: row.source })) });
+        res.json({ ...entitlement, premiumAIModes: PREMIUM_AI_MODES, usedToday: used, remainingToday: remainingDailyAI(entitlement.aiDailyLimit, used), packages: packagesResult.rows.map(row => ({ package: row.package_key, activatedAt: row.activated_at, expiresAt: row.expires_at, source: row.source })) });
     } catch (error) {
         console.error('[subscription/status]', error);
         res.status(500).json({ error: 'نەتوانرا دۆخی پلانی بەکارهێنەر باربکرێت' });
@@ -964,6 +974,16 @@ app.post('/api/ai/chat', requireUser, aiChatLimit, async (req, res) => {
     try {
         const packageResult = await pool.query('SELECT package_key, expires_at FROM user_packages WHERE user_id=$1', [req.session.userId]);
         const entitlement = resolveEntitlement(packageResult.rows);
+        const requestedMode = req.body.mode || 'tutor';
+        if (!canUseAIMode(entitlement, requestedMode)) {
+            return res.status(403).json({
+                error: 'ئەم شێوازە تایبەتە بە پلانی Premium. پلانی خۆت نوێ بکەرەوە بۆ چالاککردنی Speaking و Writing Pro.',
+                code: 'PREMIUM_REQUIRED',
+                requiredPackage: 'student',
+                premiumAIModes: PREMIUM_AI_MODES,
+                currentPackage: entitlement.package
+            });
+        }
         const usageResult = await pool.query(`INSERT INTO ai_usage_daily (user_id, usage_date, used_count) VALUES ($1, CURRENT_DATE, 1) ON CONFLICT (user_id, usage_date) DO UPDATE SET used_count=ai_usage_daily.used_count + 1, updated_at=NOW() WHERE ai_usage_daily.used_count < $2 RETURNING used_count`, [req.session.userId, entitlement.aiDailyLimit]);
         if (!usageResult.rows[0]) {
             return res.status(429).json({ error: 'سنووری ڕۆژانەی AI تەواو بووە. دەتوانیت سبەی دووبارە هەوڵ بدەیت یان پلانی Premium هەڵبژێریت.', code: 'AI_DAILY_LIMIT', plan: entitlement.package, limit: entitlement.aiDailyLimit, remainingToday: 0 });

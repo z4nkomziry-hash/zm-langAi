@@ -1,12 +1,13 @@
 'use strict';
 
+const PREMIUM_AI_MODES = Object.freeze(['speaking', 'writing']);
 const PACKAGE_LIMITS = Object.freeze({
-  free: { aiDailyLimit: 5, tier: 'limited', premium: false },
-  plus: { aiDailyLimit: 30, tier: 'plus', premium: true },
-  student: { aiDailyLimit: 40, tier: 'premium', premium: true },
-  premium: { aiDailyLimit: 100, tier: 'premium', premium: true },
-  family: { aiDailyLimit: 100, tier: 'premium', premium: true },
-  business: { aiDailyLimit: 200, tier: 'business', premium: true },
+  free: { aiDailyLimit: 5, tier: 'limited', premium: false, canUsePremiumAI: false, cloudSync: true, offlineLessons: false },
+  plus: { aiDailyLimit: 30, tier: 'plus', premium: true, canUsePremiumAI: false, cloudSync: true, offlineLessons: true },
+  student: { aiDailyLimit: 40, tier: 'premium', premium: true, canUsePremiumAI: true, cloudSync: true, offlineLessons: true },
+  premium: { aiDailyLimit: 100, tier: 'premium', premium: true, canUsePremiumAI: true, cloudSync: true, offlineLessons: true },
+  family: { aiDailyLimit: 100, tier: 'premium', premium: true, canUsePremiumAI: true, cloudSync: true, offlineLessons: true },
+  business: { aiDailyLimit: 200, tier: 'business', premium: true, canUsePremiumAI: true, cloudSync: true, offlineLessons: true },
 });
 
 function resolveEntitlement(packages = [], now = Date.now()) {
@@ -27,4 +28,9 @@ function remainingDailyAI(limit, used) {
   return Math.max(0, safeLimit - safeUsed);
 }
 
-module.exports = { PACKAGE_LIMITS, resolveEntitlement, remainingDailyAI };
+function canUseAIMode(entitlement, mode) {
+  if (!PREMIUM_AI_MODES.includes(mode)) return true;
+  return Boolean(entitlement && entitlement.canUsePremiumAI === true);
+}
+
+module.exports = { PACKAGE_LIMITS, PREMIUM_AI_MODES, resolveEntitlement, remainingDailyAI, canUseAIMode };

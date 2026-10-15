@@ -2003,7 +2003,8 @@ async function askAI() {
         if (!res.ok) {
             const errData = await res.json().catch(() => ({}));
             const msg = (typeof errData?.error === 'string' ? errData.error : errData?.error?.message) || `کێشەیەک هەبوو (${res.status})`;
-            streamBubble.finish(`❌ ${typeof msg === 'string' ? msg : 'پەیوەندی مامۆستای AI سەرکەفتوو نەبوو. بچۆ ژوورەوە یان ڕێکخستنەکانی سێرڤەر بپشکنە.'}`);
+            const prefix = errData?.code === 'PREMIUM_REQUIRED' ? '👑 Premium Access — ' : '❌ ';
+            streamBubble.finish(`${prefix}${typeof msg === 'string' ? msg : 'پەیوەندی مامۆستای AI سەرکەفتوو نەبوو. بچۆ ژوورەوە یان ڕێکخستنەکانی سێرڤەر بپشکنە.'}`);
             inp.disabled = false;
             inp.focus();
             return;
